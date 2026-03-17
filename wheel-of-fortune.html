@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOS Elevation — Wheel of Fortune</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a1628;--surface:#0f1f38;--border:#1e3a5f;
+  --accent:#3a8fd4;--accent2:#5bb8f5;--accent3:#e74c3c;
+  --green:#43a047;--text:#eef;--muted:#7a9bc0;
+  --team1:#3a8fd4;--team2:#e74c3c;--team3:#f5a623;
+  --sos-blue:#2a6db5;--sos-light:#5bb8f5;--sos-red:#d43a3a;
+  --radius:10px;
+}
+html{font-size:16px}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;overflow-x:hidden;min-height:100vh}
+
+/* LAYOUT */
+.game-container{display:grid;grid-template-columns:340px 1fr 280px;grid-template-rows:auto 1fr auto;gap:12px;padding:12px;height:100vh;max-height:100vh}
+.header{grid-column:1/-1;text-align:center;padding:6px 0}
+.header{display:flex;align-items:center;justify-content:center;gap:16px}
+.header .sos-logo{height:50px;flex-shrink:0}
+.header h1{font-size:1.6rem;letter-spacing:2px;color:#fff;text-transform:uppercase;text-shadow:0 0 20px rgba(58,143,212,.4)}
+.header .subtitle{color:var(--muted);font-size:.85rem;margin-top:2px}
+.header .title-group{text-align:center}
+
+/* WHEEL AREA */
+.wheel-area{display:flex;flex-direction:column;align-items:center;gap:10px}
+.wheel-wrapper{position:relative;width:320px;height:320px}
+.wheel-canvas{width:320px;height:320px;cursor:pointer}
+.wheel-pointer{position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:30px solid var(--sos-red);filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));z-index:2}
+.wheel-result{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:10px 18px;text-align:center;font-size:1.4rem;font-weight:700;min-width:200px;min-height:44px;display:flex;align-items:center;justify-content:center}
+.wheel-result.bankrupt{color:var(--accent3)}
+.wheel-result.lose{color:var(--accent3)}
+.wheel-result.double{color:#ab47bc}
+.wheel-result.points{color:var(--sos-light)}
+
+/* CENTER AREA */
+.center-area{display:flex;flex-direction:column;gap:10px;min-width:0}
+.puzzle-info{display:flex;justify-content:space-between;align-items:center;padding:4px 8px}
+.puzzle-number{color:var(--muted);font-size:.9rem}
+.puzzle-category{color:var(--accent2);font-size:.9rem;font-weight:600}
+
+/* PUZZLE BOARD */
+.puzzle-board{background:linear-gradient(135deg,#1a237e,#0d47a1);border:3px solid #3949ab;border-radius:var(--radius);padding:24px 20px;min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;box-shadow:inset 0 0 60px rgba(0,0,0,.3),0 4px 20px rgba(0,0,0,.4)}
+.puzzle-row{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
+.puzzle-word{display:flex;gap:5px;white-space:nowrap}
+.puzzle-tile{width:44px;height:54px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:700;text-transform:uppercase;transition:all .3s}
+.puzzle-tile.letter{background:#e8eaf6;color:#1a237e;box-shadow:0 2px 4px rgba(0,0,0,.3)}
+.puzzle-tile.letter.hidden{background:#2a3f8a;color:transparent;box-shadow:inset 0 2px 8px rgba(0,0,0,.4)}
+.puzzle-tile.space{width:22px;background:transparent}
+.puzzle-tile.punct{background:#c5cae9;color:#1a237e}
+.puzzle-tile.revealed{animation:revealPop .4s ease}
+@keyframes revealPop{0%{transform:scale(1.3) rotateY(90deg)}50%{transform:scale(1.1) rotateY(0)}100%{transform:scale(1)}}
+
+/* GUESSED LETTERS */
+.guessed-area{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px}
+.guessed-area h3{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.guessed-letters{display:flex;flex-wrap:wrap;gap:4px;min-height:26px}
+.guessed-letter{background:var(--border);color:var(--text);padding:2px 7px;border-radius:4px;font-size:.8rem;font-weight:600}
+.guessed-letter.correct{background:var(--green);color:#fff}
+.guessed-letter.wrong{background:var(--accent3);color:#fff}
+
+/* HOST CONTROLS */
+.host-controls{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px;display:flex;flex-direction:column;gap:8px;overflow-y:auto}
+.host-controls h3{font-size:.8rem;color:var(--sos-light);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);padding-bottom:4px}
+.ctrl-group{display:flex;flex-wrap:wrap;gap:5px}
+.ctrl-row{display:flex;gap:5px;width:100%}
+.btn{padding:8px 12px;border:none;border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:600;transition:all .15s;text-transform:uppercase;letter-spacing:.5px}
+.btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn-spin{background:linear-gradient(135deg,#3a8fd4,#2a6db5);color:#fff;font-size:1rem;padding:10px 20px;width:100%}
+.btn-primary{background:var(--sos-blue);color:#fff}
+.btn-success{background:var(--green);color:#fff}
+.btn-danger{background:var(--accent3);color:#fff}
+.btn-secondary{background:var(--border);color:var(--text)}
+.btn-purple{background:#7e57c2;color:#fff}
+.btn-small{padding:5px 8px;font-size:.7rem}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+.input-row{display:flex;gap:5px}
+.input-row input{flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:#0d1230;color:var(--text);font-size:.9rem;text-transform:uppercase}
+.input-row input::placeholder{color:var(--muted);text-transform:none}
+
+/* SCOREBOARD */
+.scoreboard{grid-column:3;grid-row:2/4;display:flex;flex-direction:column;gap:10px}
+.team-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;transition:all .3s;position:relative}
+.team-card.active{border-color:var(--team-color);box-shadow:0 0 20px rgba(255,255,255,.1)}
+.team-card.active::before{content:'▶ CURRENT TURN';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--team-color);color:#0a0e27;padding:2px 10px;border-radius:10px;font-size:.6rem;font-weight:700;letter-spacing:1px;white-space:nowrap}
+.team-card .team-name{font-size:1rem;font-weight:700;margin-bottom:6px}
+.team-card .team-score{font-size:2.2rem;font-weight:800;font-variant-numeric:tabular-nums}
+.team-card[data-team="0"] .team-name,.team-card[data-team="0"] .team-score{color:var(--team1)}
+.team-card[data-team="0"]{--team-color:var(--team1)}
+.team-card[data-team="1"] .team-name,.team-card[data-team="1"] .team-score{color:var(--team2)}
+.team-card[data-team="1"]{--team-color:var(--team2)}
+.team-card[data-team="2"] .team-name,.team-card[data-team="2"] .team-score{color:var(--team3)}
+.team-card[data-team="2"]{--team-color:var(--team3)}
+.score-btns{display:flex;gap:4px;justify-content:center;margin-top:8px}
+.score-btns .btn{padding:3px 8px;font-size:.7rem}
+
+/* BOTTOM HOST PANEL */
+.bottom-panel{grid-column:1/3;display:flex;gap:12px;align-items:stretch}
+.bottom-panel .host-controls{flex:1}
+
+/* CONFETTI */
+.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;overflow:hidden}
+.confetti{position:absolute;width:10px;height:10px;opacity:0}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--surface);border:2px solid var(--sos-blue);border-radius:var(--radius);padding:30px;text-align:center;max-width:500px;animation:modalPop .3s ease}
+.modal h2{color:var(--sos-light);font-size:1.8rem;margin-bottom:10px}
+.modal p{color:var(--text);font-size:1.1rem;margin-bottom:20px}
+@keyframes modalPop{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
+
+/* INSTRUCTIONS PANEL */
+.instructions{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:.7rem;color:var(--muted);line-height:1.5}
+.instructions strong{color:var(--sos-light)}
+
+/* DOUBLE INDICATOR */
+.double-indicator{background:linear-gradient(135deg,#7e57c2,#ab47bc);color:#fff;padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:700;animation:pulse 1s infinite alternate;text-align:center}
+@keyframes pulse{0%{box-shadow:0 0 5px #7e57c2}100%{box-shadow:0 0 20px #ab47bc}}
+
+/* Responsive */
+@media(max-width:1200px){
+  .game-container{grid-template-columns:280px 1fr 240px;gap:8px;padding:8px}
+  .wheel-wrapper,.wheel-canvas{width:260px;height:260px}
+  .puzzle-tile{width:38px;height:48px;font-size:1.3rem}
+}
+</style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <svg class="sos-logo" viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- S -->
+      <text x="28" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text>
+      <!-- Life preserver ring (O) -->
+      <g transform="translate(160,68)">
+        <circle cx="0" cy="0" r="48" fill="none" stroke="#fff" stroke-width="18"/>
+        <circle cx="0" cy="0" r="48" fill="none" stroke="#d43a3a" stroke-width="18" stroke-dasharray="25 50.7" stroke-dashoffset="0"/>
+        <!-- ropes -->
+        <line x1="-32" y1="-32" x2="-44" y2="-44" stroke="#ddd" stroke-width="2"/>
+        <line x1="32" y1="-32" x2="44" y2="-44" stroke="#ddd" stroke-width="2"/>
+        <line x1="-32" y1="32" x2="-44" y2="44" stroke="#ddd" stroke-width="2"/>
+        <line x1="32" y1="32" x2="44" y2="44" stroke="#ddd" stroke-width="2"/>
+      </g>
+      <!-- S -->
+      <text x="222" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text>
+      <!-- SPOTONSOLUTIONS -->
+      <text x="160" y="150" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="#5bb8f5" text-anchor="middle" letter-spacing="4">SPOTONSOLUTIONS</text>
+    </svg>
+    <div class="title-group">
+      <h1>Elevation — Wheel of Fortune</h1>
+      <div class="subtitle">Team Training Session</div>
+    </div>
+  </div>
+
+  <!-- LEFT: WHEEL -->
+  <div class="wheel-area">
+    <div class="wheel-wrapper">
+      <div class="wheel-pointer"></div>
+      <canvas id="wheelCanvas" class="wheel-canvas" width="640" height="640"></canvas>
+    </div>
+    <div class="wheel-result" id="wheelResult">Spin the wheel!</div>
+    <div id="doubleIndicator" style="display:none" class="double-indicator">DOUBLE POINTS ACTIVE</div>
+    <button class="btn btn-spin" id="btnSpin" onclick="spinWheel()">🎡 Spin the Wheel</button>
+    <div class="instructions">
+      <strong>Quick Guide:</strong> Spin → Guess consonant or buy vowel → Solve when ready. Host controls below.
+    </div>
+  </div>
+
+  <!-- CENTER: PUZZLE + CONTROLS -->
+  <div class="center-area">
+    <div class="puzzle-info">
+      <span class="puzzle-number" id="puzzleNumber">Puzzle 1 of --</span>
+      <span class="puzzle-category" id="puzzleCategory">PHRASE</span>
+    </div>
+    <div class="puzzle-board" id="puzzleBoard"></div>
+    <div class="guessed-area">
+      <h3>Guessed Letters</h3>
+      <div class="guessed-letters" id="guessedLetters"></div>
+    </div>
+
+    <!-- HOST CONTROLS -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <div class="host-controls" style="flex:1;min-width:260px">
+        <h3>Letter Guessing</h3>
+        <div class="input-row">
+          <input type="text" id="consonantInput" maxlength="1" placeholder="Consonant...">
+          <button class="btn btn-primary" onclick="guessConsonant()">Guess Consonant</button>
+        </div>
+        <div class="input-row">
+          <input type="text" id="vowelInput" maxlength="1" placeholder="Vowel...">
+          <button class="btn btn-purple" onclick="buyVowel()">Buy Vowel (250)</button>
+        </div>
+        <div class="input-row">
+          <input type="text" id="solveInput" placeholder="Solve attempt...">
+          <button class="btn btn-success" onclick="solvePuzzle()">Solve</button>
+        </div>
+        <div class="ctrl-group">
+          <button class="btn btn-secondary" onclick="revealLetter()">Reveal Letter</button>
+          <button class="btn btn-secondary" onclick="revealPuzzle()">Reveal Puzzle</button>
+        </div>
+      </div>
+      <div class="host-controls" style="flex:1;min-width:220px">
+        <h3>Game Controls</h3>
+        <div class="ctrl-group">
+          <button class="btn btn-primary" onclick="nextTeam()">Next Team ▶</button>
+          <button class="btn btn-secondary" onclick="setTeamPrompt()">Set Active Team</button>
+        </div>
+        <div class="ctrl-group">
+          <button class="btn btn-success" onclick="nextPuzzle()">Next Puzzle ▶</button>
+          <button class="btn btn-secondary" onclick="prevPuzzle()">◀ Prev Puzzle</button>
+        </div>
+        <div class="ctrl-group">
+          <button class="btn btn-secondary" onclick="resetCurrentPuzzle()">Reset Puzzle</button>
+          <button class="btn btn-danger btn-small" onclick="resetScores()">Reset Scores</button>
+          <button class="btn btn-danger btn-small" onclick="newGame()">New Game</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: SCOREBOARD -->
+  <div class="scoreboard">
+    <div class="team-card active" data-team="0" id="teamCard0">
+      <div class="team-name">Team 1</div>
+      <div class="team-score" id="score0">0</div>
+      <div class="score-btns">
+        <button class="btn btn-success btn-small" onclick="adjustScore(0,100)">+100</button>
+        <button class="btn btn-danger btn-small" onclick="adjustScore(0,-100)">-100</button>
+        <button class="btn btn-secondary btn-small" onclick="manualScore(0)">Set</button>
+      </div>
+    </div>
+    <div class="team-card" data-team="1" id="teamCard1">
+      <div class="team-name">Team 2</div>
+      <div class="team-score" id="score1">0</div>
+      <div class="score-btns">
+        <button class="btn btn-success btn-small" onclick="adjustScore(1,100)">+100</button>
+        <button class="btn btn-danger btn-small" onclick="adjustScore(1,-100)">-100</button>
+        <button class="btn btn-secondary btn-small" onclick="manualScore(1)">Set</button>
+      </div>
+    </div>
+    <div class="team-card" data-team="2" id="teamCard2">
+      <div class="team-name">Team 3</div>
+      <div class="team-score" id="score2">0</div>
+      <div class="score-btns">
+        <button class="btn btn-success btn-small" onclick="adjustScore(2,100)">+100</button>
+        <button class="btn btn-danger btn-small" onclick="adjustScore(2,-100)">-100</button>
+        <button class="btn btn-secondary btn-small" onclick="manualScore(2)">Set</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFETTI -->
+<div class="confetti-container" id="confettiContainer"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <h2 id="modalTitle"></h2>
+    <p id="modalText"></p>
+    <button class="btn btn-primary" onclick="closeModal()">OK</button>
+  </div>
+</div>
+
+<script>
+// =========================================
+// GAME STATE
+// =========================================
+const PUZZLES = [
+  "COST PER LEAD",
+  "LOCAL SERVICE ADS",
+  "WHO MOVED MY CHEESE",
+  "RETURN ON AD SPEND",
+  "WE BELIEVE IN BIG THINGS",
+  "SEARCH ENGINE OPTIMIZATION",
+  "MARKETING FUNNEL",
+  "PERFORMANCE MAX ADS",
+  "COST PER THOUSAND",
+  "GOOGLE BUSINESS PROFILE",
+  "CALL TO ACTION",
+  "RESPONSIVE SITE",
+  "MONTHLY REPORT CALLS",
+  "ARTIFICIAL INTELLIGENCE",
+  "THIRD PARTY ADMINISTRATORS",
+  "MAX CONVERSIONS",
+  "RESPONDING TO REVIEWS",
+  "GOOGLE PREMIER PARTNER",
+  "RESPONSIVE WEBSITES",
+  "CAN EVERYONE SEE MY SCREEN",
+  "SERVICE PAGES",
+  "MAP PACK",
+  "META ADS",
+  "RESETTING EXPECTATIONS",
+  "BOTTOM OF THE FUNNEL",
+  "KEYWORD RESEARCH",
+  "NEGATIVE KEYWORDS",
+  "WASTED SPEND",
+  "SEND A BRAG",
+  "QUALITY SCORE",
+  "IMPRESSION SCORE",
+  "LANDING PAGES",
+  "POSITIVE FOCUS",
+  "CLIENT GOALS",
+  "BROAD MATCH",
+  "CUSTOMER LIFETIME VALUE",
+  "DUCT CLEANING",
+  "CONTENTS CLEANING",
+  "UPDATING HUBSPOT",
+  "LOCAL SEO"
+];
+
+const VOWELS = new Set(['A','E','I','O','U']);
+const CONSONANTS = new Set('BCDFGHJKLMNPQRSTVWXYZ'.split(''));
+
+const WEDGES = [
+  {value:100,label:'100',color:'#e53935'},
+  {value:200,label:'200',color:'#1e88e5'},
+  {value:300,label:'300',color:'#43a047'},
+  {value:400,label:'400',color:'#f9a825'},
+  {value:500,label:'500',color:'#8e24aa'},
+  {value:600,label:'600',color:'#00897b'},
+  {value:700,label:'700',color:'#e65100'},
+  {value:800,label:'800',color:'#3949ab'},
+  {value:-1,label:'LOSE\nTURN',color:'#212121'},
+  {value:-2,label:'BANK-\nRUPT',color:'#b71c1c'},
+  {value:-3,label:'DOUBLE\nPOINTS',color:'#6a1b9a'},
+  {value:500,label:'500',color:'#00695c'}
+];
+
+let puzzleOrder = [];
+let scores = [0, 0, 0];
+let currentTeam = 0;
+let currentPuzzleIndex = 0;
+let guessedLetters = new Set();
+let revealedLetters = new Set();
+let currentWheelValue = 0;
+let isSpinning = false;
+let puzzleSolved = false;
+let doubleActive = false;
+let mustGuessAfterDouble = false;
+let wheelAngle = 0;
+let solvedPuzzles = new Set();
+
+// =========================================
+// WHEEL DRAWING
+// =========================================
+const canvas = document.getElementById('wheelCanvas');
+const ctx = canvas.getContext('2d');
+const CX = 320, CY = 320, R = 300;
+
+function drawWheel(angle) {
+  ctx.clearRect(0, 0, 640, 640);
+  const n = WEDGES.length;
+  const arc = (2 * Math.PI) / n;
+
+  ctx.save();
+  ctx.translate(CX, CY);
+  ctx.rotate(angle);
+
+  for (let i = 0; i < n; i++) {
+    const a0 = i * arc;
+    const a1 = a0 + arc;
+    // wedge
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.arc(0, 0, R, a0, a1);
+    ctx.closePath();
+    ctx.fillStyle = WEDGES[i].color;
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // text
+    ctx.save();
+    ctx.rotate(a0 + arc / 2);
+    ctx.translate(R * 0.65, 0);
+    ctx.rotate(Math.PI / 2);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 18px Segoe UI, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const lines = WEDGES[i].label.split('\n');
+    lines.forEach((line, li) => {
+      ctx.fillText(line, 0, (li - (lines.length - 1) / 2) * 20);
+    });
+    ctx.restore();
+  }
+
+  // center circle
+  ctx.beginPath();
+  ctx.arc(0, 0, 40, 0, 2 * Math.PI);
+  ctx.fillStyle = '#1a1a2e';
+  ctx.fill();
+  ctx.strokeStyle = var_accent();
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.fillStyle = '#5bb8f5';
+  ctx.font = 'bold 14px Segoe UI, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('SPIN', 0, 0);
+
+  ctx.restore();
+}
+
+function var_accent() { return '#3a8fd4'; }
+
+function getWedgeAtPointer(angle) {
+  const n = WEDGES.length;
+  const arc = (2 * Math.PI) / n;
+  // pointer is at top (angle -PI/2 from right)
+  const pointerAngle = -Math.PI / 2;
+  let normalized = (pointerAngle - angle) % (2 * Math.PI);
+  if (normalized < 0) normalized += 2 * Math.PI;
+  const index = Math.floor(normalized / arc) % n;
+  return index;
+}
+
+// =========================================
+// SPIN
+// =========================================
+function spinWheel() {
+  if (isSpinning || puzzleSolved) return;
+  if (mustGuessAfterDouble) return showToast('You must guess a consonant first!', 'warn');
+  isSpinning = true;
+  document.getElementById('btnSpin').disabled = true;
+
+  const spinAmount = Math.PI * 2 * (5 + Math.random() * 5);
+  const duration = 4000 + Math.random() * 1500;
+  const startAngle = wheelAngle;
+  const targetAngle = startAngle + spinAmount;
+  const startTime = performance.now();
+
+  // tick sound via oscillator
+  let lastTick = 0;
+
+  function animate(time) {
+    const elapsed = time - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    // easeOutCubic
+    const ease = 1 - Math.pow(1 - progress, 3);
+    wheelAngle = startAngle + spinAmount * ease;
+    drawWheel(wheelAngle);
+
+    // tick
+    const wedgeIndex = getWedgeAtPointer(wheelAngle);
+    if (wedgeIndex !== lastTick) {
+      lastTick = wedgeIndex;
+      playTick();
+    }
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      isSpinning = false;
+      document.getElementById('btnSpin').disabled = false;
+      const idx = getWedgeAtPointer(wheelAngle);
+      handleWheelResult(WEDGES[idx]);
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+function handleWheelResult(wedge) {
+  const el = document.getElementById('wheelResult');
+  el.className = 'wheel-result';
+
+  if (wedge.value === -1) {
+    el.textContent = 'LOSE TURN!';
+    el.classList.add('lose');
+    currentWheelValue = 0;
+    doubleActive = false;
+    mustGuessAfterDouble = false;
+    document.getElementById('doubleIndicator').style.display = 'none';
+    showToast('Lose Turn! Advancing to next team...', 'warn');
+    autoAdvanceTeam();
+  } else if (wedge.value === -2) {
+    el.textContent = 'BANKRUPT!';
+    el.classList.add('bankrupt');
+    scores[currentTeam] = 0;
+    updateScoreboard();
+    currentWheelValue = 0;
+    doubleActive = false;
+    mustGuessAfterDouble = false;
+    document.getElementById('doubleIndicator').style.display = 'none';
+    showToast('Bankrupt! Score reset to 0. Advancing to next team...', 'warn');
+    autoAdvanceTeam();
+  } else if (wedge.value === -3) {
+    el.textContent = 'DOUBLE POINTS!';
+    el.classList.add('double');
+    doubleActive = true;
+    mustGuessAfterDouble = false;
+    document.getElementById('doubleIndicator').style.display = 'block';
+    currentWheelValue = 0;
+    showToast('Double Points active! Spin again — next correct consonant earns double.', 'info');
+  } else {
+    el.textContent = '$' + wedge.value;
+    el.classList.add('points');
+    currentWheelValue = wedge.value;
+    if (doubleActive) {
+      mustGuessAfterDouble = true;
+      showToast(`$${wedge.value} with DOUBLE active! Now guess a consonant.`, 'info');
+    }
+  }
+}
+
+// =========================================
+// PUZZLE BOARD
+// =========================================
+function getCurrentPuzzle() {
+  return PUZZLES[puzzleOrder[currentPuzzleIndex]];
+}
+
+function loadPuzzle(index) {
+  currentPuzzleIndex = index;
+  guessedLetters = new Set();
+  revealedLetters = new Set();
+  puzzleSolved = false;
+  currentWheelValue = 0;
+  doubleActive = false;
+  mustGuessAfterDouble = false;
+  document.getElementById('doubleIndicator').style.display = 'none';
+  document.getElementById('wheelResult').textContent = 'Spin the wheel!';
+  document.getElementById('wheelResult').className = 'wheel-result';
+  document.getElementById('puzzleNumber').textContent = `Puzzle ${index + 1} of ${PUZZLES.length}`;
+  renderPuzzle();
+  renderGuessedLetters();
+}
+
+function renderPuzzle() {
+  const puzzle = getCurrentPuzzle();
+  const board = document.getElementById('puzzleBoard');
+  board.innerHTML = '';
+
+  const row = document.createElement('div');
+  row.className = 'puzzle-row';
+
+  const words = puzzle.split(' ');
+  words.forEach((word, wi) => {
+    const wordGroup = document.createElement('div');
+    wordGroup.className = 'puzzle-word';
+    for (let ch of word) {
+      const tile = document.createElement('div');
+      if (/[A-Z]/.test(ch)) {
+        tile.className = 'puzzle-tile letter' + (revealedLetters.has(ch) ? ' revealed' : ' hidden');
+        tile.textContent = ch;
+        tile.dataset.letter = ch;
+      } else {
+        tile.className = 'puzzle-tile punct';
+        tile.textContent = ch;
+      }
+      wordGroup.appendChild(tile);
+    }
+    row.appendChild(wordGroup);
+  });
+  board.appendChild(row);
+}
+
+function revealLettersInPuzzle(letter) {
+  const tiles = document.querySelectorAll('.puzzle-tile.letter');
+  let count = 0;
+  tiles.forEach(tile => {
+    if (tile.dataset.letter === letter && tile.classList.contains('hidden')) {
+      tile.classList.remove('hidden');
+      tile.classList.add('revealed');
+      count++;
+    }
+  });
+  return count;
+}
+
+function checkPuzzleSolved() {
+  const puzzle = getCurrentPuzzle();
+  for (let ch of puzzle) {
+    if (/[A-Z]/.test(ch) && !revealedLetters.has(ch)) return false;
+  }
+  return true;
+}
+
+// =========================================
+// GUESSING
+// =========================================
+function guessConsonant() {
+  if (puzzleSolved) return showToast('Puzzle already solved!', 'warn');
+  if (currentWheelValue === 0) return showToast('Spin the wheel first!', 'warn');
+  const input = document.getElementById('consonantInput');
+  const letter = input.value.trim().toUpperCase();
+  input.value = '';
+
+  if (!letter || !CONSONANTS.has(letter)) return showToast('Enter a valid consonant.', 'warn');
+  if (guessedLetters.has(letter)) return showToast(`"${letter}" already guessed.`, 'warn');
+
+  guessedLetters.add(letter);
+  const puzzle = getCurrentPuzzle();
+  const isInPuzzle = puzzle.includes(letter);
+
+  // Clear double lock regardless of outcome — consonant was guessed
+  mustGuessAfterDouble = false;
+
+  if (isInPuzzle) {
+    revealedLetters.add(letter);
+    const count = revealLettersInPuzzle(letter);
+    let pts = currentWheelValue * count;
+    if (doubleActive) {
+      pts *= 2;
+      doubleActive = false;
+      document.getElementById('doubleIndicator').style.display = 'none';
+    }
+    scores[currentTeam] += pts;
+    updateScoreboard();
+    renderGuessedLetters();
+    showToast(`"${letter}" found ${count} time(s)! +$${pts}`, 'success');
+    if (checkPuzzleSolved()) solvePuzzleSuccess();
+  } else {
+    doubleActive = false;
+    document.getElementById('doubleIndicator').style.display = 'none';
+    renderGuessedLetters();
+    showToast(`"${letter}" is not in the puzzle. Turn passes to next team.`, 'error');
+    autoAdvanceTeam();
+  }
+}
+
+function buyVowel() {
+  if (puzzleSolved) return showToast('Puzzle already solved!', 'warn');
+  if (mustGuessAfterDouble) return showToast('You must guess a consonant first! (Double Points active)', 'warn');
+  const input = document.getElementById('vowelInput');
+  const letter = input.value.trim().toUpperCase();
+  input.value = '';
+
+  if (!letter || !VOWELS.has(letter)) return showToast('Enter a valid vowel (A, E, I, O, U).', 'warn');
+  if (guessedLetters.has(letter)) return showToast(`"${letter}" already guessed.`, 'warn');
+  if (scores[currentTeam] < 250) return showToast('Not enough points! Need $250.', 'error');
+
+  scores[currentTeam] -= 250;
+  guessedLetters.add(letter);
+
+  const puzzle = getCurrentPuzzle();
+  const isInPuzzle = puzzle.includes(letter);
+
+  if (isInPuzzle) {
+    revealedLetters.add(letter);
+    revealLettersInPuzzle(letter);
+    updateScoreboard();
+    renderGuessedLetters();
+    showToast(`"${letter}" found! -$250`, 'success');
+    if (checkPuzzleSolved()) solvePuzzleSuccess();
+  } else {
+    updateScoreboard();
+    renderGuessedLetters();
+    showToast(`"${letter}" not in puzzle. -$250. Turn passes to next team.`, 'error');
+    autoAdvanceTeam();
+  }
+}
+
+function solvePuzzle() {
+  if (puzzleSolved) return showToast('Already solved!', 'warn');
+  if (mustGuessAfterDouble) return showToast('You must guess a consonant first! (Double Points active)', 'warn');
+  const input = document.getElementById('solveInput');
+  const guess = input.value.trim().toUpperCase();
+  input.value = '';
+
+  if (!guess) return showToast('Enter your solve attempt.', 'warn');
+
+  if (guess === getCurrentPuzzle()) {
+    // reveal all
+    for (let ch of getCurrentPuzzle()) {
+      if (/[A-Z]/.test(ch)) revealedLetters.add(ch);
+    }
+    renderPuzzle();
+    solvePuzzleSuccess();
+  } else {
+    scores[currentTeam] = Math.max(0, scores[currentTeam] - SOLVE_PENALTY);
+    updateScoreboard();
+    showToast(`Incorrect solve attempt! -$${SOLVE_PENALTY}. Turn passes to next team.`, 'error');
+    autoAdvanceTeam();
+  }
+}
+
+const SOLVE_BONUS = 1000;
+const SOLVE_PENALTY = 500;
+
+function solvePuzzleSuccess() {
+  puzzleSolved = true;
+  solvedPuzzles.add(puzzleOrder[currentPuzzleIndex]);
+  scores[currentTeam] += SOLVE_BONUS;
+  updateScoreboard();
+  showModal('Puzzle Solved!', `"${getCurrentPuzzle()}" — +$${SOLVE_BONUS} solve bonus!`);
+  launchConfetti();
+  playWin();
+}
+
+function revealLetter() {
+  const puzzle = getCurrentPuzzle();
+  const unrevealed = [];
+  for (let ch of puzzle) {
+    if (/[A-Z]/.test(ch) && !revealedLetters.has(ch)) unrevealed.push(ch);
+  }
+  if (unrevealed.length === 0) return showToast('All letters revealed.', 'warn');
+  const letter = unrevealed[Math.floor(Math.random() * unrevealed.length)];
+  revealedLetters.add(letter);
+  if (!guessedLetters.has(letter)) guessedLetters.add(letter);
+  revealLettersInPuzzle(letter);
+  renderGuessedLetters();
+  if (checkPuzzleSolved()) solvePuzzleSuccess();
+}
+
+function revealPuzzle() {
+  const puzzle = getCurrentPuzzle();
+  for (let ch of puzzle) {
+    if (/[A-Z]/.test(ch)) revealedLetters.add(ch);
+  }
+  renderPuzzle();
+  renderGuessedLetters();
+}
+
+// =========================================
+// GUESSED LETTERS DISPLAY
+// =========================================
+function renderGuessedLetters() {
+  const container = document.getElementById('guessedLetters');
+  container.innerHTML = '';
+  const puzzle = getCurrentPuzzle();
+  const sorted = [...guessedLetters].sort();
+  sorted.forEach(l => {
+    const span = document.createElement('span');
+    span.className = 'guessed-letter ' + (puzzle.includes(l) ? 'correct' : 'wrong');
+    span.textContent = l;
+    container.appendChild(span);
+  });
+}
+
+// =========================================
+// TEAM / SCORE
+// =========================================
+function updateScoreboard() {
+  for (let i = 0; i < 3; i++) {
+    document.getElementById('score' + i).textContent = scores[i].toLocaleString();
+    const card = document.getElementById('teamCard' + i);
+    card.classList.toggle('active', i === currentTeam);
+  }
+}
+
+function nextTeam() {
+  currentTeam = (currentTeam + 1) % 3;
+  currentWheelValue = 0;
+  doubleActive = false;
+  mustGuessAfterDouble = false;
+  document.getElementById('doubleIndicator').style.display = 'none';
+  document.getElementById('wheelResult').textContent = 'Spin the wheel!';
+  document.getElementById('wheelResult').className = 'wheel-result';
+  updateScoreboard();
+}
+
+function autoAdvanceTeam() {
+  setTimeout(() => {
+    currentTeam = (currentTeam + 1) % 3;
+    currentWheelValue = 0;
+    doubleActive = false;
+    mustGuessAfterDouble = false;
+    document.getElementById('doubleIndicator').style.display = 'none';
+    document.getElementById('wheelResult').textContent = 'Spin the wheel!';
+    document.getElementById('wheelResult').className = 'wheel-result';
+    updateScoreboard();
+  }, 1200);
+}
+
+function setTeamPrompt() {
+  const t = prompt('Set active team (1, 2, or 3):');
+  const n = parseInt(t);
+  if (n >= 1 && n <= 3) {
+    currentTeam = n - 1;
+    currentWheelValue = 0;
+    doubleActive = false;
+    mustGuessAfterDouble = false;
+    document.getElementById('doubleIndicator').style.display = 'none';
+    document.getElementById('wheelResult').textContent = 'Spin the wheel!';
+    document.getElementById('wheelResult').className = 'wheel-result';
+    updateScoreboard();
+  }
+}
+
+function adjustScore(team, amount) {
+  scores[team] = Math.max(0, scores[team] + amount);
+  updateScoreboard();
+}
+
+function manualScore(team) {
+  const v = prompt(`Set score for Team ${team + 1}:`);
+  const n = parseInt(v);
+  if (!isNaN(n) && n >= 0) {
+    scores[team] = n;
+    updateScoreboard();
+  }
+}
+
+function resetScores() {
+  if (!confirm('Reset all scores to 0?')) return;
+  scores = [0, 0, 0];
+  updateScoreboard();
+}
+
+// =========================================
+// PUZZLE NAVIGATION
+// =========================================
+function nextPuzzle() {
+  let next = currentPuzzleIndex + 1;
+  if (next >= PUZZLES.length) next = 0;
+  loadPuzzle(next);
+}
+
+function prevPuzzle() {
+  let prev = currentPuzzleIndex - 1;
+  if (prev < 0) prev = PUZZLES.length - 1;
+  loadPuzzle(prev);
+}
+
+function resetCurrentPuzzle() {
+  loadPuzzle(currentPuzzleIndex);
+}
+
+function shufflePuzzleOrder() {
+  puzzleOrder = PUZZLES.map((_, i) => i);
+  for (let i = puzzleOrder.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [puzzleOrder[i], puzzleOrder[j]] = [puzzleOrder[j], puzzleOrder[i]];
+  }
+}
+
+function newGame() {
+  if (!confirm('Start a completely new game? This resets everything.')) return;
+  scores = [0, 0, 0];
+  currentTeam = 0;
+  solvedPuzzles = new Set();
+  shufflePuzzleOrder();
+  currentPuzzleIndex = 0;
+  loadPuzzle(0);
+  updateScoreboard();
+}
+
+// =========================================
+// EFFECTS
+// =========================================
+function launchConfetti() {
+  const container = document.getElementById('confettiContainer');
+  const colors = ['#2a6db5','#5bb8f5','#d43a3a','#fff','#3a8fd4','#f5a623','#43a047','#7ec8e3'];
+  for (let i = 0; i < 120; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.style.left = Math.random() * 100 + '%';
+    el.style.top = '-10px';
+    el.style.width = (6 + Math.random() * 8) + 'px';
+    el.style.height = (6 + Math.random() * 8) + 'px';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    el.style.opacity = '1';
+    const dur = 2 + Math.random() * 2;
+    const delay = Math.random() * 0.5;
+    const drift = (Math.random() - 0.5) * 300;
+    el.style.transition = `none`;
+    container.appendChild(el);
+
+    requestAnimationFrame(() => {
+      el.style.transition = `all ${dur}s ease-out ${delay}s`;
+      el.style.transform = `translateY(${window.innerHeight + 50}px) translateX(${drift}px) rotate(${Math.random()*720}deg)`;
+      el.style.opacity = '0';
+    });
+
+    setTimeout(() => el.remove(), (dur + delay + 0.5) * 1000);
+  }
+}
+
+// Simple toast
+let toastTimeout;
+function showToast(msg, type) {
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:8px;font-size:1rem;font-weight:600;z-index:999;transition:opacity .3s;pointer-events:none;';
+    document.body.appendChild(toast);
+  }
+  const colors = {success:'#43a047',error:'#e53935',warn:'#f9a825',info:'#1e88e5'};
+  toast.style.background = colors[type] || colors.info;
+  toast.style.color = type === 'warn' ? '#1a1a2e' : '#fff';
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+}
+
+// Modal
+function showModal(title, text) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalText').textContent = text;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+
+// Audio - short tick
+let audioCtx;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playTick() {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = 600 + Math.random() * 200;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.06, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.05);
+  } catch(e) {}
+}
+
+function playWin() {
+  try {
+    const ctx = getAudioCtx();
+    const notes = [523, 659, 784, 1047];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type = 'triangle';
+      const t = ctx.currentTime + i * 0.15;
+      gain.gain.setValueAtTime(0.12, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+      osc.start(t);
+      osc.stop(t + 0.4);
+    });
+  } catch(e) {}
+}
+
+// =========================================
+// KEYBOARD SHORTCUT
+// =========================================
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === ' ' || e.key === 'Enter') {
+    e.preventDefault();
+    spinWheel();
+  }
+});
+
+// =========================================
+// INIT
+// =========================================
+shufflePuzzleOrder();
+drawWheel(wheelAngle);
+loadPuzzle(0);
+updateScoreboard();
+</script>
+</body>
+</html>

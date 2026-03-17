@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spin the Wheel Ice Breaker — SOS Game Center</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a1628;--surface:#0f1f38;--border:#1e3a5f;
+  --sos-blue:#2a6db5;--sos-light:#5bb8f5;--sos-red:#d43a3a;
+  --text:#eef;--muted:#7a9bc0;--radius:12px;
+  --gold:#f5c842;
+}
+html{font-size:16px}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* BACKGROUND PATTERN */
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:
+  radial-gradient(circle at 20% 30%, rgba(42,109,181,.12) 0%, transparent 50%),
+  radial-gradient(circle at 80% 70%, rgba(212,58,58,.08) 0%, transparent 50%),
+  radial-gradient(circle at 50% 50%, rgba(91,184,245,.05) 0%, transparent 60%);
+  pointer-events:none;z-index:0}
+
+/* HEADER */
+.header{
+  position:relative;z-index:1;
+  text-align:center;padding:16px 20px 10px;
+  border-bottom:2px solid var(--border);
+  background:linear-gradient(180deg,rgba(15,31,56,.9),rgba(10,22,40,.95));
+}
+.header-inner{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap}
+.sos-logo{height:48px}
+.header h1{font-size:clamp(1.3rem,3vw,2rem);letter-spacing:2px;color:#fff;text-transform:uppercase;text-shadow:0 0 20px rgba(58,143,212,.3)}
+.header h1 .hl{color:var(--sos-light)}
+.header .sub{color:var(--muted);font-size:clamp(.7rem,1.2vw,.85rem);margin-top:4px;letter-spacing:3px;text-transform:uppercase}
+.back-link{
+  position:absolute;left:20px;top:50%;transform:translateY(-50%);
+  color:var(--sos-light);text-decoration:none;font-size:.85rem;font-weight:600;
+  display:flex;align-items:center;gap:6px;transition:gap .2s;
+}
+.back-link:hover{gap:10px;color:#fff}
+
+/* LAYOUT */
+.game-area{
+  position:relative;z-index:1;
+  display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;
+  gap:28px;padding:20px 20px 10px;max-width:1500px;margin:0 auto;
+}
+
+/* STATS BAR */
+.stats-bar{
+  position:relative;z-index:1;
+  display:flex;justify-content:center;gap:28px;padding:10px 20px;
+  color:var(--muted);font-size:clamp(.7rem,1.1vw,.85rem);
+  text-transform:uppercase;letter-spacing:1px;
+}
+.stats-bar strong{color:var(--sos-light);font-weight:700}
+
+/* WHEEL */
+.wheel-section{display:flex;flex-direction:column;align-items:center;gap:14px}
+.wheel-wrapper{position:relative;width:clamp(320px,40vw,520px);height:clamp(320px,40vw,520px)}
+.wheel-pointer{
+  position:absolute;top:-16px;left:50%;transform:translateX(-50%);z-index:10;
+  width:0;height:0;
+  border-left:18px solid transparent;border-right:18px solid transparent;
+  border-top:36px solid var(--sos-red);
+  filter:drop-shadow(0 3px 8px rgba(212,58,58,.6));
+}
+canvas#wheel{width:100%;height:100%;border-radius:50%;box-shadow:0 0 40px rgba(42,109,181,.3),0 0 80px rgba(42,109,181,.1);cursor:pointer}
+
+/* PROMPT CARD */
+.prompt-section{flex:1 1 400px;max-width:580px;display:flex;flex-direction:column;gap:14px}
+.prompt-card{
+  background:var(--surface);border-radius:var(--radius);padding:30px 26px;
+  min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;border:2px solid var(--border);transition:border-color .4s,box-shadow .4s;
+  position:relative;overflow:hidden;
+}
+.prompt-card.active{border-color:var(--sos-light);box-shadow:0 0 30px rgba(91,184,245,.15)}
+.prompt-card .category-label{
+  font-size:clamp(.9rem,1.8vw,1.2rem);color:var(--sos-light);
+  text-transform:uppercase;letter-spacing:3px;margin-bottom:14px;font-weight:700;
+}
+.prompt-card .prompt-text{font-size:clamp(1.3rem,2.6vw,2rem);font-weight:600;line-height:1.35;color:#fff}
+.prompt-card .instruction{font-size:clamp(.9rem,1.4vw,1.1rem);color:var(--muted);margin-top:10px;font-style:italic}
+.prompt-card .empty-state{color:var(--muted);font-size:clamp(1rem,1.8vw,1.4rem)}
+
+/* BUTTONS */
+.controls{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.btn{
+  padding:12px 24px;border:none;border-radius:var(--radius);
+  font-size:clamp(.8rem,1.2vw,1rem);font-weight:700;cursor:pointer;
+  text-transform:uppercase;letter-spacing:1px;transition:transform .15s,box-shadow .25s,opacity .25s;
+}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+.btn-spin{
+  background:linear-gradient(135deg,var(--sos-red),#e74c4c);color:#fff;
+  font-size:clamp(1rem,1.6vw,1.3rem);padding:16px 44px;
+  box-shadow:0 6px 24px rgba(212,58,58,.4);
+}
+.btn-spin:hover:not(:disabled){box-shadow:0 8px 32px rgba(212,58,58,.55)}
+
+.btn-secondary{background:var(--border);color:var(--text);border:1px solid rgba(91,184,245,.2)}
+.btn-secondary:hover:not(:disabled){background:rgba(42,109,181,.3);box-shadow:0 4px 16px rgba(0,0,0,.3)}
+
+.btn-reset{background:linear-gradient(135deg,var(--sos-blue),#3a8dd5);color:#fff}
+.btn-reset:hover:not(:disabled){box-shadow:0 4px 16px rgba(42,109,181,.4)}
+
+/* CONFETTI */
+.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;overflow:hidden}
+.confetti-piece{position:absolute;width:10px;height:10px;top:-20px;opacity:0;animation:confetti-fall 2.5s ease-out forwards}
+@keyframes confetti-fall{
+  0%{opacity:1;transform:translateY(0) rotate(0deg) scale(1)}
+  80%{opacity:1}
+  100%{opacity:0;transform:translateY(105vh) rotate(720deg) scale(0.4)}
+}
+
+/* FOOTER */
+.footer{
+  position:relative;z-index:1;
+  text-align:center;padding:16px;color:var(--muted);font-size:.75rem;
+  border-top:1px solid var(--border);margin-top:20px;
+}
+.footer a{color:var(--sos-light);text-decoration:none}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .game-area{flex-direction:column;align-items:center}
+  .prompt-section{max-width:90vw}
+  .back-link{position:static;transform:none;margin-bottom:8px}
+  .header-inner{flex-direction:column;gap:8px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="index.html" class="back-link"><span>←</span> Game Center</a>
+  <div class="header-inner">
+    <svg class="sos-logo" viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <text x="28" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text>
+      <g transform="translate(160,68)">
+        <circle cx="0" cy="0" r="48" fill="none" stroke="#fff" stroke-width="18"/>
+        <circle cx="0" cy="0" r="48" fill="none" stroke="#d43a3a" stroke-width="18" stroke-dasharray="25 50.7" stroke-dashoffset="0"/>
+        <line x1="-32" y1="-32" x2="-44" y2="-44" stroke="#ddd" stroke-width="2"/>
+        <line x1="32" y1="-32" x2="44" y2="-44" stroke="#ddd" stroke-width="2"/>
+        <line x1="-32" y1="32" x2="-44" y2="44" stroke="#ddd" stroke-width="2"/>
+        <line x1="32" y1="32" x2="44" y2="44" stroke="#ddd" stroke-width="2"/>
+      </g>
+      <text x="222" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text>
+      <text x="160" y="150" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="#5bb8f5" text-anchor="middle" letter-spacing="4">SPOTONSOLUTIONS</text>
+    </svg>
+  </div>
+  <h1><span class="hl">Spin the Wheel</span> Ice Breaker</h1>
+  <div class="sub">SOS Game Center</div>
+</div>
+
+<div class="stats-bar">
+  Spins: <strong id="spinCount">0</strong> &nbsp;|&nbsp; Prompts Remaining: <strong id="promptsRemaining">0</strong>
+</div>
+
+<div class="game-area">
+  <!-- Wheel -->
+  <div class="wheel-section">
+    <div class="wheel-wrapper">
+      <div class="wheel-pointer"></div>
+      <canvas id="wheel" width="800" height="800"></canvas>
+    </div>
+    <button class="btn btn-spin" id="btnSpin">Spin the Wheel!</button>
+  </div>
+
+  <!-- Prompt Card -->
+  <div class="prompt-section">
+    <div class="prompt-card" id="promptCard">
+      <div class="empty-state" id="emptyState">Spin the wheel to get started!</div>
+      <div class="category-label" id="categoryLabel" style="display:none"></div>
+      <div class="prompt-text" id="promptText" style="display:none"></div>
+      <div class="instruction" id="instruction" style="display:none"></div>
+    </div>
+    <div class="controls">
+      <button class="btn btn-secondary" id="btnNext" disabled>Next Prompt</button>
+      <button class="btn btn-secondary" id="btnShowCat" disabled>Show Category</button>
+      <button class="btn btn-reset" id="btnReset">Reset Prompts</button>
+      <button class="btn btn-secondary" id="btnNewGame">New Game</button>
+    </div>
+  </div>
+</div>
+
+<div class="confetti-container" id="confettiContainer"></div>
+
+<div class="footer">
+  <p>SpotOn Solutions Game Center &middot; Built for Elevation &middot; <a href="https://spotonsolutions.com">spotonsolutions.com</a></p>
+</div>
+
+<script>
+// ── Categories & Colors (SOS-branded palette) ──
+const CATEGORIES = [
+  "Personal Question", "Would You Rather", "Favorites", "This or That",
+  "Random Fun", "Story Time", "Rapid Fire", "Throwback",
+  "Hypothetical", "Wild Card", "Spin Again", "Pass the Mic"
+];
+
+const COLORS = [
+  "#2a6db5","#d43a3a","#1abc9c","#5bb8f5",
+  "#9b59b6","#e67e22","#27ae60","#3498db",
+  "#e74c3c","#00b894","#8e44ad","#1e8bc3"
+];
+
+// ── Prompt Data (20+ per category) ──
+const PROMPTS = {
+  "Personal Question": [
+    "What is your go-to hype song?",
+    "What is your dream vacation destination?",
+    "What food could you eat every single week forever?",
+    "What is a hobby you wish you had more time for?",
+    "What is your favorite holiday and why?",
+    "What is one thing on your bucket list?",
+    "If you could live anywhere in the world, where would it be?",
+    "What is the best gift you have ever received?",
+    "What is one thing people would be surprised to learn about you?",
+    "What is the most adventurous thing you have ever done?",
+    "If you could have dinner with anyone, living or dead, who would it be?",
+    "What is the most interesting place you have ever visited?",
+    "What is your guilty pleasure TV show or movie?",
+    "What is your morning routine like?",
+    "What is one skill you are secretly proud of?",
+    "What is the best meal you have ever had?",
+    "What is a tradition your family has that you love?",
+    "What is the last thing that made you laugh out loud?",
+    "What is something you have always wanted to learn?",
+    "If you could pick a new first name, what would it be?",
+    "What is the best compliment you have ever received?",
+    "What is a small thing that makes your day better?",
+    "What is the most spontaneous thing you have ever done?",
+    "What are you most grateful for right now?"
+  ],
+  "Would You Rather": [
+    "Would you rather always be 10 minutes late or 20 minutes early?",
+    "Would you rather give up TV or music for a year?",
+    "Would you rather live in the mountains or at the beach?",
+    "Would you rather never use your phone again or never watch TV again?",
+    "Would you rather be able to fly or be invisible?",
+    "Would you rather have unlimited free travel or unlimited free food?",
+    "Would you rather be famous or be best friends with someone famous?",
+    "Would you rather always be slightly cold or slightly hot?",
+    "Would you rather explore outer space or the deep ocean?",
+    "Would you rather have a rewind button or a pause button for your life?",
+    "Would you rather always have to sing instead of talk or dance everywhere you walk?",
+    "Would you rather live without air conditioning or without heating?",
+    "Would you rather only be able to whisper or only be able to shout?",
+    "Would you rather have a personal chef or a personal driver?",
+    "Would you rather know all the languages in the world or play every instrument?",
+    "Would you rather never eat cheese again or never eat chocolate again?",
+    "Would you rather have a pause button or a mute button for real life?",
+    "Would you rather always know when someone is lying or always get away with lying?",
+    "Would you rather live in a treehouse or a houseboat?",
+    "Would you rather be stuck in an elevator with a clown or a mime?",
+    "Would you rather have a photographic memory or be able to forget anything on command?",
+    "Would you rather eat only sweet food or only savory food for a month?"
+  ],
+  "Favorites": [
+    "Favorite movie of all time?",
+    "Favorite snack you always keep around?",
+    "Favorite place you have ever been?",
+    "Favorite fast food spot?",
+    "Favorite TV show you have rewatched the most?",
+    "Favorite song right now?",
+    "Favorite season of the year?",
+    "Favorite childhood memory?",
+    "Favorite book or podcast?",
+    "Favorite way to spend a weekend?",
+    "Favorite ice cream flavor?",
+    "Favorite holiday movie?",
+    "Favorite phone app you use every day?",
+    "Favorite road trip you have ever taken?",
+    "Favorite pizza topping?",
+    "Favorite thing to do on a rainy day?",
+    "Favorite sports team?",
+    "Favorite comfort food when you are feeling down?",
+    "Favorite board game or card game?",
+    "Favorite restaurant you would take anyone to?",
+    "Favorite smell that brings back a memory?",
+    "Favorite YouTube channel or creator?"
+  ],
+  "This or That": [
+    "Coffee or soda?",
+    "Summer or winter?",
+    "Early bird or night owl?",
+    "Sweet or salty?",
+    "Text or call?",
+    "Cook at home or eat out?",
+    "Road trip or fly?",
+    "Board games or video games?",
+    "City life or country life?",
+    "Sunrise or sunset?",
+    "Hot sauce or ranch?",
+    "Window seat or aisle seat?",
+    "Pancakes or waffles?",
+    "Fiction or nonfiction?",
+    "Camping or hotel?",
+    "Comedy or action movie?",
+    "Socks or barefoot at home?",
+    "Shower in the morning or at night?",
+    "Ketchup or mustard?",
+    "Spotify or Apple Music?",
+    "Pen or pencil?",
+    "Roller coasters or water slides?"
+  ],
+  "Random Fun": [
+    "If you could have any superpower, what would it be?",
+    "If you won the lottery, what is the first thing you would do?",
+    "If you could live in any time period, when would it be?",
+    "What fictional world would you want to live in?",
+    "If you could be any animal for a day, what would you pick?",
+    "What would your theme song be?",
+    "If you had a time machine, would you go to the past or the future?",
+    "What is the weirdest food combination you secretly enjoy?",
+    "If you were a superhero, what would your name be?",
+    "What would you do if you were invisible for a day?",
+    "If you could have a conversation with your pet, what would you ask?",
+    "If your life was a movie, what genre would it be?",
+    "What is the most useless talent you have?",
+    "If you had to survive a zombie apocalypse, what three items would you grab?",
+    "If you could only eat food from one country forever, which country?",
+    "What would your dream house look like?",
+    "If you could rename yourself, what name would you choose?",
+    "What is the strangest dream you can remember?",
+    "If you could break any world record, which one would it be?",
+    "If you had your own talk show, who would your first guest be?",
+    "What emoji describes your personality best?",
+    "If you were a flavor of ice cream, what would you be?"
+  ],
+  "Story Time": [
+    "Tell a funny story from your childhood.",
+    "What is your most embarrassing moment?",
+    "What is the funniest thing that happened to you recently?",
+    "Tell us about a time something did not go as planned.",
+    "What is the craziest thing you have ever eaten?",
+    "Tell us about your worst haircut ever.",
+    "What is the funniest misunderstanding you have been part of?",
+    "Tell us about a time you laughed so hard you cried.",
+    "What is a funny thing that happened on a family vacation?",
+    "Tell us about a time you tried something completely new.",
+    "What is the best prank you have ever pulled or been part of?",
+    "Tell us about a time you got lost somewhere.",
+    "What is the most unexpected thing that ever happened to you?",
+    "Tell us about a cooking disaster you have experienced.",
+    "What is the funniest thing a kid has ever said to you?",
+    "Tell us about a time you completely misjudged a situation.",
+    "What is the most awkward introduction you have ever had?",
+    "Tell us about a time technology failed you at the worst moment.",
+    "What is the weirdest thing that has happened to you at a store or restaurant?",
+    "Tell us about a time you had to improvise your way out of a situation.",
+    "What is your best travel disaster story?",
+    "Tell us about a dare you actually went through with."
+  ],
+  "Rapid Fire": [
+    "Dogs or cats?",
+    "Netflix or YouTube?",
+    "Pizza or burgers?",
+    "Sneakers or sandals?",
+    "Morning person or night person?",
+    "Ice cream or cake?",
+    "Beach or pool?",
+    "Chocolate or candy?",
+    "Tacos or burritos?",
+    "Hot dog or hamburger?",
+    "Cereal or toast?",
+    "Pepsi or Coke?",
+    "Popcorn or nachos?",
+    "Fries or onion rings?",
+    "Texting or calling?",
+    "Spring or fall?",
+    "Sushi or steak?",
+    "Couch or hammock?",
+    "Car wash or wash it yourself?",
+    "Paper book or e-reader?",
+    "Bowling or mini golf?",
+    "Milk chocolate or dark chocolate?"
+  ],
+  "Throwback": [
+    "What was the first concert you went to?",
+    "What was the first car you owned?",
+    "What was your favorite childhood TV show?",
+    "What did you want to be when you grew up?",
+    "What was your favorite toy as a kid?",
+    "What was your favorite cereal growing up?",
+    "What was your favorite game to play as a kid?",
+    "What was the first movie you saw in a theater?",
+    "What trend from your childhood do you wish would come back?",
+    "What was the first album or CD you ever owned?",
+    "What was your favorite school subject?",
+    "Who was your childhood celebrity crush?",
+    "What was the first thing you learned to cook?",
+    "What was your favorite Halloween costume as a kid?",
+    "What was the first job you ever had?",
+    "What was your screen name on AIM or your first email address?",
+    "What snack did you always want in your school lunch?",
+    "What was the first video game you were obsessed with?",
+    "What was your favorite field trip in school?",
+    "What song reminds you most of high school?",
+    "What was the first thing you saved up to buy yourself?",
+    "What was the coolest birthday party you had as a kid?"
+  ],
+  "Hypothetical": [
+    "If you had to eat one meal forever, what would it be?",
+    "If you could switch lives with someone for a day, who would it be?",
+    "If you could instantly master any skill, what would it be?",
+    "If you could teleport anywhere right now, where would you go?",
+    "If you could have any animal as a pet with no restrictions, what would it be?",
+    "If you could only watch one movie for the rest of your life, what would it be?",
+    "If you could add an extra hour to your day, how would you spend it?",
+    "If you could relive one day from your past, which would it be?",
+    "If aliens landed and asked you to explain Earth, what would you say first?",
+    "If you could create a new holiday, what would it celebrate?",
+    "If you could live inside any TV show, which one would you pick?",
+    "If you had to wear one outfit for the rest of your life, what would it be?",
+    "If you could have any celebrity as your neighbor, who would it be?",
+    "If you could only listen to one artist for a year, who would it be?",
+    "If you could wake up tomorrow with a new talent, what would it be?",
+    "If you had unlimited money for 24 hours but could not save any, what would you do?",
+    "If you could time travel but only once, where and when would you go?",
+    "If you could make one rule everyone in the world had to follow, what would it be?",
+    "If you could have any view from your window, what would it be?",
+    "If you could be any fictional character for a week, who would you choose?",
+    "If you could uninvent one thing, what would it be?",
+    "If you could guarantee one thing in your future, what would it be?"
+  ],
+  "Wild Card": [
+    "Do your best impression of someone famous!",
+    "Sing a line from a song right now!",
+    "Tell us your best joke!",
+    "Act out a movie scene — can anyone guess it?",
+    "Do your best animal impression!",
+    "Make up a rap about the person next to you!",
+    "Show us your best dance move!",
+    "Speak in an accent for the next 30 seconds!",
+    "Give a dramatic reading of an imaginary award acceptance speech!",
+    "Strike your best red-carpet pose!",
+    "Name three things in your fridge right now from memory!",
+    "Do your best impression of a robot ordering coffee!",
+    "Describe your personality using only three emojis — act them out!",
+    "Freestyle a haiku about the weather today!",
+    "Pitch a ridiculous invention to the group like you are on Shark Tank!",
+    "Give an acceptance speech for winning Best Napper of the Year!",
+    "Do a 10-second interpretive dance about your morning!",
+    "Say the alphabet backwards as fast as you can!",
+    "Describe your last meal like a fancy restaurant menu!",
+    "Tell the group your hot take on a totally unimportant topic!",
+    "Give a movie trailer voiceover about your commute to work!",
+    "Make up a theme song for the person across from you!"
+  ]
+};
+
+// ── State ──
+let usedPrompts = {};
+let currentCategory = null;
+let spinning = false;
+let spinCount = 0;
+let angle = 0;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function initUsedPrompts() {
+  usedPrompts = {};
+  for (const cat in PROMPTS) usedPrompts[cat] = [];
+  updatePromptsRemaining();
+}
+
+function getTotalRemaining() {
+  let t = 0;
+  for (const cat in PROMPTS) t += PROMPTS[cat].length - usedPrompts[cat].length;
+  return t;
+}
+
+function updatePromptsRemaining() {
+  document.getElementById("promptsRemaining").textContent = getTotalRemaining();
+}
+
+// ── Draw Wheel ──
+const canvas = document.getElementById("wheel");
+const ctx = canvas.getContext("2d");
+const cx = 400, cy = 400, radius = 380;
+const segAngle = (2 * Math.PI) / CATEGORIES.length;
+
+function drawWheel(rotationAngle) {
+  ctx.clearRect(0, 0, 800, 800);
+
+  // Outer glow
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius + 8, 0, 2 * Math.PI);
+  ctx.strokeStyle = "rgba(42,109,181,.35)";
+  ctx.lineWidth = 6;
+  ctx.stroke();
+  ctx.restore();
+
+  for (let i = 0; i < CATEGORIES.length; i++) {
+    const startAngle = rotationAngle + i * segAngle;
+    const endAngle = startAngle + segAngle;
+
+    // Wedge
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, radius, startAngle, endAngle);
+    ctx.closePath();
+    ctx.fillStyle = COLORS[i];
+    ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,0.3)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Text
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(startAngle + segAngle / 2);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 19px 'Segoe UI', system-ui, sans-serif";
+    ctx.shadowColor = "rgba(0,0,0,0.6)";
+    ctx.shadowBlur = 4;
+
+    const label = CATEGORIES[i];
+    const words = label.split(" ");
+    if (words.length > 1 && label.length > 10) {
+      ctx.fillText(words[0], radius - 28, -8);
+      ctx.fillText(words.slice(1).join(" "), radius - 28, 16);
+    } else {
+      ctx.fillText(label, radius - 28, 6);
+    }
+    ctx.restore();
+  }
+
+  // Center hub — SOS branded
+  ctx.beginPath();
+  ctx.arc(cx, cy, 44, 0, 2 * Math.PI);
+  const hubGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, 44);
+  hubGrad.addColorStop(0, "#3a8dd5");
+  hubGrad.addColorStop(1, "#1a5a9e");
+  ctx.fillStyle = hubGrad;
+  ctx.fill();
+  ctx.strokeStyle = "#fff";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // SOS text in center
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 22px 'Segoe UI', system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.shadowColor = "rgba(0,0,0,0.4)";
+  ctx.shadowBlur = 3;
+  ctx.fillText("SOS", cx, cy);
+  ctx.shadowBlur = 0;
+}
+
+// ── Spin Logic ──
+function spinWheel() {
+  if (spinning) return;
+  spinning = true;
+  document.getElementById("btnSpin").disabled = true;
+  document.getElementById("btnNext").disabled = true;
+  document.getElementById("btnShowCat").disabled = true;
+  hidePrompt();
+
+  const extraSpins = 5 + Math.random() * 5;
+  const targetAngle = angle + extraSpins * 2 * Math.PI + Math.random() * 2 * Math.PI;
+  const duration = 4000 + Math.random() * 1500;
+  const startTime = performance.now();
+  const startAngle = angle;
+
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+  function animate(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    angle = startAngle + (targetAngle - startAngle) * easeOutCubic(progress);
+    drawWheel(angle);
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      spinning = false;
+      document.getElementById("btnSpin").disabled = false;
+      spinCount++;
+      document.getElementById("spinCount").textContent = spinCount;
+      resolveCategory();
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+function resolveCategory() {
+  const pointerRad = -Math.PI / 2;
+  let idx = 0;
+  for (let i = 0; i < CATEGORIES.length; i++) {
+    let start = (angle + i * segAngle) % (2 * Math.PI);
+    if (start < 0) start += 2 * Math.PI;
+    let end = (angle + (i + 1) * segAngle) % (2 * Math.PI);
+    if (end < 0) end += 2 * Math.PI;
+    let ptr = pointerRad % (2 * Math.PI);
+    if (ptr < 0) ptr += 2 * Math.PI;
+    if (start < end) {
+      if (ptr >= start && ptr < end) { idx = i; break; }
+    } else {
+      if (ptr >= start || ptr < end) { idx = i; break; }
+    }
+  }
+  currentCategory = CATEGORIES[idx];
+  showResult(currentCategory);
+  launchConfetti();
+}
+
+// ── Display ──
+function showResult(category) {
+  const card = document.getElementById("promptCard");
+  const catLabel = document.getElementById("categoryLabel");
+  const promptText = document.getElementById("promptText");
+  const instruction = document.getElementById("instruction");
+  const emptyState = document.getElementById("emptyState");
+
+  emptyState.style.display = "none";
+  catLabel.style.display = "block";
+  promptText.style.display = "block";
+  instruction.style.display = "none";
+  card.classList.add("active");
+  catLabel.textContent = category;
+
+  if (category === "Spin Again") {
+    promptText.textContent = "Give it another spin!";
+    instruction.style.display = "block";
+    instruction.textContent = "Press \"Spin the Wheel\" to go again.";
+    document.getElementById("btnNext").disabled = true;
+    document.getElementById("btnShowCat").disabled = true;
+  } else if (category === "Pass the Mic") {
+    promptText.textContent = "You get to choose!";
+    instruction.style.display = "block";
+    instruction.textContent = "Pick someone else to answer a question — then spin for them!";
+    document.getElementById("btnNext").disabled = true;
+    document.getElementById("btnShowCat").disabled = true;
+  } else {
+    showPromptForCategory(category);
+    document.getElementById("btnNext").disabled = false;
+    document.getElementById("btnShowCat").disabled = false;
+  }
+}
+
+function showPromptForCategory(category) {
+  const all = PROMPTS[category];
+  const used = usedPrompts[category];
+  if (used.length >= all.length) usedPrompts[category] = [];
+  const available = all.filter((_, i) => !usedPrompts[category].includes(i));
+  const randIdx = Math.floor(Math.random() * available.length);
+  const prompt = available[randIdx];
+  const originalIdx = all.indexOf(prompt);
+  usedPrompts[category].push(originalIdx);
+  document.getElementById("promptText").textContent = prompt;
+  updatePromptsRemaining();
+}
+
+function showNextPrompt() {
+  if (!currentCategory || currentCategory === "Spin Again" || currentCategory === "Pass the Mic") return;
+  showPromptForCategory(currentCategory);
+}
+
+function showCategoryAgain() {
+  if (!currentCategory) return;
+  const el = document.getElementById("categoryLabel");
+  el.style.animation = "none";
+  el.offsetHeight;
+  el.style.animation = "pulseGlow 0.6s ease";
+}
+
+function hidePrompt() {
+  document.getElementById("promptCard").classList.remove("active");
+  document.getElementById("categoryLabel").style.display = "none";
+  document.getElementById("promptText").style.display = "none";
+  document.getElementById("instruction").style.display = "none";
+  document.getElementById("emptyState").style.display = "block";
+}
+
+function resetPrompts() {
+  initUsedPrompts();
+  hidePrompt();
+  currentCategory = null;
+  document.getElementById("btnNext").disabled = true;
+  document.getElementById("btnShowCat").disabled = true;
+}
+
+function newGame() {
+  resetPrompts();
+  spinCount = 0;
+  document.getElementById("spinCount").textContent = "0";
+  angle = 0;
+  drawWheel(0);
+}
+
+// ── Confetti ──
+function launchConfetti() {
+  const container = document.getElementById("confettiContainer");
+  container.innerHTML = "";
+  const colors = ["#2a6db5","#d43a3a","#5bb8f5","#1abc9c","#9b59b6","#e67e22","#27ae60","#3498db","#00b894","#e74c3c"];
+  for (let i = 0; i < 80; i++) {
+    const piece = document.createElement("div");
+    piece.className = "confetti-piece";
+    piece.style.left = Math.random() * 100 + "%";
+    piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = (6 + Math.random() * 10) + "px";
+    piece.style.height = (6 + Math.random() * 10) + "px";
+    piece.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+    piece.style.animationDelay = (Math.random() * 0.6) + "s";
+    piece.style.animationDuration = (2 + Math.random() * 1.5) + "s";
+    container.appendChild(piece);
+  }
+  setTimeout(() => { container.innerHTML = ""; }, 4500);
+}
+
+// ── Pulse keyframes ──
+const s = document.createElement("style");
+s.textContent = "@keyframes pulseGlow{0%{transform:scale(1);text-shadow:0 0 0 transparent}50%{transform:scale(1.1);text-shadow:0 0 20px rgba(91,184,245,.5)}100%{transform:scale(1);text-shadow:0 0 0 transparent}}";
+document.head.appendChild(s);
+
+// ── Event Listeners (no inline handlers) ──
+document.getElementById("btnSpin").addEventListener("click", function() { spinWheel(); });
+document.getElementById("wheel").addEventListener("click", function() { spinWheel(); });
+document.getElementById("btnNext").addEventListener("click", function() { showNextPrompt(); });
+document.getElementById("btnShowCat").addEventListener("click", function() { showCategoryAgain(); });
+document.getElementById("btnReset").addEventListener("click", function() { resetPrompts(); });
+document.getElementById("btnNewGame").addEventListener("click", function() { newGame(); });
+
+// ── Init ──
+initUsedPrompts();
+drawWheel(0);
+</script>
+</body>
+</html>

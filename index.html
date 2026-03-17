@@ -45,6 +45,8 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backg
 .card-banner::before{content:'';position:absolute;inset:0;opacity:.15}
 
 .card-banner.wheel{background:linear-gradient(135deg,#1a237e,#0d47a1)}
+.card-banner.icebreaker{background:linear-gradient(135deg,#4a148c,#7b1fa2)}
+.card-banner.costright{background:linear-gradient(135deg,#1b5e20,#2e7d32)}
 .card-banner.coming-soon{background:linear-gradient(135deg,#1a1a2e,#1e3a5f)}
 
 .card-icon{font-size:4rem;z-index:1;transition:transform .3s ease;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}
@@ -71,6 +73,8 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backg
 /* ANIMATIONS */
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 .card-banner.wheel .card-icon{animation:float 3s ease-in-out infinite}
+.card-banner.icebreaker .card-icon{animation:float 3s ease-in-out infinite 0.5s}
+.card-banner.costright .card-icon{animation:float 3s ease-in-out infinite 1s}
 
 /* RESPONSIVE */
 @media(max-width:700px){
@@ -118,6 +122,40 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backg
           <span class="card-tag live">Live</span>
           <span class="card-tag">3 Teams</span>
           <span class="card-tag">40 Puzzles</span>
+        </div>
+        <div class="card-play">Play Now <span>→</span></div>
+      </div>
+    </a>
+
+    <!-- ICE BREAKER - LIVE -->
+    <a href="spin-the-wheel-icebreaker.html" class="game-card">
+      <div class="card-banner icebreaker">
+        <div class="card-icon">🎰</div>
+      </div>
+      <div class="card-body">
+        <h3>Spin the Wheel Ice Breaker</h3>
+        <p>Spin the colorful wheel and land on fun categories with random prompts. Perfect for kicking off team meetings with laughs.</p>
+        <div class="card-meta">
+          <span class="card-tag live">Live</span>
+          <span class="card-tag">All Team</span>
+          <span class="card-tag">12 Categories</span>
+        </div>
+        <div class="card-play">Play Now <span>→</span></div>
+      </div>
+    </a>
+
+    <!-- THE COST IS RIGHT - LIVE -->
+    <a href="the-cost-is-right.html" class="game-card">
+      <div class="card-banner costright">
+        <div class="card-icon">💰</div>
+      </div>
+      <div class="card-body">
+        <h3>The Cost is Right</h3>
+        <p>Guess digital marketing benchmarks Price-is-Right style. Closest without going over wins! Built for 4-team live play.</p>
+        <div class="card-meta">
+          <span class="card-tag live">Live</span>
+          <span class="card-tag">4 Teams</span>
+          <span class="card-tag">57 Questions</span>
         </div>
         <div class="card-play">Play Now <span>→</span></div>
       </div>

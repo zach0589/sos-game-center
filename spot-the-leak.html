@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spot the Leak – SOS Game Center</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a1628;--surface:#0f1f38;--border:#1e3a5f;
+  --sos-blue:#2a6db5;--sos-light:#5bb8f5;--sos-red:#d43a3a;
+  --text:#eef;--muted:#7a9bc0;--radius:12px;
+  --green:#43a047;--gold:#f5c842;--orange:#e67e22;--purple:#9b59b6;
+}
+html{font-size:16px}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(circle at 20% 30%,rgba(42,109,181,.12) 0%,transparent 50%),
+  radial-gradient(circle at 80% 70%,rgba(212,58,58,.08) 0%,transparent 50%),
+  radial-gradient(circle at 50% 50%,rgba(91,184,245,.05) 0%,transparent 60%);
+  pointer-events:none;z-index:0}
+
+/* ── LAYOUT ── */
+.wrap{position:relative;z-index:1;width:100%;max-width:1300px;padding:24px 20px 40px}
+
+/* ── GAME HEADER ── */
+.game-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 24px;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);margin-bottom:12px}
+.game-header-left{display:flex;align-items:center;gap:12px}
+.sos-logo{height:48px}
+.logo-label{font-size:.75rem;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.logo-name{font-size:1rem;font-weight:800;color:var(--text);letter-spacing:1px}
+.game-header-center{text-align:center;flex:1}
+.game-header-center h1{font-size:1.35rem;font-weight:800;color:#fff;letter-spacing:1px}
+.game-header-center h1 .hl{color:var(--sos-light)}
+.game-header-center .sub{font-size:.78rem;color:var(--muted);margin-top:2px;letter-spacing:.5px}
+.game-header-right{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.difficulty-badge{background:#d43a3a;color:#fff;font-size:.75rem;font-weight:800;padding:6px 14px;border-radius:20px;letter-spacing:2px;text-transform:uppercase;border:1px solid rgba(255,255,255,.15)}
+.back-link{color:var(--muted);font-size:.8rem;text-decoration:none;display:flex;align-items:center;gap:4px;transition:color .2s}
+.back-link:hover{color:var(--sos-light)}
+
+/* ── SCENARIO BAR ── */
+.scenario-bar{background:rgba(42,109,181,.12);border:1px solid rgba(91,184,245,.2);border-radius:8px;padding:10px 20px;display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:.85rem;color:var(--sos-light);flex-wrap:wrap}
+.scenario-bar strong{color:#fff}
+
+/* ── SCOREBOARD ── */
+.score-strip{display:flex;align-items:center;gap:16px;padding:10px 20px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:14px;flex-wrap:wrap}
+.score-item{display:flex;align-items:center;gap:8px;font-size:.82rem}
+.score-label{color:var(--muted);font-weight:600}
+.score-value{font-weight:800;font-size:1rem}
+.score-value.found{color:var(--green)}
+.score-value.total{color:var(--gold)}
+.score-value.pts{color:var(--sos-light)}
+.score-divider{width:1px;height:24px;background:var(--border)}
+.progress-pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);background:transparent;transition:all .3s;display:flex;align-items:center;justify-content:center;font-size:.6rem}
+.pill.found-obvious{background:#43a047;border-color:#43a047}
+.pill.found-moderate{background:#e67e22;border-color:#e67e22}
+.pill.found-advanced{background:#9b59b6;border-color:#9b59b6}
+.pill-legend{display:flex;gap:10px;flex-wrap:wrap}
+.pill-leg-item{display:flex;align-items:center;gap:5px;font-size:.7rem;color:var(--muted)}
+.pill-dot{width:10px;height:10px;border-radius:50%}
+
+/* ── BROWSER CHROME ── */
+.browser-chrome{background:#2a2a2e;border-radius:12px 12px 0 0;padding:10px 16px;display:flex;align-items:center;gap:10px;border:1px solid #444;border-bottom:none}
+.browser-dots{display:flex;gap:6px}
+.browser-dot{width:12px;height:12px;border-radius:50%}
+.bd-red{background:#ff5f57}
+.bd-yellow{background:#ffbd2e}
+.bd-green{background:#28ca41}
+.browser-url{flex:1;background:#3a3a3f;border-radius:6px;padding:5px 12px;font-size:.75rem;color:#aaa;font-family:monospace;display:flex;align-items:center;gap:6px}
+.url-lock{color:#aaa;font-size:.7rem}
+
+/* ── FAKE WEBSITE CONTAINER ── */
+.fake-site-wrap{border:1px solid #444;border-top:none;border-radius:0 0 12px 12px;overflow:hidden;background:#fff;margin-bottom:20px}
+.fake-site{color:#1a1a1a;font-family:'Segoe UI',Arial,sans-serif;line-height:1.5}
+
+/* ── ISSUE HOTSPOT ── */
+.hotspot{position:relative;cursor:pointer}
+.hotspot::after{content:'';position:absolute;inset:-2px;border-radius:4px;border:2px dashed transparent;pointer-events:none;transition:border-color .2s}
+.hotspot:hover::after{border-color:rgba(91,184,245,.4)}
+.hotspot.found::after{border-color:rgba(67,160,71,.6) !important;border-style:solid}
+.hotspot.found{outline:none}
+.hotspot.found-obvious.found::after{border-color:rgba(67,160,71,.7) !important}
+.hotspot.found-moderate.found::after{border-color:rgba(230,126,34,.7) !important}
+.hotspot.found-advanced.found::after{border-color:rgba(155,89,182,.7) !important}
+
+/* ── SITE NAV ── */
+.site-nav{background:#fff;border-bottom:2px solid #e0e0e0;padding:0 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;min-height:68px}
+.site-logo{font-size:1.25rem;font-weight:800;color:#1a4e8c;letter-spacing:-0.5px;display:flex;align-items:center;gap:8px}
+.site-logo-icon{width:32px;height:32px;background:#1a4e8c;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.85rem;font-weight:900}
+.site-nav-links{display:flex;align-items:center;gap:0;list-style:none}
+.site-nav-links a{display:block;padding:10px 14px;font-size:.82rem;font-weight:600;color:#444;text-decoration:none;transition:color .2s;white-space:nowrap}
+.site-nav-links a:hover{color:#1a4e8c}
+.site-nav-phone{font-size:.88rem;font-weight:700;color:#1a4e8c;background:#eaf2ff;padding:8px 16px;border-radius:6px;white-space:nowrap}
+
+/* ── HERO ── */
+.site-hero{position:relative;height:480px;background:linear-gradient(135deg,#d4e8f7 0%,#e8f4fd 40%,#c8dff2 100%);overflow:hidden;display:flex;align-items:center}
+.site-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
+.site-hero-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(15,35,75,.72) 0%,rgba(10,25,60,.55) 60%,rgba(5,15,40,.45) 100%)}
+.site-hero-content{position:relative;z-index:2;padding:0 60px;max-width:680px}
+.site-hero-eyebrow{font-size:.75rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#7ec8f5;margin-bottom:14px}
+.site-hero-headline{font-size:2.4rem;font-weight:900;color:#fff;line-height:1.15;margin-bottom:16px;text-shadow:0 2px 12px rgba(0,0,0,.4)}
+.site-hero-sub{font-size:1rem;color:rgba(255,255,255,.85);margin-bottom:28px;line-height:1.6;max-width:500px}
+.site-hero-ctas{display:flex;gap:12px;flex-wrap:wrap}
+.site-btn-primary{background:#d43a2a;color:#fff;border:none;padding:14px 28px;border-radius:6px;font-size:.95rem;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;transition:background .2s;white-space:nowrap}
+.site-btn-primary:hover{background:#b82e20}
+.site-btn-secondary{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.6);padding:12px 26px;border-radius:6px;font-size:.95rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block;transition:all .2s;white-space:nowrap}
+.site-btn-secondary:hover{border-color:#fff;background:rgba(255,255,255,.1)}
+
+/* ── TRUST BAR ── */
+.site-trust-bar{background:#1a4e8c;color:#fff;padding:14px 40px;display:flex;gap:32px;justify-content:center;flex-wrap:wrap}
+.trust-item{display:flex;align-items:center;gap:8px;font-size:.82rem;font-weight:600}
+.trust-check{color:#5dd65d;font-size:1rem}
+
+/* ── SERVICES ── */
+.site-services{padding:60px 40px;background:#f8f9fb}
+.section-label{font-size:.7rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#1a4e8c;margin-bottom:8px}
+.section-title{font-size:1.8rem;font-weight:800;color:#1a1a2e;margin-bottom:12px}
+.section-desc{color:#555;font-size:.92rem;max-width:560px;margin-bottom:36px;line-height:1.6}
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.service-card{background:#fff;border-radius:10px;padding:24px;border:1px solid #e4e8f0;transition:box-shadow .2s}
+.service-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.service-card-icon{font-size:2rem;margin-bottom:12px}
+.service-card h3{font-size:1rem;font-weight:700;color:#1a1a2e;margin-bottom:8px}
+.service-card p{font-size:.83rem;color:#666;line-height:1.5}
+
+/* ── ABOUT ── */
+.site-about{padding:60px 40px;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.about-img{border-radius:10px;overflow:hidden;height:340px}
+.about-img img{width:100%;height:100%;object-fit:cover}
+.about-eyebrow{font-size:.7rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#1a4e8c;margin-bottom:10px}
+.about-title{font-size:1.6rem;font-weight:800;color:#1a1a2e;margin-bottom:16px;line-height:1.25}
+.about-body p{color:#444;font-size:.88rem;line-height:1.7;margin-bottom:14px}
+.about-stat-row{display:flex;gap:24px;margin-top:20px}
+.about-stat{text-align:center}
+.about-stat-num{font-size:1.6rem;font-weight:900;color:#1a4e8c}
+.about-stat-label{font-size:.72rem;color:#777;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+
+/* ── REVIEWS ── */
+.site-reviews{padding:60px 40px;background:#f8f9fb}
+.reviews-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:16px}
+.reviews-rating-summary{display:flex;align-items:center;gap:12px}
+.reviews-big-score{font-size:3rem;font-weight:900;color:#1a1a2e;line-height:1}
+.reviews-stars{color:#f5a623;font-size:1.4rem;display:block}
+.reviews-count{font-size:.8rem;color:#777;margin-top:2px}
+.reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.review-card{background:#fff;border-radius:10px;padding:20px;border:1px solid #e4e8f0}
+.review-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.review-avatar{width:40px;height:40px;border-radius:50%;background:#1a4e8c;color:#fff;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.review-name{font-weight:700;color:#1a1a2e;font-size:.88rem}
+.review-date{font-size:.72rem;color:#999}
+.review-stars{color:#f5a623;font-size:.85rem;margin-bottom:8px}
+.review-text{font-size:.82rem;color:#555;line-height:1.55}
+
+/* ── MID CTA ── */
+.site-mid-cta{background:linear-gradient(135deg,#1a4e8c,#0d3370);padding:48px 40px;text-align:center;color:#fff}
+.mid-cta-title{font-size:1.7rem;font-weight:800;margin-bottom:10px}
+.mid-cta-sub{color:rgba(255,255,255,.8);font-size:.92rem;margin-bottom:24px}
+
+/* ── CONTACT ── */
+.site-contact{padding:60px 40px;display:grid;grid-template-columns:1fr 1fr;gap:48px}
+.contact-info h2{font-size:1.5rem;font-weight:800;color:#1a1a2e;margin-bottom:16px}
+.contact-info p{color:#555;font-size:.88rem;line-height:1.65;margin-bottom:12px}
+.contact-info-items{margin-top:20px;display:flex;flex-direction:column;gap:12px}
+.contact-info-item{display:flex;align-items:flex-start;gap:10px;font-size:.85rem;color:#444}
+.contact-icon{font-size:1.1rem;margin-top:2px;flex-shrink:0}
+.contact-form-box{background:#f8f9fb;border-radius:10px;padding:28px;border:1px solid #e4e8f0}
+.contact-form-box h3{font-size:1.05rem;font-weight:700;color:#1a1a2e;margin-bottom:6px}
+.contact-form-box .form-sub{font-size:.78rem;color:#888;margin-bottom:20px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.form-field label{font-size:.73rem;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.5px}
+.form-field input,.form-field select,.form-field textarea{border:1px solid #ddd;border-radius:5px;padding:9px 12px;font-size:.83rem;color:#333;font-family:inherit;background:#fff;width:100%}
+.form-field textarea{height:80px;resize:vertical}
+.form-response-note{background:#fff8e1;border:1px solid #f5d76e;border-radius:6px;padding:10px 14px;font-size:.78rem;color:#7a6000;margin-bottom:16px;line-height:1.5}
+.form-submit{background:#1a4e8c;color:#fff;border:none;border-radius:6px;padding:13px 28px;font-size:.92rem;font-weight:700;cursor:pointer;width:100%;transition:background .2s}
+.form-submit:hover{background:#143d70}
+
+/* ── FOOTER ── */
+.site-footer{background:#0f1c35;color:#aaa;padding:40px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:32px}
+.footer-brand h4{font-size:1rem;font-weight:800;color:#fff;margin-bottom:10px}
+.footer-brand p{font-size:.78rem;line-height:1.6;color:#888}
+.footer-col h5{font-size:.8rem;font-weight:700;color:#fff;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
+.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:7px}
+.footer-col ul li a{font-size:.78rem;color:#888;text-decoration:none}
+.footer-col ul li a:hover{color:#5bb8f5}
+.footer-bottom{background:#080f1e;padding:14px 40px;display:flex;justify-content:space-between;align-items:center;font-size:.72rem;color:#666;flex-wrap:wrap;gap:8px}
+
+/* ── ANSWER PANEL ── */
+.answer-panel{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
+.answer-panel h2{font-size:1rem;font-weight:700;color:var(--sos-light);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.issues-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.issue-item{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.issue-item:hover{background:rgba(91,184,245,.07);border-color:var(--sos-blue)}
+.issue-item.revealed{background:rgba(67,160,71,.1);border-color:rgba(67,160,71,.5)}
+.issue-item.revealed.mod{background:rgba(230,126,34,.1);border-color:rgba(230,126,34,.5)}
+.issue-item.revealed.adv{background:rgba(155,89,182,.1);border-color:rgba(155,89,182,.5)}
+.issue-number{font-size:.65rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.issue-title{font-size:.85rem;font-weight:700;color:var(--text);margin-bottom:2px}
+.issue-category{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:10px;display:inline-block;margin-bottom:6px}
+.cat-cro{background:rgba(212,58,58,.2);color:#f08080}
+.cat-ux{background:rgba(91,184,245,.2);color:#7ec8f5}
+.cat-seo{background:rgba(245,200,66,.2);color:#f5d242}
+.cat-content{background:rgba(67,160,71,.2);color:#81c784}
+.cat-trust{background:rgba(155,89,182,.2);color:#ce93d8}
+.cat-visual{background:rgba(230,126,34,.2);color:#ffb74d}
+.cat-advanced{background:rgba(155,89,182,.3);color:#e1bee7}
+.issue-desc{font-size:.76rem;color:var(--muted);line-height:1.45;display:none}
+.issue-item.revealed .issue-desc{display:block}
+.issue-check{position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:50%;background:rgba(67,160,71,.8);color:#fff;font-size:.75rem;display:none;align-items:center;justify-content:center;font-weight:700}
+.issue-item.revealed .issue-check{display:flex}
+.diff-label{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:10px;display:inline-block;margin-left:4px}
+.diff-obvious{background:rgba(67,160,71,.2);color:#81c784}
+.diff-moderate{background:rgba(230,126,34,.2);color:#ffb74d}
+.diff-advanced{background:rgba(155,89,182,.2);color:#ce93d8}
+
+/* ── CONTROLS ── */
+.controls-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;align-items:center}
+.btn{border:none;padding:10px 20px;border-radius:8px;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s;letter-spacing:.3px}
+.btn-blue{background:var(--sos-blue);color:#fff}
+.btn-blue:hover{background:#1e5a9e}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:#388e3c}
+.btn-red{background:var(--sos-red);color:#fff}
+.btn-red:hover{background:#b71c1c}
+.btn-secondary{background:var(--border);color:var(--text)}
+.btn-secondary:hover{background:#2a4f78}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);max-width:600px;width:100%;max-height:90vh;overflow-y:auto;padding:32px;position:relative}
+.modal h2{font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:6px}
+.modal .modal-cat{margin-bottom:16px}
+.modal-body{font-size:.9rem;color:var(--muted);line-height:1.65}
+.modal-body h4{color:var(--sos-light);font-size:.85rem;margin-top:16px;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+.modal-body p{margin-bottom:8px}
+.modal-close{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;line-height:1}
+.modal-close:hover{color:#fff}
+.modal-pts{display:inline-block;padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:700;margin-left:8px}
+.modal-pts.obvious{background:rgba(67,160,71,.25);color:#81c784}
+.modal-pts.moderate{background:rgba(230,126,34,.25);color:#ffb74d}
+.modal-pts.advanced{background:rgba(155,89,182,.25);color:#ce93d8}
+
+/* ── WIN SCREEN ── */
+.win-screen{display:none;text-align:center;padding:48px 24px;position:relative}
+.win-screen.show{display:block}
+.win-title{font-size:2.5rem;font-weight:900;color:var(--gold);margin-bottom:12px}
+.win-sub{font-size:1.1rem;color:var(--muted);margin-bottom:24px}
+.win-score{font-size:3rem;font-weight:900;color:var(--sos-light)}
+.win-score-label{font-size:.85rem;color:var(--muted);margin-bottom:32px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a4e8c;color:#fff;padding:12px 24px;border-radius:30px;font-size:.85rem;font-weight:600;opacity:0;transition:all .3s;z-index:2000;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── CONFETTI ── */
+#confettiContainer{position:fixed;top:0;left:0;width:100%;height:0;overflow:visible;z-index:3000;pointer-events:none}
+.confetti-piece{position:absolute;top:-10px;opacity:1;animation:confetti-fall linear forwards}
+@keyframes confetti-fall{0%{opacity:1;transform:translateY(0) rotate(0deg)}80%{opacity:1}100%{opacity:0;transform:translateY(105vh) rotate(720deg) scale(.4)}}
+
+/* ── ANIMATIONS ── */
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse-ring{0%{box-shadow:0 0 0 0 rgba(91,184,245,.4)}70%{box-shadow:0 0 0 8px rgba(91,184,245,0)}100%{box-shadow:0 0 0 0 rgba(91,184,245,0)}}
+.hotspot-hint{animation:pulse-ring 2s ease-out infinite}
+
+/* INSTRUCTION PANEL */
+.instruction-box{background:rgba(42,109,181,.1);border:1px solid rgba(91,184,245,.2);border-radius:8px;padding:14px 18px;margin-bottom:14px;font-size:.82rem;color:var(--muted);display:flex;gap:12px;align-items:flex-start}
+.instruction-box strong{color:var(--sos-light)}
+</style>
+</head>
+<body>
+
+<div id="confettiContainer"></div>
+<div class="toast" id="toast"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- WIN SCREEN (hidden initially) -->
+<div class="wrap" id="winWrap" style="display:none">
+  <div class="win-screen show">
+    <div style="font-size:4rem;margin-bottom:16px">🎉</div>
+    <div class="win-title">All Leaks Found!</div>
+    <div class="win-sub">Blue Ridge Restoration is now conversion-optimized. Nice work, analyst.</div>
+    <div class="win-score" id="finalScore">0</div>
+    <div class="win-score-label">Total Points</div>
+    <button class="btn btn-blue" onclick="resetGame()" style="margin-top:24px">Play Again</button>
+    <a href="index.html" class="btn btn-secondary" style="margin-top:12px;display:inline-block;text-decoration:none">← Game Center</a>
+  </div>
+</div>
+
+<!-- MAIN GAME WRAP -->
+<div class="wrap" id="mainWrap">
+
+  <!-- GAME HEADER -->
+  <div class="game-header">
+    <div class="game-header-left">
+      <svg class="sos-logo" viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+        <text x="28" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text>
+        <g transform="translate(160,68)">
+          <circle cx="0" cy="0" r="48" fill="none" stroke="#fff" stroke-width="18"/>
+          <circle cx="0" cy="0" r="48" fill="none" stroke="#d43a3a" stroke-width="18" stroke-dasharray="25 50.7" stroke-dashoffset="0"/>
+          <line x1="-32" y1="-32" x2="-44" y2="-44" stroke="#ddd" stroke-width="2"/>
+          <line x1="32" y1="-32" x2="44" y2="-44" stroke="#ddd" stroke-width="2"/>
+          <line x1="-32" y1="32" x2="-44" y2="44" stroke="#ddd" stroke-width="2"/>
+          <line x1="32" y1="32" x2="44" y2="44" stroke="#ddd" stroke-width="2"/>
+        </g>
+        <text x="222" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text>
+        <text x="160" y="150" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="#5bb8f5" text-anchor="middle" letter-spacing="4">SPOTONSOLUTIONS</text>
+      </svg>
+      <div>
+        <div class="logo-label">SOS Game Center</div>
+        <div class="logo-name">🎮 Game Center</div>
+      </div>
+    </div>
+    <div class="game-header-center">
+      <h1>🔍 Spot the <span class="hl">Leak</span></h1>
+      <div class="sub">UX Audit Challenge &nbsp;·&nbsp; Landing Page — Emergency Water Damage Restoration</div>
+    </div>
+    <div class="game-header-right">
+      <div class="difficulty-badge">⚡ HARD</div>
+      <a href="index.html" class="back-link">← Game Center</a>
+    </div>
+  </div>
+
+  <!-- SCENARIO BAR -->
+  <div class="scenario-bar">
+    <span>⚡</span>
+    <span><strong>Scenario Active</strong> — You are auditing a live small business website for a water damage restoration company in Asheville, NC. Scan the page carefully. Identify all UX, CRO, SEO, and content issues. Click any section that has a problem.</span>
+  </div>
+
+  <!-- SCORE STRIP -->
+  <div class="score-strip">
+    <div class="score-item">
+      <span class="score-label">Found</span>
+      <span class="score-value found" id="foundCount">0</span>
+      <span class="score-label">/ <span id="totalCount">11</span></span>
+    </div>
+    <div class="score-divider"></div>
+    <div class="score-item">
+      <span class="score-label">Points</span>
+      <span class="score-value pts" id="scoreDisplay">0</span>
+    </div>
+    <div class="score-divider"></div>
+    <div class="pill-legend">
+      <div class="pill-leg-item"><div class="pill-dot" style="background:#43a047"></div> Obvious (100 pts)</div>
+      <div class="pill-leg-item"><div class="pill-dot" style="background:#e67e22"></div> Moderate (200 pts)</div>
+      <div class="pill-leg-item"><div class="pill-dot" style="background:#9b59b6"></div> Advanced (300 pts)</div>
+    </div>
+    <div class="score-divider"></div>
+    <div class="progress-pills" id="progressPills"></div>
+  </div>
+
+  <!-- INSTRUCTION BOX -->
+  <div class="instruction-box">
+    <span>💡</span>
+    <span><strong>How to play:</strong> Browse the fake website below like you're doing a real audit. Click any element, section, or area where you spot a UX, CRO, SEO, content, or trust issue. Each correct click reveals the issue and awards points. There are <strong>11 total issues</strong> hidden across the page.</span>
+  </div>
+
+  <!-- BROWSER CHROME -->
+  <div class="browser-chrome">
+    <div class="browser-dots">
+      <div class="browser-dot bd-red"></div>
+      <div class="browser-dot bd-yellow"></div>
+      <div class="browser-dot bd-green"></div>
+    </div>
+    <div class="browser-url">
+      <span class="url-lock">🔒</span>
+      <span>blueridgerestoration.com</span>
+    </div>
+  </div>
+
+  <!-- FAKE WEBSITE -->
+  <div class="fake-site-wrap">
+  <div class="fake-site">
+
+    <!-- SITE NAV -->
+    <nav class="site-nav">
+      <div class="site-logo">
+        <div class="site-logo-icon">BR</div>
+        BlueRidge Restoration
+      </div>
+      <!-- HOTSPOT: Nav links (too many / distraction) -->
+      <ul class="site-nav-links hotspot found-obvious" id="hotspot-nav-links" onclick="triggerHotspot('nav-links')">
+        <li><a href="#" onclick="return false">Services</a></li>
+        <li><a href="#" onclick="return false">About Us</a></li>
+        <li><a href="#" onclick="return false">Our Process</a></li>
+        <li><a href="#" onclick="return false">Gallery</a></li>
+        <li><a href="#" onclick="return false">Blog</a></li>
+        <li><a href="#" onclick="return false">Careers</a></li>
+        <li><a href="#" onclick="return false">Contact</a></li>
+      </ul>
+      <!-- HOTSPOT: Non-clickable phone number -->
+      <div class="site-nav-phone hotspot found-obvious" id="hotspot-phone" onclick="triggerHotspot('phone')">(828) 554-9200</div>
+    </nav>
+
+    <!-- HERO -->
+    <div class="site-hero">
+      <!-- HOTSPOT: Hero image — aspirational/pretty home, not damage -->
+      <div class="hotspot found-advanced" id="hotspot-hero-image" onclick="triggerHotspot('hero-image')" style="position:absolute;inset:0;z-index:1;cursor:pointer">
+        <img src="https://picsum.photos/seed/beautiful-home-exterior/1300/480" alt="Beautiful home exterior">
+        <div class="site-hero-overlay"></div>
+      </div>
+      <div class="site-hero-content">
+        <div class="site-hero-eyebrow">Asheville's Most Trusted Restoration Team</div>
+        <!-- HOTSPOT: No H1 — hero headline is a div -->
+        <div class="site-hero-headline hotspot found-obvious" id="hotspot-h1" onclick="triggerHotspot('h1')">
+          When Disaster Strikes, We're Ready to Restore
+        </div>
+        <div class="site-hero-sub">BlueRidge Restoration provides expert water damage restoration, mold remediation, and emergency services across Asheville, NC and surrounding areas. Available 24/7.</div>
+        <!-- HOTSPOT: Two competing CTAs + wrong primary CTA -->
+        <div class="site-hero-ctas hotspot found-obvious found-moderate" id="hotspot-ctas" onclick="triggerHotspot('ctas')">
+          <a href="#" class="site-btn-primary" onclick="return false">Get a Free Estimate</a>
+          <a href="#" class="site-btn-secondary" onclick="return false">About Our Company</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRUST BAR -->
+    <div class="site-trust-bar">
+      <div class="trust-item"><span class="trust-check">✓</span> 24/7 Emergency Response</div>
+      <div class="trust-item"><span class="trust-check">✓</span> IICRC Certified Technicians</div>
+      <div class="trust-item"><span class="trust-check">✓</span> Insurance Claims Assistance</div>
+      <div class="trust-item"><span class="trust-check">✓</span> Serving WNC Since 2009</div>
+      <div class="trust-item"><span class="trust-check">✓</span> Free On-Site Assessment</div>
+    </div>
+
+    <!-- SERVICES -->
+    <div class="site-services">
+      <div class="section-label">What We Do</div>
+      <div class="section-title">Our Restoration Services</div>
+      <div class="section-desc">We handle all types of property damage restoration with state-of-the-art equipment and a certified team you can count on.</div>
+      <!-- HOTSPOT: Generic one-line service descriptions -->
+      <div class="services-grid hotspot found-moderate" id="hotspot-services" onclick="triggerHotspot('services')">
+        <div class="service-card">
+          <div class="service-card-icon">💧</div>
+          <h3>Water Damage Restoration</h3>
+          <p>Fast response times and professional equipment.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-card-icon">🔥</div>
+          <h3>Fire & Smoke Damage</h3>
+          <p>Fast response times and professional equipment.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-card-icon">🧪</div>
+          <h3>Mold Remediation</h3>
+          <p>Fast response times and professional equipment.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-card-icon">🌪️</div>
+          <h3>Storm Damage</h3>
+          <p>Fast response times and professional equipment.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-card-icon">🚿</div>
+          <h3>Sewage Cleanup</h3>
+          <p>Fast response times and professional equipment.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-card-icon">🏠</div>
+          <h3>Contents Restoration</h3>
+          <p>Fast response times and professional equipment.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABOUT -->
+    <div class="site-about">
+      <div class="about-img">
+        <img src="https://picsum.photos/seed/restoration-team-professional/600/340" alt="Our team">
+      </div>
+      <div class="about-body">
+        <div class="about-eyebrow">Who We Are</div>
+        <div class="about-title">Asheville's Emergency Restoration Experts Since 2009</div>
+        <!-- HOTSPOT: Educational "Did you know" content in About section — wrong intent mode -->
+        <div class="hotspot found-advanced" id="hotspot-about-content" onclick="triggerHotspot('about-content')">
+          <p>At BlueRidge Restoration, we've built our reputation on responding fast and restoring homes right. Our IICRC-certified team is available around the clock to handle emergencies of any size.</p>
+          <p><em>Did you know that water damage is one of the most common and costly home insurance claims in the United States? According to industry data, the average water damage claim exceeds $11,000, and nearly 1 in 50 homeowners files a water damage claim each year. Understanding how water damage develops — and the stages of restoration — can help homeowners make better decisions.</em></p>
+          <p>Our technicians are trained to the highest standards and work closely with all major insurance carriers to streamline your claims process and minimize your out-of-pocket costs.</p>
+        </div>
+        <div class="about-stat-row">
+          <div class="about-stat"><div class="about-stat-num">15+</div><div class="about-stat-label">Years Serving WNC</div></div>
+          <div class="about-stat"><div class="about-stat-num">2,400+</div><div class="about-stat-label">Homes Restored</div></div>
+          <div class="about-stat"><div class="about-stat-num">24/7</div><div class="about-stat-label">Emergency Line</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIEWS -->
+    <div class="site-reviews">
+      <div class="reviews-header">
+        <div class="section-title" style="margin-bottom:0">What Our Customers Say</div>
+        <!-- HOTSPOT: Claims 47 reviews but only 3 shown, all same month -->
+        <div class="reviews-rating-summary hotspot found-moderate" id="hotspot-reviews" onclick="triggerHotspot('reviews')">
+          <div class="reviews-big-score">4.8</div>
+          <div>
+            <span class="reviews-stars">★★★★★</span>
+            <div class="reviews-count">Based on 47 Google Reviews</div>
+          </div>
+        </div>
+      </div>
+      <!-- Also clickable as part of reviews hotspot -->
+      <div class="reviews-grid hotspot found-moderate" id="hotspot-reviews-grid" onclick="triggerHotspot('reviews')">
+        <div class="review-card">
+          <div class="review-header">
+            <div class="review-avatar">JH</div>
+            <div>
+              <div class="review-name">James H.</div>
+              <div class="review-date">November 2024</div>
+            </div>
+          </div>
+          <div class="review-stars">★★★★★</div>
+          <div class="review-text">"BlueRidge was at my house within two hours of my basement flooding. Professional, efficient, and they handled everything with my insurance. Highly recommend."</div>
+        </div>
+        <div class="review-card">
+          <div class="review-header">
+            <div class="review-avatar">SK</div>
+            <div>
+              <div class="review-name">Sarah K.</div>
+              <div class="review-date">November 2024</div>
+            </div>
+          </div>
+          <div class="review-stars">★★★★★</div>
+          <div class="review-text">"Amazing service from start to finish. They responded to our water emergency quickly and their team was courteous and thorough. Our home looks like new."</div>
+        </div>
+        <div class="review-card">
+          <div class="review-header">
+            <div class="review-avatar">MR</div>
+            <div>
+              <div class="review-name">Michael R.</div>
+              <div class="review-date">November 2024</div>
+            </div>
+          </div>
+          <div class="review-stars">★★★★★</div>
+          <div class="review-text">"Can't say enough good things. They showed up on time, explained every step of the process, and finished ahead of schedule. Will definitely call them again."</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MID CTA -->
+    <div class="site-mid-cta">
+      <div class="mid-cta-title">Dealing With Water Damage Right Now?</div>
+      <div class="mid-cta-sub">Our emergency response team is standing by 24 hours a day, 7 days a week.</div>
+      <a href="#" class="site-btn-primary" onclick="return false" style="font-size:1rem;padding:16px 36px">Get a Free Estimate</a>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="site-contact">
+      <div class="contact-info">
+        <h2>Get In Touch</h2>
+        <p>We're here to help with any water damage, fire damage, or mold situation you're facing. Fill out the form and a member of our team will be in touch.</p>
+        <!-- HOTSPOT: "24 business hours" + after-hours voicemail note -->
+        <div class="hotspot found-advanced" id="hotspot-response-time" onclick="triggerHotspot('response-time')">
+          <p style="margin-top:10px;color:#d43a2a;font-weight:600;font-size:.88rem">We'll respond within <strong>24 business hours</strong>.</p>
+          <p style="font-size:.82rem;color:#888;margin-top:4px;line-height:1.6">If you're calling after hours, please leave a voicemail and we'll return your call first thing in the morning.</p>
+        </div>
+        <div class="contact-info-items">
+          <div class="contact-info-item"><span class="contact-icon">📞</span> (828) 554-9200</div>
+          <div class="contact-info-item"><span class="contact-icon">✉️</span> info@blueridgerestoration.com</div>
+          <div class="contact-info-item"><span class="contact-icon">📍</span> Asheville, NC</div>
+          <div class="contact-info-item"><span class="contact-icon">🕐</span> Emergency Line: 24/7</div>
+        </div>
+      </div>
+      <!-- HOTSPOT: 9-field contact form for an emergency service -->
+      <div class="contact-form-box hotspot found-moderate" id="hotspot-form" onclick="triggerHotspot('form')">
+        <h3>Request a Free Assessment</h3>
+        <div class="form-sub">Fill out the form below and we'll get back to you as soon as possible.</div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>First Name *</label>
+            <input type="text" placeholder="John">
+          </div>
+          <div class="form-field">
+            <label>Last Name *</label>
+            <input type="text" placeholder="Smith">
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Email Address *</label>
+          <input type="email" placeholder="john@email.com">
+        </div>
+        <div class="form-field">
+          <label>Phone Number *</label>
+          <input type="tel" placeholder="(828) 555-0000">
+        </div>
+        <div class="form-field">
+          <label>Service Needed</label>
+          <select>
+            <option>-- Select a service --</option>
+            <option>Water Damage Restoration</option>
+            <option>Fire & Smoke Damage</option>
+            <option>Mold Remediation</option>
+            <option>Storm Damage</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Estimated Affected Area (sq ft)</label>
+          <input type="text" placeholder="e.g. 500">
+        </div>
+        <div class="form-field">
+          <label>Best Time to Call</label>
+          <select>
+            <option>Morning (8am–12pm)</option>
+            <option>Afternoon (12pm–5pm)</option>
+            <option>Evening (5pm–8pm)</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>How Did You Hear About Us?</label>
+          <select>
+            <option>-- Select --</option>
+            <option>Google Search</option>
+            <option>Referral</option>
+            <option>Social Media</option>
+            <option>Insurance Company</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Tell Us About Your Situation</label>
+          <textarea placeholder="Briefly describe what happened..."></textarea>
+        </div>
+        <div class="form-response-note">
+          ⏱️ We respond to all inquiries within 24 business hours. For emergencies, please call our main line directly.
+        </div>
+        <button class="form-submit">Submit Request</button>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="site-footer">
+      <div class="footer-brand">
+        <h4>BlueRidge Restoration</h4>
+        <p>Asheville's trusted emergency water damage restoration team. Serving Western North Carolina since 2009 with 24/7 emergency response.</p>
+        <p style="margin-top:12px;font-size:.75rem">📍 Asheville, NC &nbsp;|&nbsp; (828) 554-9200</p>
+      </div>
+      <div class="footer-col">
+        <h5>Services</h5>
+        <ul>
+          <li><a href="#" onclick="return false">Water Damage</a></li>
+          <li><a href="#" onclick="return false">Fire & Smoke</a></li>
+          <li><a href="#" onclick="return false">Mold Remediation</a></li>
+          <li><a href="#" onclick="return false">Storm Damage</a></li>
+          <li><a href="#" onclick="return false">Sewage Cleanup</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="#" onclick="return false">About Us</a></li>
+          <li><a href="#" onclick="return false">Our Process</a></li>
+          <li><a href="#" onclick="return false">Gallery</a></li>
+          <li><a href="#" onclick="return false">Blog</a></li>
+          <li><a href="#" onclick="return false">Careers</a></li>
+          <li><a href="#" onclick="return false">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2024 BlueRidge Restoration. All rights reserved.</span>
+      <span>Privacy Policy &nbsp;|&nbsp; Terms of Service</span>
+    </div>
+
+  </div><!-- /fake-site -->
+  </div><!-- /fake-site-wrap -->
+
+  <!-- ANSWER / ISSUE PANEL -->
+  <div class="answer-panel">
+    <h2>🗂️ Issue Tracker <span style="color:var(--muted);font-weight:400;font-size:.8rem;margin-left:8px">Click any highlighted area on the page above, or click an issue below to learn more</span></h2>
+    <div class="issues-list" id="issuesList"></div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls-row">
+    <button class="btn btn-blue" onclick="revealAll()">Reveal All Issues</button>
+    <button class="btn btn-secondary" onclick="resetGame()">Reset Game</button>
+    <a href="index.html" class="btn btn-secondary" style="text-decoration:none">← Game Center</a>
+  </div>
+
+</div><!-- /mainWrap -->
+
+<!-- STANDARD FOOTER -->
+<div class="footer" style="text-align:center;padding:24px;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);width:100%;margin-top:auto;position:relative;z-index:1">
+  <p>SpotOn Solutions Game Center &middot; Built for Elevation &middot; <a href="https://spotonsolutions.com" style="color:var(--sos-light);text-decoration:none">spotonsolutions.com</a></p>
+</div>
+
+<script>
+// ─── ISSUE DATA ───────────────────────────────────────────────────────────────
+const ISSUES = [
+  {
+    id: 'ctas',
+    title: 'Wrong Primary CTA for Emergency Context',
+    category: 'CRO',
+    catClass: 'cat-cro',
+    difficulty: 'obvious',
+    diffLabel: 'Obvious',
+    points: 100,
+    hotspotIds: ['hotspot-ctas'],
+    what: 'The hero CTA says "Get a Free Estimate" — deliberate, passive language that implies a scheduled appointment rather than urgent help.',
+    why: 'Users experiencing active water damage need immediate, direct language. "Get a Free Estimate" creates cognitive distance — it sounds like planning a remodel, not stopping a crisis. It signals the company isn\'t in emergency mode.',
+    fix: 'Replace with "Call Now for Emergency Help" or "Get Emergency Response Now" — urgent, action-first language that matches the user\'s anxious state and the 24/7 positioning on the page.'
+  },
+  {
+    id: 'phone',
+    title: 'Phone Number Is Not Clickable (No tel: Link)',
+    category: 'UX',
+    catClass: 'cat-ux',
+    difficulty: 'obvious',
+    diffLabel: 'Obvious',
+    points: 100,
+    hotspotIds: ['hotspot-phone'],
+    what: 'The phone number in the navigation is a plain <div> element, not an <a href="tel:..."> link.',
+    why: 'For an emergency restoration company, the phone number is the single highest-converting element on the page. On mobile — where the majority of emergency searches happen — a non-linked number is completely unusable. Users cannot tap to call. This is a direct conversion killer.',
+    fix: 'Wrap the phone number in <a href="tel:+18285549200">(828) 554-9200</a>. Style it to look identical to the current design. Add to every instance of the number on the page.'
+  },
+  {
+    id: 'h1',
+    title: 'Missing H1 Tag — Hero Headline Is a Div',
+    category: 'SEO',
+    catClass: 'cat-seo',
+    difficulty: 'obvious',
+    diffLabel: 'Obvious',
+    points: 100,
+    hotspotIds: ['hotspot-h1'],
+    what: 'The hero headline ("When Disaster Strikes, We\'re Ready to Restore") is coded as a <div class="hero-headline">, not an <h1> tag. There is no H1 anywhere on the page.',
+    why: 'Google uses the H1 as a primary signal for page topic and keyword relevance. Without one, the page loses SEO authority for its most important ranking terms (e.g., "water damage restoration Asheville NC"). This is a foundational on-page SEO error.',
+    fix: 'Change the hero headline element to an <h1> tag. Rewrite it to include the primary keyword naturally: e.g., <h1>Emergency Water Damage Restoration in Asheville, NC</h1>. Style with CSS to match the current design.'
+  },
+  {
+    id: 'nav-links',
+    title: '7 Nav Links Including Gallery, Blog, and Careers',
+    category: 'UX',
+    catClass: 'cat-ux',
+    difficulty: 'obvious',
+    diffLabel: 'Obvious',
+    points: 100,
+    hotspotIds: ['hotspot-nav-links'],
+    what: 'The navigation contains 7 links: Services, About Us, Our Process, Gallery, Blog, Careers, Contact — including three non-conversion links (Gallery, Blog, Careers).',
+    why: 'For an emergency-intent user, Gallery, Blog, and Careers are distraction paths that pull users away from calling or contacting. Hick\'s Law: the more choices presented, the longer the decision time. In an emergency, every extra click is a lost conversion. Careers is especially egregious — recruiting should never compete with crisis leads.',
+    fix: 'Reduce nav to 4 max conversion-focused links: Services, About, Contact, and a prominent phone number CTA button. Move Gallery, Blog, and Careers to the footer only.'
+  },
+  {
+    id: 'competing-ctas',
+    title: 'Two Competing CTAs in Hero — Second Drives Away from Conversion',
+    category: 'CRO',
+    catClass: 'cat-cro',
+    difficulty: 'moderate',
+    diffLabel: 'Moderate',
+    points: 200,
+    hotspotIds: ['hotspot-ctas'],
+    what: 'The hero has two CTAs side by side: "Get a Free Estimate" (primary) and "About Our Company" (secondary). The second CTA competes directly with the first.',
+    why: '"About Our Company" sends an emergency-intent visitor on a detour to read company history — exactly when they should be converting. Dual CTAs with equal visual weight create decision paralysis. The secondary action here has zero urgency and actively routes users away from the goal.',
+    fix: 'Remove "About Our Company" from the hero entirely. If a secondary CTA is needed, use something that supports conversion: "See Our Process →" or "Read 47 Reviews." Keep all hero real estate focused on one primary action.'
+  },
+  {
+    id: 'reviews',
+    title: 'Reviews Appear Thin — 3 Visible, All From Same Month',
+    category: 'Trust',
+    catClass: 'cat-trust',
+    difficulty: 'moderate',
+    diffLabel: 'Moderate',
+    points: 200,
+    hotspotIds: ['hotspot-reviews', 'hotspot-reviews-grid'],
+    what: 'The page claims "4.8 / 5.0 Based on 47 Google Reviews" but only displays 3 reviews — all dated November 2024.',
+    why: 'Three reviews all from the same month, when 47 are claimed, reads as fabricated or cherry-picked. Real review sections should show a spread of dates across months and years to signal authentic, ongoing customer satisfaction. Savvy users notice date clustering immediately — it destroys the trust signal the section is meant to create.',
+    fix: 'Show 6–9 reviews with varied dates spanning 12+ months. Add a "See All 47 Google Reviews →" link that opens the actual Google Business Profile. Embed the Google review widget if possible for real-time credibility.'
+  },
+  {
+    id: 'form',
+    title: 'Contact Form Has 9 Fields for an Emergency Lead',
+    category: 'CRO',
+    catClass: 'cat-cro',
+    difficulty: 'moderate',
+    diffLabel: 'Moderate',
+    points: 200,
+    hotspotIds: ['hotspot-form'],
+    what: 'The contact form requires 9 fields including "Estimated Affected Area (sq ft)", "Best Time to Call", and "How Did You Hear About Us?" — purely marketing/CRM data at the worst possible moment.',
+    why: 'A user submitting a form during an active water damage event won\'t know the affected square footage and won\'t tolerate a 9-field form. Every additional field reduces completion rates. "How did you hear about us" is attribution data for the business — it provides zero value to the distressed user filling it out. Long forms signal bureaucracy, not emergency responsiveness.',
+    fix: 'Reduce to 3 fields max: Name, Phone, and a short "Describe your situation" text box. Remove all attribution, scheduling, and measurement fields. The primary CTA should be a phone number, with the form as a secondary option for non-emergency inquiries.'
+  },
+  {
+    id: 'services',
+    title: 'Service Cards Use Identical Generic One-Line Descriptions',
+    category: 'Content',
+    catClass: 'cat-content',
+    difficulty: 'moderate',
+    diffLabel: 'Moderate',
+    points: 200,
+    hotspotIds: ['hotspot-services'],
+    what: 'All 6 service cards share the exact same description: "Fast response times and professional equipment." — a meaningless, interchangeable placeholder.',
+    why: 'Generic, identical copy signals that this content was never properly developed. It provides no information to help the user select the right service, no differentiators, no urgency, and no SEO value. Search engines also see this as thin/duplicate content. Users who came in for mold remediation vs. sewage cleanup have completely different needs — the copy ignores both.',
+    fix: 'Write unique 2–3 sentence descriptions for each service that include: a key differentiator, a specific outcome ("we extract standing water in under 2 hours"), and a relevant keyword. Avoid filler phrases like "professional equipment" without context.'
+  },
+  {
+    id: 'about-content',
+    title: '"Did You Know" Research Content in About Section — Wrong Intent Mode',
+    category: 'Content',
+    catClass: 'cat-content',
+    difficulty: 'advanced',
+    diffLabel: 'Advanced',
+    points: 300,
+    hotspotIds: ['hotspot-about-content'],
+    what: 'The About section contains an educational paragraph beginning with "Did you know that water damage is one of the most common and costly home insurance claims..." — industry statistics and educational content designed for research mode.',
+    why: 'Users landing on an emergency restoration site are in crisis mode, not research mode. Educational "did you know" content is appropriate for a blog post targeting informational search intent — not for someone whose basement is flooding. This content creates a jarring emotional mismatch: it signals the company doesn\'t understand the user\'s urgency and pulls them into a slow, analytical reading mode at exactly the wrong moment.',
+    fix: 'Replace with trust-building, empathy-first language: "We know you\'re dealing with one of the most stressful situations a homeowner can face. Our team is trained to take that weight off your shoulders — from the first call to the final walkthrough." Save educational content for blog articles.'
+  },
+  {
+    id: 'hero-image',
+    title: 'Hero Image Shows Pristine Home Exterior — Emotional Mismatch',
+    category: 'Visual',
+    catClass: 'cat-visual',
+    difficulty: 'advanced',
+    diffLabel: 'Advanced',
+    points: 300,
+    hotspotIds: ['hotspot-hero-image'],
+    what: 'The hero background image is a beautiful, sunny residential home exterior — aspirational, clean, and perfect. This is a home improvement/real estate aesthetic, not a restoration one.',
+    why: 'Visual-emotional congruence is a core conversion principle. A user experiencing active water damage is anxious, stressed, and seeking reassurance. A bright, pristine dream home image subconsciously signals "this is not the place for your problem" — it triggers aspirational mode, not crisis-response mode. The best emergency restoration hero images show: a professional team in action, a restoration in progress, or a homeowner visibly relieved with a crew nearby.',
+    fix: 'Replace with an authentic image of: (1) a professional restoration crew at work, (2) industrial drying equipment in a flooded space, or (3) a "before and after" split image. The visual must validate the user\'s emotional state — I see what you\'re going through, and we handle exactly this.'
+  },
+  {
+    id: 'response-time',
+    title: '"24 Business Hours" Response + After-Hours Voicemail Message',
+    category: 'CRO',
+    catClass: 'cat-cro',
+    difficulty: 'advanced',
+    diffLabel: 'Advanced',
+    points: 300,
+    hotspotIds: ['hotspot-response-time'],
+    what: 'The contact section states "We\'ll respond within 24 business hours" and the after-hours note reads "leave a voicemail and we\'ll return your call first thing in the morning."',
+    why: 'This is a catastrophic funnel mismatch. The company markets itself as a 24/7 emergency responder — but the contact section kills that promise entirely. "24 business hours" effectively means up to 3 days (Friday evening → Monday morning). "First thing in the morning" is devastating for a flooded basement at 11pm. A user who reads this will abandon the form and call a competitor who actually signals 24/7 responsiveness.',
+    fix: 'Remove "24 business hours" entirely. Replace with: "For emergencies, call us now — we answer 24/7: (828) 554-9200." The form response promise should read "Non-emergency inquiries are responded to within 2 business hours." Make the emergency phone number the dominant CTA in this section.'
+  }
+];
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let foundIds = new Set();
+let score = 0;
+const TOTAL = ISSUES.length;
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+function initGame() {
+  foundIds.clear();
+  score = 0;
+  updateScoreboard();
+  renderIssueList();
+  renderPills();
+  // Reset hotspot visual states
+  document.querySelectorAll('.hotspot').forEach(el => el.classList.remove('found'));
+}
+
+function renderIssueList() {
+  const list = document.getElementById('issuesList');
+  list.innerHTML = '';
+  ISSUES.forEach((issue, idx) => {
+    const div = document.createElement('div');
+    div.className = `issue-item ${issue.difficulty === 'moderate' ? 'mod' : issue.difficulty === 'advanced' ? 'adv' : ''}`;
+    div.id = `issue-item-${issue.id}`;
+    div.onclick = () => showIssueModal(issue.id);
+    div.innerHTML = `
+      <div class="issue-number">Issue #${idx + 1}</div>
+      <div class="issue-title">${issue.title}</div>
+      <div>
+        <span class="issue-category ${issue.catClass}">${issue.category}</span>
+        <span class="diff-label diff-${issue.difficulty}">${issue.diffLabel} — ${issue.points} pts</span>
+      </div>
+      <div class="issue-desc">
+        <strong style="color:var(--sos-light);display:block;margin-bottom:4px;font-size:.75rem">WHAT IT IS</strong>
+        ${issue.what}
+        <br><br>
+        <strong style="color:var(--sos-light);display:block;margin-bottom:4px;font-size:.75rem">WHY IT MATTERS</strong>
+        ${issue.why}
+        <br><br>
+        <strong style="color:var(--green);display:block;margin-bottom:4px;font-size:.75rem">THE FIX</strong>
+        ${issue.fix}
+      </div>
+      <div class="issue-check">✓</div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function renderPills() {
+  const container = document.getElementById('progressPills');
+  container.innerHTML = '';
+  ISSUES.forEach(issue => {
+    const pill = document.createElement('div');
+    pill.className = 'pill';
+    pill.id = `pill-${issue.id}`;
+    pill.title = issue.title;
+    container.appendChild(pill);
+  });
+}
+
+function updateScoreboard() {
+  document.getElementById('foundCount').textContent = foundIds.size;
+  document.getElementById('scoreDisplay').textContent = score;
+}
+
+// ─── HOTSPOT TRIGGER ──────────────────────────────────────────────────────────
+function triggerHotspot(hotspotId) {
+  // Find matching issues
+  const matchingIssues = ISSUES.filter(issue => issue.hotspotIds.includes(`hotspot-${hotspotId}`));
+  if (matchingIssues.length === 0) return;
+
+  let anyNew = false;
+  matchingIssues.forEach(issue => {
+    if (!foundIds.has(issue.id)) {
+      anyNew = true;
+      revealIssue(issue.id, true);
+    }
+  });
+
+  if (!anyNew) {
+    // All matching issues already found — just show the modal for first one
+    showIssueModal(matchingIssues[0].id);
+  } else {
+    // Show modal for first new one found
+    const firstNew = matchingIssues.find(i => foundIds.has(i.id));
+    if (firstNew) showIssueModal(firstNew.id);
+  }
+}
+
+function revealIssue(issueId, fromHotspot) {
+  const issue = ISSUES.find(i => i.id === issueId);
+  if (!issue || foundIds.has(issueId)) return;
+
+  foundIds.add(issueId);
+  score += issue.points;
+  updateScoreboard();
+
+  // Mark hotspots
+  issue.hotspotIds.forEach(hid => {
+    const el = document.getElementById(hid);
+    if (el) el.classList.add('found');
+  });
+
+  // Mark issue item
+  const itemEl = document.getElementById(`issue-item-${issueId}`);
+  if (itemEl) itemEl.classList.add('revealed');
+
+  // Mark pill
+  const pill = document.getElementById(`pill-${issueId}`);
+  if (pill) {
+    pill.classList.add(`found-${issue.difficulty}`);
+    pill.textContent = '✓';
+  }
+
+  const diffLabels = {obvious:'Obvious',moderate:'Moderate',advanced:'Advanced'};
+  showToast(`+${issue.points} pts — ${diffLabels[issue.difficulty]} issue found!`);
+
+  if (foundIds.size === TOTAL) {
+    setTimeout(triggerWin, 1800);
+  }
+}
+
+// ─── MODAL ────────────────────────────────────────────────────────────────────
+function showIssueModal(issueId) {
+  const issue = ISSUES.find(i => i.id === issueId);
+  if (!issue) return;
+
+  const isFound = foundIds.has(issueId);
+  const diffClass = issue.difficulty;
+
+  const content = document.getElementById('modalContent');
+  content.innerHTML = `
+    <div class="modal-cat">
+      <span class="issue-category ${issue.catClass}">${issue.category}</span>
+      <span class="diff-label diff-${diffClass}">${issue.diffLabel}</span>
+      <span class="modal-pts ${diffClass}">+${issue.points} pts</span>
+    </div>
+    <h2>${issue.title}</h2>
+    ${isFound ? `
+    <div class="modal-body">
+      <h4>What It Is</h4>
+      <p>${issue.what}</p>
+      <h4>Why It's a Problem</h4>
+      <p>${issue.why}</p>
+      <h4 style="color:var(--green)">The Fix</h4>
+      <p>${issue.fix}</p>
+    </div>
+    ` : `
+    <div class="modal-body">
+      <p style="color:var(--muted);font-style:italic">Find this issue on the page above to unlock the full explanation and fix.</p>
+      <br>
+      <button class="btn btn-blue" onclick="closeModal();revealIssue('${issueId}',false);showIssueModal('${issueId}')">Reveal This Issue (+${issue.points} pts)</button>
+    </div>
+    `}
+  `;
+
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ─── REVEAL ALL ───────────────────────────────────────────────────────────────
+function revealAll() {
+  ISSUES.forEach(issue => {
+    if (!foundIds.has(issue.id)) {
+      revealIssue(issue.id, false);
+    }
+  });
+  showToast('All issues revealed!');
+}
+
+// ─── WIN ──────────────────────────────────────────────────────────────────────
+function triggerWin() {
+  document.getElementById('finalScore').textContent = score + ' pts';
+  document.getElementById('mainWrap').style.display = 'none';
+  document.getElementById('winWrap').style.display = 'block';
+  window.scrollTo(0,0);
+  launchConfetti();
+}
+
+// ─── RESET ────────────────────────────────────────────────────────────────────
+function resetGame() {
+  document.getElementById('mainWrap').style.display = 'block';
+  document.getElementById('winWrap').style.display = 'none';
+  initGame();
+  window.scrollTo(0,0);
+}
+
+// ─── CONFETTI ─────────────────────────────────────────────────────────────────
+function launchConfetti() {
+  const c = document.getElementById('confettiContainer');
+  c.innerHTML = '';
+  const colors = ['#2a6db5','#d43a3a','#5bb8f5','#f5c842','#43a047','#e67e22','#9b59b6','#1abc9c'];
+  for (let i = 0; i < 60; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    p.style.width = (6 + Math.random() * 8) + 'px';
+    p.style.height = (6 + Math.random() * 8) + 'px';
+    p.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
+    p.style.animationDelay = (Math.random() * .5) + 's';
+    p.style.animationDuration = (2 + Math.random() * 1.2) + 's';
+    c.appendChild(p);
+  }
+  setTimeout(() => c.innerHTML = '', 3500);
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+function showToast(msg, dur) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur || 2500);
+}
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
+initGame();
+</script>
+</body>
+</html>

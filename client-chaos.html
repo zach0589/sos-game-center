@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Chaos — SOS Game Center</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a1628;--surface:#0f1f38;--border:#1e3a5f;
+  --sos-blue:#2a6db5;--sos-light:#5bb8f5;--sos-red:#d43a3a;
+  --text:#eef;--muted:#7a9bc0;--radius:12px;
+  --green:#43a047;--gold:#f5c842;--orange:#e67e22;--purple:#9b59b6;
+}
+html{font-size:16px}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(circle at 20% 30%,rgba(42,109,181,.12) 0%,transparent 50%),
+  radial-gradient(circle at 80% 70%,rgba(212,58,58,.08) 0%,transparent 50%),
+  radial-gradient(circle at 50% 50%,rgba(91,184,245,.05) 0%,transparent 60%);
+  pointer-events:none;z-index:0}
+
+/* HEADER */
+.header{position:relative;z-index:1;text-align:center;padding:14px 20px 10px;border-bottom:2px solid var(--border);background:linear-gradient(180deg,rgba(15,31,56,.95),rgba(10,22,40,.98))}
+.header-row{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+.sos-logo{height:40px}
+.header h1{font-size:clamp(1.2rem,2.8vw,1.9rem);letter-spacing:2px;color:#fff;text-transform:uppercase;text-shadow:0 0 20px rgba(212,58,58,.3)}
+.header h1 .hl{color:var(--sos-red)}
+.header .sub{color:var(--muted);font-size:clamp(.65rem,1vw,.8rem);margin-top:2px;letter-spacing:3px;text-transform:uppercase}
+.back-link{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--sos-light);text-decoration:none;font-size:.8rem;font-weight:600;display:flex;align-items:center;gap:5px;transition:gap .2s}
+.back-link:hover{gap:9px;color:#fff}
+
+/* SETUP OVERLAY */
+.setup-overlay{position:fixed;inset:0;background:rgba(10,22,40,.97);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.setup-box{background:var(--surface);border:2px solid var(--border);border-radius:16px;padding:40px;max-width:480px;width:100%;text-align:center}
+.setup-box h2{font-size:1.8rem;color:#fff;margin-bottom:8px}
+.setup-sub{color:var(--muted);margin-bottom:28px;font-size:.9rem}
+.setup-team-count{display:flex;gap:12px;justify-content:center;margin-bottom:24px}
+.team-count-btn{padding:14px 28px;border:2px solid var(--border);border-radius:var(--radius);background:transparent;color:var(--muted);font-size:1.1rem;font-weight:700;cursor:pointer;transition:all .2s}
+.team-count-btn.active{border-color:var(--sos-red);color:#fff;background:rgba(212,58,58,.15)}
+.setup-names{display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+.setup-name-input{padding:10px 16px;border-radius:8px;border:2px solid var(--border);background:rgba(10,22,40,.6);color:#fff;font-size:1rem;outline:none;transition:border-color .2s;text-align:center}
+.setup-name-input:focus{border-color:var(--sos-light)}
+.setup-name-input::placeholder{color:var(--muted)}
+.btn-start-game{padding:14px 48px;border:none;border-radius:var(--radius);background:linear-gradient(135deg,var(--sos-red),#e74c4c);color:#fff;font-size:1.1rem;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .2s;box-shadow:0 4px 20px rgba(212,58,58,.3)}
+.btn-start-game:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(212,58,58,.4)}
+
+/* LAYOUT */
+.game-container{position:relative;z-index:1;max-width:1500px;margin:0 auto;padding:16px;display:grid;grid-template-columns:1fr 370px;gap:16px}
+
+/* LEFT COL */
+.left-col{display:flex;flex-direction:column;gap:14px}
+
+/* ROUND BAR */
+.round-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
+.round-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.round-badge{background:var(--sos-red);color:#fff;padding:4px 14px;border-radius:20px;font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.round-pips{display:flex;gap:5px;align-items:center}
+.round-pip{width:9px;height:9px;border-radius:50%;background:var(--border);transition:all .3s;flex-shrink:0}
+.round-pip.done{background:var(--sos-red)}
+.round-pip.current{background:var(--gold);box-shadow:0 0 8px rgba(245,200,66,.5)}
+.cat-filter{padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:.8rem;outline:none;cursor:pointer}
+.cat-filter option{background:var(--surface)}
+
+/* SCENARIO CARD */
+.scenario-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);overflow:hidden;min-height:200px;display:flex;flex-direction:column;transition:border-color .4s}
+.scenario-card.drawn{border-color:var(--sos-red)}
+.scenario-banner{height:7px;background:var(--border);transition:background .5s}
+.scenario-body{padding:24px 28px;flex:1;display:flex;flex-direction:column;justify-content:center}
+.scenario-empty{text-align:center;color:var(--muted);padding:30px 0}
+.scenario-empty .ei{font-size:2.8rem;display:block;margin-bottom:10px;opacity:.35}
+.scenario-meta{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.scenario-id{font-size:.7rem;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.scenario-cat-tag{padding:3px 12px;border-radius:20px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.scenario-text{font-size:clamp(1.05rem,1.8vw,1.4rem);font-weight:600;line-height:1.6;color:#fff;font-style:italic}
+.scenario-text::before{content:'\201C'}
+.scenario-text::after{content:'\201D'}
+
+/* TWIST + LAER ROW */
+.bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* TWIST CARD */
+.twist-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:18px;transition:border-color .4s}
+.twist-card.drawn{border-color:var(--purple)}
+.twist-header{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.tier-badge{padding:2px 8px;border-radius:10px;font-size:.65rem;font-weight:700}
+.tier-1{background:rgba(91,184,245,.15);color:var(--sos-light)}
+.tier-2{background:rgba(230,126,34,.15);color:var(--orange)}
+.tier-3{background:rgba(212,58,58,.18);color:var(--sos-red)}
+.twist-text{font-size:.88rem;line-height:1.55;color:var(--text)}
+.twist-empty{text-align:center;color:var(--muted);font-size:.82rem;padding:8px 0}
+.twist-empty .ti{font-size:1.8rem;display:block;margin-bottom:6px;opacity:.4}
+
+/* LAER PANEL */
+.laer-panel{background:var(--surface);border:2px solid rgba(42,109,181,.35);border-radius:var(--radius);padding:16px}
+.laer-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--sos-light);margin-bottom:12px;text-align:center}
+.laer-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.laer-step{text-align:center;padding:8px 4px;background:rgba(10,22,40,.5);border-radius:8px;border:1px solid rgba(42,109,181,.2)}
+.laer-letter{font-size:1.3rem;font-weight:900;color:var(--sos-light);line-height:1}
+.laer-word{font-size:.6rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:3px 0}
+.laer-desc{font-size:.58rem;color:rgba(122,155,192,.65);line-height:1.3}
+
+/* TIMER */
+.timer-section{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:14px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.timer-display{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:4px;color:var(--green);transition:color .3s;min-width:100px;text-align:center}
+.timer-display.warn{color:var(--orange)}
+.timer-display.danger{color:var(--sos-red)}
+.timer-display.blink{animation:blink .5s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.timer-btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* DRAW CONTROLS */
+.draw-controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+
+/* RIGHT COL */
+.right-col{display:flex;flex-direction:column;gap:14px}
+
+/* ACTIVE TEAM */
+.active-team-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px}
+.section-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:8px;text-align:center}
+.active-team-btns{display:flex;gap:6px;flex-wrap:wrap}
+.active-team-btn{flex:1;min-width:60px;padding:8px 6px;border:2px solid var(--border);border-radius:8px;background:transparent;color:var(--muted);font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.active-team-btn.active{border-color:var(--sos-red);color:#fff;background:rgba(212,58,58,.18)}
+
+/* RUBRIC */
+.rubric-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:16px}
+.rubric-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:14px;text-align:center}
+.rubric-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.rubric-label{font-size:.73rem;color:var(--muted);flex:1;line-height:1.3}
+.rubric-controls{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.rubric-adj{width:23px;height:23px;border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--muted);font-size:.95rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;line-height:1}
+.rubric-adj:hover{background:var(--border);color:#fff}
+.rubric-val{font-size:1rem;font-weight:800;color:#fff;min-width:18px;text-align:center}
+.rubric-divider{height:1px;background:var(--border);margin:10px 0}
+.bonus-title{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px}
+.bonus-row{display:flex;align-items:center;margin-bottom:6px}
+.bonus-row label{display:flex;align-items:center;gap:7px;cursor:pointer;width:100%}
+.bonus-row input[type=checkbox]{width:15px;height:15px;accent-color:var(--gold);cursor:pointer;flex-shrink:0}
+.bonus-text{font-size:.73rem;color:var(--muted);flex:1}
+.bonus-pts{font-size:.73rem;font-weight:700;color:var(--gold)}
+.rubric-total-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:2px solid var(--border)}
+.rubric-total-label{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
+.rubric-total-val{font-size:1.5rem;font-weight:900;color:var(--gold)}
+.btn-award{width:100%;padding:11px;border:none;border-radius:var(--radius);background:linear-gradient(135deg,var(--gold),#e6b800);color:#000;font-size:.85rem;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:1px;margin-top:10px;transition:all .2s;box-shadow:0 4px 14px rgba(245,200,66,.2)}
+.btn-award:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(245,200,66,.35)}
+
+/* SCOREBOARD */
+.scoreboard{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:16px}
+.score-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:9px 12px;background:rgba(10,22,40,.4);border-radius:8px;border:2px solid transparent;transition:border-color .3s}
+.score-row.leader{border-color:var(--gold)}
+.score-team-name{font-size:.85rem;font-weight:700;color:#fff;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.score-pts{font-size:1.15rem;font-weight:900;color:var(--sos-light)}
+.score-row.leader .score-pts{color:var(--gold)}
+.score-adjs{display:flex;gap:3px;flex-shrink:0}
+.score-adj-btn{width:22px;height:22px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;line-height:1}
+.score-adj-btn:hover{background:var(--border);color:#fff}
+.steal-label{font-size:.65rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px;margin-top:10px}
+.steal-btns{display:flex;gap:6px;flex-wrap:wrap}
+.steal-btn{flex:1;min-width:0;padding:5px 4px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);font-size:.65rem;font-weight:700;cursor:pointer;text-align:center;transition:all .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.steal-btn:hover{border-color:var(--sos-light);color:var(--sos-light)}
+
+/* BUTTONS */
+.btn{padding:9px 18px;border:none;border-radius:var(--radius);font-size:clamp(.75rem,1vw,.88rem);font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:transform .15s,box-shadow .25s,opacity .25s;white-space:nowrap}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.btn-red{background:linear-gradient(135deg,var(--sos-red),#e74c4c);color:#fff;box-shadow:0 4px 14px rgba(212,58,58,.25)}
+.btn-red:hover:not(:disabled){box-shadow:0 6px 20px rgba(212,58,58,.4)}
+.btn-blue{background:linear-gradient(135deg,var(--sos-blue),#3a8dd5);color:#fff;box-shadow:0 4px 14px rgba(42,109,181,.25)}
+.btn-green{background:linear-gradient(135deg,var(--green),#66bb6a);color:#fff;box-shadow:0 4px 14px rgba(67,160,71,.25)}
+.btn-green:hover:not(:disabled){box-shadow:0 6px 20px rgba(67,160,71,.4)}
+.btn-purple{background:linear-gradient(135deg,var(--purple),#a569bd);color:#fff;box-shadow:0 4px 14px rgba(155,89,182,.25)}
+.btn-secondary{background:var(--border);color:var(--text);border:1px solid rgba(91,184,245,.12)}
+.btn-secondary:hover:not(:disabled){background:rgba(42,109,181,.25)}
+.btn-sm{padding:6px 14px;font-size:.72rem}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--surface);border:2px solid var(--gold);border-radius:var(--radius);padding:11px 24px;color:#fff;font-weight:700;font-size:.88rem;z-index:200;transition:transform .3s,opacity .3s;opacity:0;white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* CONFETTI */
+.confetti-container{position:fixed;inset:0;pointer-events:none;z-index:999;overflow:hidden}
+.confetti-piece{position:absolute;top:-20px;opacity:0;animation:cffall 2.5s ease-out forwards}
+@keyframes cffall{0%{opacity:1;transform:translateY(0) rotate(0deg)}80%{opacity:1}100%{opacity:0;transform:translateY(105vh) rotate(720deg) scale(.4)}}
+
+/* ANIMATIONS */
+@keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cardIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+.card-in{animation:cardIn .3s ease}
+
+/* FOOTER */
+.footer{position:relative;z-index:1;text-align:center;padding:12px;color:var(--muted);font-size:.7rem;border-top:1px solid var(--border);margin-top:10px}
+.footer a{color:var(--sos-light);text-decoration:none}
+
+/* RESPONSIVE */
+@media(max-width:1000px){
+  .game-container{grid-template-columns:1fr}
+  .back-link{position:static;transform:none;margin-bottom:6px;justify-content:center}
+}
+@media(max-width:600px){
+  .bottom-row{grid-template-columns:1fr}
+  .laer-steps{grid-template-columns:repeat(2,1fr)}
+  .draw-controls{gap:8px}
+}
+</style>
+</head>
+<body>
+
+<!-- SETUP OVERLAY -->
+<div class="setup-overlay" id="setupOverlay">
+  <div class="setup-box">
+    <div style="font-size:3rem;margin-bottom:12px">🎭</div>
+    <h2>Client Chaos</h2>
+    <p class="setup-sub">Home Service Edition &mdash; Facilitator Setup</p>
+    <div class="setup-team-count">
+      <button class="team-count-btn" data-count="3">3 Teams</button>
+      <button class="team-count-btn active" data-count="4">4 Teams</button>
+    </div>
+    <div class="setup-names" id="setupNames">
+      <input class="setup-name-input" placeholder="Team 1 Name" value="Team 1">
+      <input class="setup-name-input" placeholder="Team 2 Name" value="Team 2">
+      <input class="setup-name-input" placeholder="Team 3 Name" value="Team 3">
+      <input class="setup-name-input" placeholder="Team 4 Name" value="Team 4">
+    </div>
+    <button class="btn-start-game" id="btnStartGame">Start Game &rarr;</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <a href="index.html" class="back-link">&larr; Game Center</a>
+  <div class="header-row">
+    <svg class="sos-logo" viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <text x="28" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text>
+      <g transform="translate(160,68)"><circle cx="0" cy="0" r="48" fill="none" stroke="#fff" stroke-width="18"/><circle cx="0" cy="0" r="48" fill="none" stroke="#d43a3a" stroke-width="18" stroke-dasharray="25 50.7" stroke-dashoffset="0"/><line x1="-32" y1="-32" x2="-44" y2="-44" stroke="#ddd" stroke-width="2"/><line x1="32" y1="-32" x2="44" y2="-44" stroke="#ddd" stroke-width="2"/><line x1="-32" y1="32" x2="-44" y2="44" stroke="#ddd" stroke-width="2"/><line x1="32" y1="32" x2="44" y2="44" stroke="#ddd" stroke-width="2"/></g>
+      <text x="222" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text>
+      <text x="160" y="150" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="#5bb8f5" text-anchor="middle" letter-spacing="4">SPOTONSOLUTIONS</text>
+    </svg>
+  </div>
+  <h1>Client <span class="hl">Chaos</span></h1>
+  <div class="sub">Home Service Edition &middot; SOS Game Center</div>
+</div>
+
+<!-- GAME CONTAINER -->
+<div class="game-container">
+
+  <!-- LEFT COLUMN -->
+  <div class="left-col">
+
+    <!-- Round Bar -->
+    <div class="round-bar">
+      <div class="round-left">
+        <span class="round-badge" id="roundBadge">Round 1</span>
+        <div class="round-pips" id="roundPips"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:.72rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:1px">Category:</span>
+        <select class="cat-filter" id="catFilter">
+          <option value="">All Categories</option>
+          <option>Angry Client</option>
+          <option>Confused Client</option>
+          <option>Unrealistic Expectations</option>
+          <option>Budget Constraints</option>
+          <option>Performance Drop</option>
+          <option>LSA Issues</option>
+          <option>SEO Confusion</option>
+          <option>PPC Performance</option>
+          <option>Sales vs Marketing</option>
+          <option>Reputation Issues</option>
+          <option>Competitor Concerns</option>
+          <option>Wild Card</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Scenario Card -->
+    <div class="scenario-card" id="scenarioCard">
+      <div class="scenario-banner" id="scenarioBanner"></div>
+      <div class="scenario-body">
+        <div class="scenario-empty" id="scenarioEmpty">
+          <span class="ei">🃏</span>
+          Draw a scenario card to begin the round
+        </div>
+        <div id="scenarioContent" style="display:none">
+          <div class="scenario-meta">
+            <span class="scenario-id" id="scenarioId"></span>
+            <span class="scenario-cat-tag" id="scenarioCatTag"></span>
+          </div>
+          <div class="scenario-text" id="scenarioText"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Twist + LAER -->
+    <div class="bottom-row">
+      <div class="twist-card" id="twistCard">
+        <div class="twist-header">
+          <span>🌀 Twist Card</span>
+          <span class="tier-badge" id="twistTierBadge" style="display:none"></span>
+        </div>
+        <div class="twist-empty" id="twistEmpty">
+          <span class="ti">🔒</span>
+          Draw after scenario is set
+        </div>
+        <div class="twist-text" id="twistText" style="display:none"></div>
+      </div>
+
+      <div class="laer-panel">
+        <div class="laer-title">LAER Framework</div>
+        <div class="laer-steps">
+          <div class="laer-step">
+            <div class="laer-letter">L</div>
+            <div class="laer-word">Listen</div>
+            <div class="laer-desc">Don't interrupt. Let them finish.</div>
+          </div>
+          <div class="laer-step">
+            <div class="laer-letter">A</div>
+            <div class="laer-word">Acknowledge</div>
+            <div class="laer-desc">"I hear you. That's frustrating."</div>
+          </div>
+          <div class="laer-step">
+            <div class="laer-letter">E</div>
+            <div class="laer-word">Explore</div>
+            <div class="laer-desc">Ask before responding.</div>
+          </div>
+          <div class="laer-step">
+            <div class="laer-letter">R</div>
+            <div class="laer-word">Respond</div>
+            <div class="laer-desc">Facts + empathy + next step.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timer -->
+    <div class="timer-section">
+      <div class="timer-display" id="timerDisplay">2:00</div>
+      <div class="timer-btns">
+        <span style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-right:4px">Timer:</span>
+        <button class="btn btn-green btn-sm" id="btnTimerStart">&#9654; Start</button>
+        <button class="btn btn-secondary btn-sm" id="btnTimerPause" disabled>&#9646;&#9646; Pause</button>
+        <button class="btn btn-secondary btn-sm" id="btnTimerReset">&#8635; 2:00</button>
+        <button class="btn btn-secondary btn-sm" id="btnTimer3">3:00</button>
+      </div>
+    </div>
+
+    <!-- Draw Controls -->
+    <div class="draw-controls">
+      <button class="btn btn-red" id="btnDrawScenario">🃏 Draw Scenario</button>
+      <button class="btn btn-purple" id="btnDrawTwist">🌀 Draw Twist</button>
+      <button class="btn btn-blue" id="btnNewRound">&#8635; Next Round</button>
+      <button class="btn btn-secondary" id="btnResetGame">New Game</button>
+    </div>
+
+  </div><!-- /left-col -->
+
+  <!-- RIGHT COLUMN -->
+  <div class="right-col">
+
+    <!-- Active Team -->
+    <div class="active-team-bar">
+      <div class="section-label">Active Team &mdash; Rep on the Hot Seat</div>
+      <div class="active-team-btns" id="activeTeamBtns"></div>
+    </div>
+
+    <!-- Scoring Rubric -->
+    <div class="rubric-card">
+      <div class="rubric-title">&#9878; Judge Scoring Rubric</div>
+
+      <div class="rubric-row">
+        <div class="rubric-label">🎯 Control of Conversation</div>
+        <div class="rubric-controls">
+          <button class="rubric-adj" data-dim="0" data-dir="-1">−</button>
+          <div class="rubric-val" id="rubric0">5</div>
+          <button class="rubric-adj" data-dim="0" data-dir="1">+</button>
+        </div>
+      </div>
+      <div class="rubric-row">
+        <div class="rubric-label">💛 Empathy / LAER Usage</div>
+        <div class="rubric-controls">
+          <button class="rubric-adj" data-dim="1" data-dir="-1">−</button>
+          <div class="rubric-val" id="rubric1">5</div>
+          <button class="rubric-adj" data-dim="1" data-dir="1">+</button>
+        </div>
+      </div>
+      <div class="rubric-row">
+        <div class="rubric-label">📊 Strategic Accuracy</div>
+        <div class="rubric-controls">
+          <button class="rubric-adj" data-dim="2" data-dir="-1">−</button>
+          <div class="rubric-val" id="rubric2">5</div>
+          <button class="rubric-adj" data-dim="2" data-dir="1">+</button>
+        </div>
+      </div>
+      <div class="rubric-row">
+        <div class="rubric-label">💪 Confidence</div>
+        <div class="rubric-controls">
+          <button class="rubric-adj" data-dim="3" data-dir="-1">−</button>
+          <div class="rubric-val" id="rubric3">5</div>
+          <button class="rubric-adj" data-dim="3" data-dir="1">+</button>
+        </div>
+      </div>
+      <div class="rubric-row" style="margin-bottom:0">
+        <div class="rubric-label">🤝 Trustworthiness</div>
+        <div class="rubric-controls">
+          <button class="rubric-adj" data-dim="4" data-dir="-1">−</button>
+          <div class="rubric-val" id="rubric4">5</div>
+          <button class="rubric-adj" data-dim="4" data-dir="1">+</button>
+        </div>
+      </div>
+
+      <div class="rubric-divider"></div>
+
+      <div class="bonus-title">Bonus Points</div>
+      <div class="bonus-row"><label><input type="checkbox" class="bonus-check" data-pts="3"><span class="bonus-text">🔥 Best Comeback</span><span class="bonus-pts">+3</span></label></div>
+      <div class="bonus-row"><label><input type="checkbox" class="bonus-check" data-pts="3"><span class="bonus-text">📈 Best Use of Data</span><span class="bonus-pts">+3</span></label></div>
+      <div class="bonus-row"><label><input type="checkbox" class="bonus-check" data-pts="3"><span class="bonus-text">🧊 Composure Under Pressure</span><span class="bonus-pts">+3</span></label></div>
+      <div class="bonus-row"><label><input type="checkbox" class="bonus-check" data-pts="5"><span class="bonus-text">⭐ Perfect LAER Execution</span><span class="bonus-pts">+5</span></label></div>
+
+      <div class="rubric-total-row">
+        <span class="rubric-total-label">Round Score</span>
+        <span class="rubric-total-val" id="rubricTotal">25</span>
+      </div>
+      <button class="btn-award" id="btnAwardScore">Award to <span id="awardTeamName">—</span></button>
+    </div>
+
+    <!-- Scoreboard -->
+    <div class="scoreboard">
+      <div class="section-label" style="margin-bottom:12px">📊 Scoreboard</div>
+      <div id="scoreboardRows"></div>
+      <div class="steal-label">+ Audience Steal (+1 pt to any team)</div>
+      <div class="steal-btns" id="stealBtns"></div>
+    </div>
+
+  </div><!-- /right-col -->
+
+</div><!-- /game-container -->
+
+<div class="confetti-container" id="confettiContainer"></div>
+<div class="toast" id="toast"></div>
+
+<div class="footer">
+  <p>SpotOn Solutions Game Center &middot; Built for Elevation &middot; <a href="https://spotonsolutions.com">spotonsolutions.com</a></p>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+
+const SCENARIOS = [
+  // ANGRY CLIENT
+  {id:"ANGRY-01",cat:"Angry Client",text:"I've been with you guys for six months and I still don't see results. What am I even paying for? My competitor is getting more calls than me — I can see it."},
+  {id:"ANGRY-02",cat:"Angry Client",text:"I got ONE lead last week. ONE. And it was for a service I don't even offer. This is a joke. I could have just put a sign in my yard."},
+  {id:"ANGRY-03",cat:"Angry Client",text:"I just got off the phone with my accountant and he's asking me to cut marketing. I told him you were delivering. Now I look like an idiot. What do I tell him?"},
+  {id:"ANGRY-04",cat:"Angry Client",text:"You people changed something on my website last month and my calls dropped by 40%. I want it fixed today or I'm calling my attorney."},
+  {id:"ANGRY-05",cat:"Angry Client",text:"I've left three voicemails and two emails for my account manager this week. Nobody calls me back. You're taking $3,000 a month from me and I can't even get a phone call?"},
+  {id:"ANGRY-06",cat:"Angry Client",text:"My Google rating just dropped because of a fake review. Some competitor is clearly doing this. Why aren't you doing anything about it? That's your job!"},
+  {id:"ANGRY-07",cat:"Angry Client",text:"My nephew built websites and he looked at mine. He said it's slow, the SEO is bad, and you're basically just charging me to do nothing. He's willing to take it over."},
+  {id:"ANGRY-08",cat:"Angry Client",text:"I've been patient. Six months patient. Other agencies guaranteed me results in 90 days. What's your excuse?"},
+  // CONFUSED CLIENT
+  {id:"CONFUSED-01",cat:"Confused Client",text:"You keep sending me these reports with impressions and click-through rates but I have no idea what any of that means. Just tell me — am I getting customers or not?"},
+  {id:"CONFUSED-02",cat:"Confused Client",text:"Wait — so SEO and Google Ads are two different things? I thought I was paying for Google. Why am I paying for both? What does each one actually do?"},
+  {id:"CONFUSED-03",cat:"Confused Client",text:"My daughter said my website doesn't show up when she searched for water damage restoration in our city. But you told me we're ranking. Who's right?"},
+  {id:"CONFUSED-04",cat:"Confused Client",text:"I got this report and it says my cost per lead is $87. Is that good or bad? Like, I genuinely don't know how to read this."},
+  {id:"CONFUSED-05",cat:"Confused Client",text:"What's the difference between a lead and a call? You're reporting 45 leads but I only tracked about 20 actual jobs this month. Where's the disconnect?"},
+  // UNREALISTIC EXPECTATIONS
+  {id:"UNREALISTIC-01",cat:"Unrealistic Expectations",text:"I want to be #1 on Google for water damage restoration. In my whole state. By next month. That's the goal. Can you make that happen?"},
+  {id:"UNREALISTIC-02",cat:"Unrealistic Expectations",text:"I just started my HVAC company two months ago. I need to be generating 50 leads a month by spring. I have a $500/month budget. What can you do?"},
+  {id:"UNREALISTIC-03",cat:"Unrealistic Expectations",text:"I want zero competition showing up when someone searches my company name. I don't want anyone running ads against my brand. Fix that."},
+  {id:"UNREALISTIC-04",cat:"Unrealistic Expectations",text:"I don't want to pay for leads that don't close. Can you just charge me per booked job? Like, only pay you if I get revenue?"},
+  {id:"UNREALISTIC-05",cat:"Unrealistic Expectations",text:"My old agency said they'd get me to Page 1 in 30 days. You're telling me it takes 3–6 months. That's unacceptable. They were cheaper too."},
+  // BUDGET CONSTRAINTS
+  {id:"BUDGET-01",cat:"Budget Constraints",text:"I need to cut $1,000 from my marketing spend this month. Where do I cut it? I need you to tell me what to drop first."},
+  {id:"BUDGET-02",cat:"Budget Constraints",text:"I'm pausing everything for 90 days. My slow season is killing me. Will you guarantee everything picks back up when I restart?"},
+  {id:"BUDGET-03",cat:"Budget Constraints",text:"My brother-in-law said I should just do Facebook ads myself. It's free to set up and I can control the budget. Why do I need you for that?"},
+  {id:"BUDGET-04",cat:"Budget Constraints",text:"I looked at what I spent last year — $36,000 — and compared it to new revenue from marketing leads. I can't prove the ROI. Help me understand why I should keep spending."},
+  // PERFORMANCE DROP
+  {id:"PERF-01",cat:"Performance Drop",text:"My leads were great in October — I had 68. November dropped to 41. December was 29. Every month it gets worse. What is happening?"},
+  {id:"PERF-02",cat:"Performance Drop",text:"My Google Analytics shows traffic is up but leads are way down. How is that possible? More people are finding me but no one's calling?"},
+  {id:"PERF-03",cat:"Performance Drop",text:"We just moved into a new service area and the leads dried up completely in my core market. Did you redirect everything? Something changed."},
+  {id:"PERF-04",cat:"Performance Drop",text:"My call tracking number stopped working for three days last week. How many leads did I lose? Will you comp me for that?"},
+  // LSA ISSUES
+  {id:"LSA-01",cat:"LSA Issues",text:"My Local Services Ads got paused for the second time this month. Google says my license is expired but it's not — I renewed it in January. Why can't you fix this?"},
+  {id:"LSA-02",cat:"LSA Issues",text:"My LSA cost per lead jumped from $45 to $89 this month. I didn't change anything. Did you? Why is it suddenly twice as expensive?"},
+  {id:"LSA-03",cat:"LSA Issues",text:"My competitor has the Google Guaranteed badge and mine shows 'Google Screened.' What's the difference and why don't I have the better one?"},
+  {id:"LSA-04",cat:"LSA Issues",text:"I disputed three leads as bad leads last month — wrong service area, wrong service type. Google only credited one. I want my money back for all three."},
+  // SEO CONFUSION
+  {id:"SEO-01",cat:"SEO Confusion",text:"You've been doing SEO for me for 8 months and I'm still not ranking for 'water damage restoration [city].' My competitor who just started 4 months ago is ahead of me. What gives?"},
+  {id:"SEO-02",cat:"SEO Confusion",text:"I keep hearing about AI search and ChatGPT. Is Google even going to exist in 2 years? Why am I paying for SEO if it's going to be irrelevant?"},
+  {id:"SEO-03",cat:"SEO Confusion",text:"My rankings looked great last month — I was on Page 1 for 6 keywords. This month I'm checking and I can barely find myself. Did you do something wrong?"},
+  {id:"SEO-04",cat:"SEO Confusion",text:"My website has a blog section but I never see any traffic from it. We've posted 12 articles. That's a waste of time, isn't it? Should we stop?"},
+  // PPC PERFORMANCE
+  {id:"PPC-01",cat:"PPC Performance",text:"I spent $4,200 in Google Ads last month and got 11 leads. That's over $380 per lead. For HVAC tune-ups. The average job is $150. This math doesn't work."},
+  {id:"PPC-02",cat:"PPC Performance",text:"I Googled my own keywords last night and my ad didn't show up once. I'm spending $3,000 a month and my own ad isn't visible to me. Explain that."},
+  {id:"PPC-03",cat:"PPC Performance",text:"You're spending my budget on broad match keywords and I'm getting calls for services I don't offer. Someone called about commercial refrigeration. I do residential HVAC. This is a waste."},
+  {id:"PPC-04",cat:"PPC Performance",text:"My competitor's ads show up above mine every single time. I've been told we have a good bid. Why are they always on top? Are they spending more than me?"},
+  // SALES VS MARKETING
+  {id:"SALES-01",cat:"Sales vs Marketing",text:"Your leads are trash. My sales team says 80% of the calls we're getting are tire kickers or people who already went with someone else. The leads are junk."},
+  {id:"SALES-02",cat:"Sales vs Marketing",text:"I hired a new sales guy and he says our close rate should be 40%. We're closing 18% of our leads. He's saying marketing is sending the wrong people. Is he right?"},
+  {id:"SALES-03",cat:"Sales vs Marketing",text:"My dispatcher says the calls we get from Google Ads are way harder to close than word-of-mouth referrals. Should I just cut ads and focus on referrals?"},
+  {id:"SALES-04",cat:"Sales vs Marketing",text:"I'm getting calls but my team isn't answering them fast enough. By the time someone calls back, the customer hired someone else. Is that a marketing problem or a me problem?"},
+  // REPUTATION ISSUES
+  {id:"REP-01",cat:"Reputation Issues",text:"I just got a 1-star review from someone who says we did shoddy work. It's completely false — we've never even heard of this person. What do I do and how fast can you fix it?"},
+  {id:"REP-02",cat:"Reputation Issues",text:"My average Google rating dropped from 4.8 to 4.2 in two months. I've had five bad reviews in a row. I think one of my ex-employees is doing this. What can we do?"},
+  {id:"REP-03",cat:"Reputation Issues",text:"A local news outlet wrote a negative piece about one of my jobs gone wrong. Now it shows up on Page 1 when you Google my company name. Can SEO fix that?"},
+  // COMPETITOR CONCERNS
+  {id:"COMP-01",cat:"Competitor Concerns",text:"My competitor just launched a completely new website. It looks amazing — way better than mine. And now they're ranking above me everywhere. Should I be worried? What's the plan?"},
+  {id:"COMP-02",cat:"Competitor Concerns",text:"A new franchise came into my market and they're spending way more on ads than I can afford. How do I compete with a national brand that has unlimited marketing budget?"},
+  {id:"COMP-03",cat:"Competitor Concerns",text:"I noticed my competitor is running ads that literally use my company name as a keyword. People searching for my company see their ad first. Is that legal? Can we do the same?"},
+  // WILD CARD
+  {id:"WILD-01",cat:"Wild Card",text:"My wife handles the books and she flagged that we've paid your agency $71,000 over two years. She wants to see a full ROI breakdown from day one. Can you do that call this week?"},
+  {id:"WILD-02",cat:"Wild Card",text:"I just got recruited by another digital marketing agency at a trade show. They did an audit of my account and said you're making basic mistakes. They sent me a 12-page report. I'm sending it to you right now."},
+];
+
+const TWISTS = [
+  {id:"T01",tier:1,text:"You keep getting interrupted by sounds in the background (dog barking, kids screaming). Keep apologizing but don't stop the complaint."},
+  {id:"T02",tier:1,text:"You repeat yourself at least twice. Say the same key complaint again like the Agency Rep didn't hear it the first time."},
+  {id:"T03",tier:1,text:"You use the wrong terminology throughout. Call SEO 'the algorithm thing' and Google Ads 'the paid Google stuff.'"},
+  {id:"T04",tier:1,text:"You're clearly multitasking. Say 'sorry, one second' at least once and lose your train of thought mid-sentence."},
+  {id:"T05",tier:1,text:"You only have 5 minutes before another meeting. Make the Agency Rep feel the urgency."},
+  {id:"T06",tier:1,text:"You start with 'I already talked to someone else at your company and they told me something different.' Reference a fake conversation."},
+  {id:"T07",tier:1,text:"Every time the Agency Rep explains something, you say 'but my last agency did it differently.'"},
+  {id:"T08",tier:1,text:"You ask the Agency Rep to send you an email summarizing everything they just said, mid-conversation, at least twice."},
+  {id:"T09",tier:2,text:"You don't trust Google at all. Every time they reference Google's data or tools, push back: 'I don't trust Google's numbers — they have a financial incentive to make everything look good.'"},
+  {id:"T10",tier:2,text:"You compare the agency to a specific competitor by name (make one up). 'Agency X does this for $500 less a month. Why should I stay?'"},
+  {id:"T11",tier:2,text:"You want a written guarantee. No matter what the Agency Rep says, end every point with 'But can you put that in writing?'"},
+  {id:"T12",tier:2,text:"You keep bringing up a completely unrelated problem. ('Also — why does my website look weird on my iPhone 6?')"},
+  {id:"T13",tier:2,text:"Your spouse/business partner is in the background disagreeing with everything you say, and you relay their objections in real time."},
+  {id:"T14",tier:2,text:"You're escalating. Start calm, but every 30 seconds get slightly more frustrated, regardless of what the Agency Rep says."},
+  {id:"T15",tier:2,text:"You've clearly already made your decision. You're not really asking — you're explaining why you're leaving. The Agency Rep has to un-cancel you."},
+  {id:"T16",tier:2,text:"You're actually happy with results but you're under pressure from your business partner who isn't. You want ammunition to defend keeping the agency."},
+  {id:"T17",tier:2,text:"You keep asking 'what's your personal opinion?' and refuse to let the Agency Rep hide behind company talking points."},
+  {id:"T18",tier:2,text:"You ask the Agency Rep to compare your results to their other clients in the same industry. 'What's average for restoration companies? How do I stack up?'"},
+  {id:"T19",tier:3,text:"You've already talked to an attorney. Mention it casually. 'I spoke to my attorney about the contract' — and then don't elaborate."},
+  {id:"T20",tier:3,text:"You bring up a conversation from a year ago where you claim someone at the agency promised you something specific. The Agency Rep has no record of it."},
+  {id:"T21",tier:3,text:"You're recording the call. Mention it upfront: 'Just so you know, I record all my business calls.'"},
+  {id:"T22",tier:3,text:"You only respond in numbers. 'What's the ROI? Give me a number. What's the timeline? Give me a number.' If they can't quantify it, it doesn't count."},
+  {id:"T23",tier:3,text:"You're considering pausing for 6 months AND hiring your nephew AND switching channels — all at once. The Agency Rep has to prioritize and address all three."},
+  {id:"T24",tier:3,text:"You've done your own research and you're partially right. You read about ad auction mechanics and are confidently wrong about one key detail. The Agency Rep must correct you without making you feel stupid."},
+  {id:"T25",tier:3,text:"You want to escalate to the owner or CEO of the agency. The Agency Rep is not that person. Handle it."},
+  {id:"T26",tier:3,text:"You're weirdly calm and polite. 'I'm not upset. I just need to understand what happened. No rush.' This is somehow more unsettling than anger."},
+  {id:"T27",tier:3,text:"You bring up a public negative review your company got and imply it's the agency's fault. Connect it to SEO or reputation management."},
+  {id:"T28",tier:3,text:"You've calculated exactly how much you've paid the agency and divided it by leads, by calls, and by closed jobs. Read all the numbers out loud."},
+  {id:"T29",tier:3,text:"You ask the Agency Rep what they would do if they were in your position. Force a personal, direct answer."},
+  {id:"T30",tier:3,text:"You're about to sign with a competitor agency RIGHT NOW. You called to give the Agency Rep one last chance. You have 3 minutes."},
+];
+
+const CAT_COLORS = {
+  "Angry Client":"#d43a3a",
+  "Confused Client":"#2a6db5",
+  "Unrealistic Expectations":"#e67e22",
+  "Budget Constraints":"#c9a227",
+  "Performance Drop":"#9b59b6",
+  "LSA Issues":"#1abc9c",
+  "SEO Confusion":"#5bb8f5",
+  "PPC Performance":"#43a047",
+  "Sales vs Marketing":"#e74c3c",
+  "Reputation Issues":"#c0392b",
+  "Competitor Concerns":"#2980b9",
+  "Wild Card":"#f39c12",
+};
+
+// ── STATE ──────────────────────────────────────────────────────────────────────
+let teams = [];
+let scores = [];
+let activeTeam = 0;
+let currentRound = 1;
+let usedScenarios = [];
+let usedTwists = [];
+let rubricVals = [5,5,5,5,5];
+let timerSecs = 120;
+let timerRunning = false;
+let timerInterval = null;
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function $(id){ return document.getElementById(id); }
+
+function showToast(msg, dur) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), dur || 2500);
+}
+
+function randFrom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+// ── SETUP ─────────────────────────────────────────────────────────────────────
+let selectedCount = 4;
+
+document.querySelectorAll(".team-count-btn").forEach(btn => {
+  btn.addEventListener("click", function() {
+    selectedCount = parseInt(this.dataset.count);
+    document.querySelectorAll(".team-count-btn").forEach(b => b.classList.remove("active"));
+    this.classList.add("active");
+    const inputs = $("setupNames").querySelectorAll(".setup-name-input");
+    inputs.forEach((inp, i) => { inp.style.display = i < selectedCount ? "block" : "none"; });
+  });
+});
+
+$("btnStartGame").addEventListener("click", function() {
+  const inputs = $("setupNames").querySelectorAll(".setup-name-input");
+  teams = [];
+  for (let i = 0; i < selectedCount; i++) {
+    teams.push(inputs[i].value.trim() || "Team " + (i+1));
+  }
+  scores = new Array(selectedCount).fill(0);
+  activeTeam = 0;
+  $("setupOverlay").style.display = "none";
+  initGame();
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+function initGame() {
+  usedScenarios = [];
+  usedTwists = [];
+  currentRound = 1;
+  rubricVals = [5,5,5,5,5];
+  timerSecs = 120;
+  timerRunning = false;
+  clearInterval(timerInterval);
+
+  buildActiveTeamBtns();
+  buildScoreboard();
+  buildStealBtns();
+  buildRoundPips();
+  updateRubricDisplay();
+  updateTimerDisplay();
+  resetCards();
+
+  $("roundBadge").textContent = "Round 1";
+  $("awardTeamName").textContent = teams[activeTeam];
+}
+
+function buildActiveTeamBtns() {
+  const c = $("activeTeamBtns");
+  c.innerHTML = "";
+  teams.forEach((name, i) => {
+    const btn = document.createElement("button");
+    btn.className = "active-team-btn" + (i === activeTeam ? " active" : "");
+    btn.textContent = name;
+    btn.addEventListener("click", () => {
+      activeTeam = i;
+      document.querySelectorAll(".active-team-btn").forEach((b, j) => b.classList.toggle("active", j === i));
+      $("awardTeamName").textContent = teams[i];
+    });
+    c.appendChild(btn);
+  });
+}
+
+function buildScoreboard() {
+  const c = $("scoreboardRows");
+  c.innerHTML = "";
+  const maxScore = Math.max(...scores);
+  teams.forEach((name, i) => {
+    const leader = scores[i] === maxScore && maxScore > 0;
+    const row = document.createElement("div");
+    row.className = "score-row" + (leader ? " leader" : "");
+    row.innerHTML =
+      '<div class="score-team-name">' + (leader ? "👑 " : "") + name + '</div>' +
+      '<div class="score-pts" id="scoreDisplay' + i + '">' + scores[i] + '</div>' +
+      '<div class="score-adjs">' +
+        '<button class="score-adj-btn" data-t="' + i + '" data-a="-10">−</button>' +
+        '<button class="score-adj-btn" data-t="' + i + '" data-a="10">+</button>' +
+      '</div>';
+    c.appendChild(row);
+  });
+  document.querySelectorAll(".score-adj-btn").forEach(btn => {
+    btn.addEventListener("click", function() {
+      const t = parseInt(this.dataset.t);
+      const a = parseInt(this.dataset.a);
+      scores[t] = Math.max(0, scores[t] + a);
+      buildScoreboard();
+    });
+  });
+}
+
+function buildStealBtns() {
+  const c = $("stealBtns");
+  c.innerHTML = "";
+  teams.forEach((name, i) => {
+    const btn = document.createElement("button");
+    btn.className = "steal-btn";
+    btn.textContent = "+1 " + name;
+    btn.addEventListener("click", () => {
+      scores[i] += 1;
+      buildScoreboard();
+      showToast("🎯 Steal point → " + name);
+    });
+    c.appendChild(btn);
+  });
+}
+
+function buildRoundPips() {
+  const c = $("roundPips");
+  c.innerHTML = "";
+  for (let i = 1; i <= 15; i++) {
+    const pip = document.createElement("div");
+    pip.className = "round-pip" + (i < currentRound ? " done" : i === currentRound ? " current" : "");
+    c.appendChild(pip);
+  }
+}
+
+function resetCards() {
+  // Scenario
+  $("scenarioEmpty").style.display = "block";
+  $("scenarioContent").style.display = "none";
+  $("scenarioCard").classList.remove("drawn");
+  $("scenarioBanner").style.background = "var(--border)";
+  // Twist
+  $("twistEmpty").style.display = "block";
+  $("twistText").style.display = "none";
+  $("twistCard").classList.remove("drawn");
+  $("twistTierBadge").style.display = "none";
+}
+
+// ── DRAW SCENARIO ──────────────────────────────────────────────────────────────
+function drawScenario() {
+  const cat = $("catFilter").value;
+  let pool = SCENARIOS.filter(s => !usedScenarios.includes(s.id));
+  if (cat) pool = pool.filter(s => s.cat === cat);
+
+  if (pool.length === 0) {
+    if (cat) { showToast("All scenarios in that category used! Resetting category deck."); usedScenarios = usedScenarios.filter(id => !SCENARIOS.filter(s => s.cat === cat).map(s => s.id).includes(id)); pool = SCENARIOS.filter(s => s.cat === cat); }
+    else { usedScenarios = []; pool = SCENARIOS; showToast("All scenarios used — reshuffling deck!"); }
+  }
+
+  const s = randFrom(pool);
+  usedScenarios.push(s.id);
+
+  const color = CAT_COLORS[s.cat] || "var(--sos-blue)";
+  $("scenarioBanner").style.background = "linear-gradient(90deg," + color + "," + color + "66)";
+  $("scenarioId").textContent = s.id;
+  $("scenarioCatTag").textContent = s.cat;
+  $("scenarioCatTag").style.background = color + "22";
+  $("scenarioCatTag").style.color = color;
+  $("scenarioText").textContent = s.text;
+  $("scenarioEmpty").style.display = "none";
+  $("scenarioContent").style.display = "block";
+  $("scenarioContent").classList.add("card-in");
+  $("scenarioCard").classList.add("drawn");
+  setTimeout(() => $("scenarioContent").classList.remove("card-in"), 350);
+}
+
+// ── DRAW TWIST ────────────────────────────────────────────────────────────────
+function drawTwist() {
+  let pool = TWISTS.filter(t => !usedTwists.includes(t.id));
+  if (pool.length === 0) { usedTwists = []; pool = [...TWISTS]; showToast("Twist deck reshuffled!"); }
+
+  const t = randFrom(pool);
+  usedTwists.push(t.id);
+
+  const tierLabel = {1:"Tier 1 — Annoying",2:"Tier 2 — Chaotic",3:"Tier 3 — Nuclear"};
+  const tierClass = {1:"tier-1",2:"tier-2",3:"tier-3"};
+  const badge = $("twistTierBadge");
+  badge.textContent = tierLabel[t.tier];
+  badge.className = "tier-badge " + tierClass[t.tier];
+  badge.style.display = "inline-block";
+
+  $("twistText").textContent = t.text;
+  $("twistEmpty").style.display = "none";
+  $("twistText").style.display = "block";
+  $("twistText").classList.add("card-in");
+  $("twistCard").classList.add("drawn");
+  setTimeout(() => $("twistText").classList.remove("card-in"), 350);
+}
+
+// ── TIMER ─────────────────────────────────────────────────────────────────────
+function updateTimerDisplay() {
+  const m = Math.floor(timerSecs / 60);
+  const s = timerSecs % 60;
+  const el = $("timerDisplay");
+  el.textContent = m + ":" + s.toString().padStart(2, "0");
+  el.className = "timer-display";
+  if (timerSecs <= 10 && timerSecs > 0) el.classList.add("danger", "blink");
+  else if (timerSecs <= 30) el.classList.add("danger");
+  else if (timerSecs <= 60) el.classList.add("warn");
+}
+
+function startTimer() {
+  if (timerRunning) return;
+  timerRunning = true;
+  $("btnTimerStart").disabled = true;
+  $("btnTimerPause").disabled = false;
+  timerInterval = setInterval(() => {
+    if (timerSecs <= 0) {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      $("btnTimerStart").disabled = false;
+      $("btnTimerPause").disabled = true;
+      playBeep();
+      showToast("⏰ Time's up! Start scoring.", 3000);
+      return;
+    }
+    timerSecs--;
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function pauseTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  $("btnTimerStart").disabled = false;
+  $("btnTimerPause").disabled = true;
+}
+
+function resetTimer(secs) {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerSecs = secs || 120;
+  updateTimerDisplay();
+  $("btnTimerStart").disabled = false;
+  $("btnTimerPause").disabled = true;
+}
+
+function playBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.3, 0.6].forEach(offset => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = 880; osc.type = "sine";
+      gain.gain.setValueAtTime(0.4, ctx.currentTime + offset);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + offset + 0.25);
+      osc.start(ctx.currentTime + offset);
+      osc.stop(ctx.currentTime + offset + 0.3);
+    });
+  } catch(e) {}
+}
+
+// ── RUBRIC ────────────────────────────────────────────────────────────────────
+function updateRubricDisplay() {
+  rubricVals.forEach((v, i) => { $("rubric" + i).textContent = v; });
+  const base = rubricVals.reduce((a, b) => a + b, 0);
+  const bonus = Array.from(document.querySelectorAll(".bonus-check"))
+    .reduce((a, cb) => a + (cb.checked ? parseInt(cb.dataset.pts) : 0), 0);
+  $("rubricTotal").textContent = base + bonus;
+}
+
+function resetRubric() {
+  rubricVals = [5,5,5,5,5];
+  document.querySelectorAll(".bonus-check").forEach(cb => cb.checked = false);
+  updateRubricDisplay();
+}
+
+document.querySelectorAll(".rubric-adj").forEach(btn => {
+  btn.addEventListener("click", function() {
+    const dim = parseInt(this.dataset.dim);
+    const dir = parseInt(this.dataset.dir);
+    rubricVals[dim] = Math.max(1, Math.min(10, rubricVals[dim] + dir));
+    updateRubricDisplay();
+  });
+});
+
+document.querySelectorAll(".bonus-check").forEach(cb => {
+  cb.addEventListener("change", updateRubricDisplay);
+});
+
+// ── AWARD SCORE ───────────────────────────────────────────────────────────────
+$("btnAwardScore").addEventListener("click", function() {
+  const base = rubricVals.reduce((a, b) => a + b, 0);
+  const bonus = Array.from(document.querySelectorAll(".bonus-check"))
+    .reduce((a, cb) => a + (cb.checked ? parseInt(cb.dataset.pts) : 0), 0);
+  const total = base + bonus;
+  scores[activeTeam] += total;
+  buildScoreboard();
+  launchConfetti();
+  showToast("🏆 +" + total + " pts → " + teams[activeTeam] + "!", 2800);
+  resetRubric();
+});
+
+// ── NEXT ROUND ────────────────────────────────────────────────────────────────
+$("btnNewRound").addEventListener("click", function() {
+  currentRound++;
+  $("roundBadge").textContent = "Round " + currentRound;
+  buildRoundPips();
+  resetCards();
+  resetTimer(120);
+  // Auto-rotate active team
+  activeTeam = (activeTeam + 1) % teams.length;
+  document.querySelectorAll(".active-team-btn").forEach((b, i) => b.classList.toggle("active", i === activeTeam));
+  $("awardTeamName").textContent = teams[activeTeam];
+  resetRubric();
+});
+
+// ── RESET GAME ────────────────────────────────────────────────────────────────
+$("btnResetGame").addEventListener("click", function() {
+  scores = new Array(teams.length).fill(0);
+  currentRound = 1;
+  activeTeam = 0;
+  initGame();
+  showToast("Game reset!", 2000);
+});
+
+// ── TIMER EVENTS ──────────────────────────────────────────────────────────────
+$("btnDrawScenario").addEventListener("click", drawScenario);
+$("btnDrawTwist").addEventListener("click", drawTwist);
+$("btnTimerStart").addEventListener("click", startTimer);
+$("btnTimerPause").addEventListener("click", pauseTimer);
+$("btnTimerReset").addEventListener("click", () => resetTimer(120));
+$("btnTimer3").addEventListener("click", () => resetTimer(180));
+
+// ── CONFETTI ──────────────────────────────────────────────────────────────────
+function launchConfetti() {
+  const c = $("confettiContainer");
+  c.innerHTML = "";
+  const colors = ["#2a6db5","#d43a3a","#5bb8f5","#f5c842","#43a047","#e67e22","#9b59b6","#1abc9c"];
+  for (let i = 0; i < 60; i++) {
+    const p = document.createElement("div");
+    p.className = "confetti-piece";
+    p.style.left = Math.random() * 100 + "%";
+    p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    p.style.width = (6 + Math.random() * 8) + "px";
+    p.style.height = (6 + Math.random() * 8) + "px";
+    p.style.borderRadius = Math.random() > .5 ? "50%" : "2px";
+    p.style.animationDelay = (Math.random() * .5) + "s";
+    p.style.animationDuration = (2 + Math.random() * 1.2) + "s";
+    c.appendChild(p);
+  }
+  setTimeout(() => c.innerHTML = "", 3500);
+}
+</script>
+</body>
+</html>

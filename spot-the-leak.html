@@ -22,7 +22,7 @@ body::before{content:'';position:fixed;inset:0;background:
 
 .wrap{position:relative;z-index:1;width:100%;max-width:1300px;padding:20px 20px 40px}
 
-/* HEADER */
+/* ── HEADER ── */
 .game-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 20px;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);margin-bottom:16px}
 .game-header-left{display:flex;align-items:center;gap:12px}
 .sos-logo{height:44px}
@@ -33,21 +33,12 @@ body::before{content:'';position:fixed;inset:0;background:
 .back-link{color:var(--muted);font-size:.8rem;text-decoration:none;display:flex;align-items:center;gap:4px;transition:color .2s;white-space:nowrap}
 .back-link:hover{color:var(--sos-light)}
 
-/* LOBBY */
+/* ── LOBBY ── */
 .lobby{display:none}
 .lobby.active{display:block}
-.lobby-title{text-align:center;margin-bottom:8px}
+.lobby-title{text-align:center;margin-bottom:20px}
 .lobby-title h2{font-size:1.6rem;font-weight:800;color:#fff}
-.lobby-title p{color:var(--muted);font-size:.9rem;margin-top:4px}
-.total-score-bar{display:flex;align-items:center;justify-content:center;gap:20px;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:14px 24px;margin:16px 0 24px;flex-wrap:wrap}
-.ts-label{font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
-.ts-value{font-size:2rem;font-weight:900;color:var(--gold)}
-.ts-max{font-size:.85rem;color:var(--muted)}
-.ts-divider{width:1px;height:40px;background:var(--border)}
-.ts-breakdown{display:flex;gap:16px;flex-wrap:wrap}
-.ts-lv{display:flex;flex-direction:column;align-items:center;gap:2px}
-.ts-lv-label{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.ts-lv-val{font-size:.95rem;font-weight:800;color:var(--sos-light)}
+.lobby-title p{color:var(--muted);font-size:.9rem;margin-top:6px}
 .level-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;margin-bottom:24px}
 .level-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all .25s}
 .level-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(42,109,181,.25)}
@@ -56,43 +47,28 @@ body::before{content:'';position:fixed;inset:0;background:
 .lc-info h3{font-size:1rem;font-weight:800;color:#fff}
 .lc-info .lc-company{font-size:.8rem;color:var(--muted);margin-top:2px}
 .lc-body{padding:0 20px 18px}
-.lc-page-type{font-size:.75rem;color:var(--muted);margin-bottom:10px;font-style:italic}
+.lc-page-type{font-size:.75rem;color:var(--muted);margin-bottom:12px;font-style:italic}
 .lc-stats{display:flex;gap:12px;flex-wrap:wrap}
 .lc-stat{display:flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.04);border-radius:8px;padding:8px 14px}
 .lc-stat-val{font-size:1.1rem;font-weight:900;color:var(--sos-light)}
 .lc-stat-label{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
 .lc-score-row{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
-.lc-score-earned{font-size:.8rem;color:var(--gold);font-weight:700}
+.lc-status{font-size:.8rem;color:var(--muted);font-weight:600}
+.lc-status.started{color:var(--sos-light)}
+.lc-status.complete{color:var(--green)}
 .lc-play-btn{font-size:.78rem;font-weight:700;color:var(--sos-light);background:rgba(42,109,181,.15);border:1px solid rgba(91,184,245,.3);padding:5px 14px;border-radius:20px}
-.lc-complete-badge{background:rgba(67,160,71,.2);color:#66bb6a;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
 
-/* GAME SCREEN */
+/* ── GAME SCREEN ── */
 .game-screen{display:none}
 .game-screen.active{display:block}
 .game-top-bar{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap}
 .gtb-back{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);font-size:.8rem;font-weight:600;padding:7px 14px;border-radius:8px;cursor:pointer;transition:all .2s}
 .gtb-back:hover{background:rgba(255,255,255,.1)}
-.gtb-level{flex:1;display:flex;align-items:center;gap:10px}
 .gtb-level-label{font-size:.85rem;font-weight:800;padding:5px 14px;border-radius:20px;color:#fff}
-.gtb-scores{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
-.gtb-score-item{display:flex;flex-direction:column;align-items:center}
-.gtb-score-val{font-size:1.1rem;font-weight:900}
-.gtb-score-lab{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.progress-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding:10px 16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;flex-wrap:wrap}
-.pr-label{font-size:.75rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0}
-.pr-pills{display:flex;gap:6px;flex-wrap:wrap}
-.issue-pill{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);background:rgba(255,255,255,.04);transition:all .3s;cursor:default;display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:700;color:transparent}
-.issue-pill.tier-obvious{border-color:var(--green)}
-.issue-pill.tier-moderate{border-color:var(--orange)}
-.issue-pill.tier-advanced{border-color:var(--purple)}
-.issue-pill.found.tier-obvious{background:var(--green);color:#fff}
-.issue-pill.found.tier-moderate{background:var(--orange);color:#fff}
-.issue-pill.found.tier-advanced{background:var(--purple);color:#fff}
-.pr-legend{display:flex;gap:10px;margin-left:auto;flex-wrap:wrap}
-.pr-leg{display:flex;align-items:center;gap:4px;font-size:.68rem;color:var(--muted)}
-.pr-leg-dot{width:10px;height:10px;border-radius:50%}
+.gtb-found{font-size:.82rem;color:var(--muted);margin-left:auto}
+.gtb-found span{color:var(--sos-light);font-weight:800}
 
-/* BROWSER CHROME */
+/* ── BROWSER CHROME ── */
 .browser-chrome{background:#1a1a2e;border:2px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px}
 .browser-bar{background:#0d0d1a;padding:8px 14px;display:flex;align-items:center;gap:10px}
 .browser-dots{display:flex;gap:5px}
@@ -102,99 +78,63 @@ body::before{content:'';position:fixed;inset:0;background:
 .fake-site-wrap *{cursor:default}
 .fake-site-wrap [data-issue]{cursor:pointer!important;transition:outline .15s}
 .fake-site-wrap [data-issue]:hover{outline:2px dashed rgba(91,184,245,.5);outline-offset:2px}
-.fake-site-wrap [data-issue].found-issue{outline:2px solid var(--green)!important;outline-offset:2px;opacity:.7}
+.fake-site-wrap [data-issue].found-issue{outline:2px solid var(--green)!important;outline-offset:2px;opacity:.75}
 
-/* ISSUE TRACKER */
-.issue-tracker{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
-.it-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
-.it-title{font-size:.85rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
-.it-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
-.it-item{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;transition:all .3s}
-.it-item.found{border-color:rgba(67,160,71,.4);background:rgba(67,160,71,.06)}
-.it-item.found.tier-moderate{border-color:rgba(230,126,34,.4);background:rgba(230,126,34,.06)}
-.it-item.found.tier-advanced{border-color:rgba(155,89,182,.4);background:rgba(155,89,182,.06)}
-.it-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;border:2px solid var(--border)}
-.it-item.tier-obvious .it-dot{border-color:var(--green)}
-.it-item.tier-moderate .it-dot{border-color:var(--orange)}
-.it-item.tier-advanced .it-dot{border-color:var(--purple)}
-.it-item.found.tier-obvious .it-dot{background:var(--green);border-color:var(--green)}
-.it-item.found.tier-moderate .it-dot{background:var(--orange);border-color:var(--orange)}
-.it-item.found.tier-advanced .it-dot{background:var(--purple);border-color:var(--purple)}
-.it-text{flex:1}
-.it-cat{font-size:.65rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-.it-title-text{font-size:.78rem;color:var(--text);font-weight:600;margin-top:2px}
-.it-hidden{color:var(--muted);font-style:italic}
-.it-tier-badge{font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0}
-.it-item.tier-obvious .it-tier-badge{background:rgba(67,160,71,.2);color:#66bb6a}
-.it-item.tier-moderate .it-tier-badge{background:rgba(230,126,34,.2);color:#f39c12}
-.it-item.tier-advanced .it-tier-badge{background:rgba(155,89,182,.2);color:#bb8fce}
-
-/* GAME BUTTONS */
-.game-btns{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+/* ── GAME BUTTONS ── */
+.game-btns{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
 .btn-reveal{background:rgba(122,155,192,.1);border:1px solid var(--muted);color:var(--muted);font-size:.8rem;font-weight:700;padding:8px 18px;border-radius:8px;cursor:pointer;transition:all .2s}
 .btn-reveal:hover{background:rgba(122,155,192,.2);color:var(--text)}
 .btn-next{background:linear-gradient(135deg,var(--sos-blue),#1a5a9f);border:none;color:#fff;font-size:.85rem;font-weight:800;padding:10px 22px;border-radius:8px;cursor:pointer;transition:all .25s;letter-spacing:.5px}
 .btn-next:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(42,109,181,.4)}
-.btn-next.pulse{animation:pulse-glow 1.5s ease-in-out infinite}
-@keyframes pulse-glow{0%,100%{box-shadow:0 0 0 0 rgba(91,184,245,.4)}50%{box-shadow:0 0 0 10px rgba(91,184,245,0)}}
 
-/* REVEAL PANEL */
+/* ── ISSUE TRACKER ── */
+.issue-tracker{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.it-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.it-title{font-size:.85rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.it-complete-banner{background:rgba(67,160,71,.15);border:1px solid rgba(67,160,71,.4);color:#66bb6a;font-size:.8rem;font-weight:700;padding:6px 14px;border-radius:8px;display:none}
+.it-complete-banner.visible{display:block}
+.it-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+.it-item{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;transition:all .25s;cursor:pointer}
+.it-item:hover{background:rgba(255,255,255,.06);border-color:rgba(91,184,245,.3)}
+.it-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.65rem;color:transparent;flex-shrink:0;transition:all .25s}
+.it-item.found .it-check{background:var(--green);border-color:var(--green);color:#fff}
+.it-text{flex:1;min-width:0}
+.it-cat{font-size:.65rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.it-title-text{font-size:.78rem;color:var(--text);font-weight:600;margin-top:2px;line-height:1.3}
+
+/* ── REVEAL PANEL ── */
 .reveal-panel{display:none;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
 .reveal-panel.active{display:block}
 .reveal-panel h3{font-size:.85rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px}
 .reveal-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px}
-.reveal-item h4{font-size:.85rem;font-weight:800;color:#fff;margin-bottom:6px}
-.reveal-section{margin-top:6px}
-.reveal-section strong{font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
-.reveal-section p{font-size:.8rem;color:var(--text);margin-top:2px;line-height:1.5}
+.reveal-item h4{font-size:.88rem;font-weight:800;color:#fff;margin-bottom:8px}
+.reveal-section{margin-top:8px}
+.reveal-section strong{font-size:.68rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+.reveal-section p{font-size:.8rem;color:var(--text);margin-top:3px;line-height:1.55}
 
-/* WIN SCREEN */
-.win-screen{display:none;text-align:center;padding:40px 20px}
-.win-screen.active{display:block}
-.win-screen h2{font-size:2rem;font-weight:900;color:var(--gold);margin-bottom:8px}
-.win-screen .win-sub{font-size:1rem;color:var(--muted);margin-bottom:30px}
-.win-total{font-size:3.5rem;font-weight:900;color:var(--sos-light);margin-bottom:8px}
-.win-max{font-size:.9rem;color:var(--muted);margin-bottom:30px}
-.win-breakdown{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:30px}
-.win-lv{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:16px 24px;min-width:150px}
-.win-lv h4{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-.win-lv .win-lv-score{font-size:1.5rem;font-weight:900;color:var(--gold)}
-.win-lv .win-lv-max{font-size:.75rem;color:var(--muted)}
-.btn-play-again{background:linear-gradient(135deg,var(--sos-blue),#1a5a9f);border:none;color:#fff;font-size:1rem;font-weight:800;padding:14px 32px;border-radius:10px;cursor:pointer;margin-top:10px;transition:all .25s}
-.btn-play-again:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(42,109,181,.4)}
-
-/* MODAL */
+/* ── MODAL ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.active{display:flex}
 .modal-box{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);max-width:560px;width:100%;max-height:90vh;overflow-y:auto;padding:28px}
-.modal-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:16px}
-.modal-badges{display:flex;gap:8px;flex-wrap:wrap}
-.modal-cat-badge{font-size:.7rem;font-weight:800;padding:4px 12px;border-radius:20px;background:rgba(42,109,181,.3);color:var(--sos-light);text-transform:uppercase;letter-spacing:.5px}
-.modal-tier-badge{font-size:.7rem;font-weight:800;padding:4px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
-.modal-tier-badge.obvious{background:rgba(67,160,71,.2);color:#66bb6a}
-.modal-tier-badge.moderate{background:rgba(230,126,34,.2);color:#f39c12}
-.modal-tier-badge.advanced{background:rgba(155,89,182,.2);color:#bb8fce}
-.modal-pts{font-size:1.1rem;font-weight:900;color:var(--gold);white-space:nowrap}
-.modal-close{background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;line-height:1;padding:0;margin-left:8px}
+.modal-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}
+.modal-cat-badge{font-size:.72rem;font-weight:800;padding:4px 12px;border-radius:20px;background:rgba(42,109,181,.3);color:var(--sos-light);text-transform:uppercase;letter-spacing:.5px;display:inline-block}
+.modal-close{background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;line-height:1;padding:0;flex-shrink:0}
 .modal-close:hover{color:#fff}
 .modal-title{font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:18px;line-height:1.3}
 .modal-section{margin-bottom:14px}
 .modal-section-label{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px}
 .modal-section-text{font-size:.88rem;color:var(--text);line-height:1.6}
 .modal-section-text code{background:rgba(91,184,245,.1);color:var(--sos-light);padding:1px 5px;border-radius:3px;font-size:.82rem}
+.modal-close-btn{background:linear-gradient(135deg,var(--sos-blue),#1a5a9f);border:none;color:#fff;font-size:.85rem;font-weight:800;padding:10px 22px;border-radius:8px;cursor:pointer;width:100%;margin-top:8px;transition:all .25s}
+.modal-close-btn:hover{opacity:.9}
 
-/* TOAST */
-.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface);border:2px solid var(--border);border-radius:10px;padding:12px 24px;font-size:.9rem;font-weight:700;color:#fff;z-index:2000;opacity:0;transition:all .4s;pointer-events:none;white-space:nowrap}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* FOOTER */
+/* ── FOOTER ── */
 .site-footer{text-align:center;padding:20px;color:var(--muted);font-size:.78rem;border-top:1px solid var(--border);width:100%;margin-top:auto;position:relative;z-index:1}
 .site-footer a{color:var(--sos-light);text-decoration:none}
 
-/* CONFETTI CANVAS */
-#confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:999}
-
-/* ---- FAKE SITE STYLES ---- */
+/* ════════════════════════════════════════
+   FAKE SITE STYLES
+════════════════════════════════════════ */
 
 /* LEVEL 1 — DIXIE'S DRAINS */
 .fs1-body{background:#f5f0e8;color:#222;font-family:'Courier New',Georgia,serif;font-size:14px;line-height:1.5}
@@ -374,15 +314,11 @@ body::before{content:'';position:fixed;inset:0;background:
 </head>
 <body>
 
-<canvas id="confetti-canvas"></canvas>
-<div class="toast" id="toast"></div>
+<!-- MODAL -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal-box" id="modal-box">
     <div class="modal-top">
-      <div>
-        <div class="modal-badges" id="modal-badges"></div>
-        <div class="modal-pts" id="modal-pts"></div>
-      </div>
+      <div class="modal-cat-badge" id="modal-cat"></div>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-title" id="modal-title"></div>
@@ -398,7 +334,7 @@ body::before{content:'';position:fixed;inset:0;background:
       <div class="modal-section-label">Fix</div>
       <div class="modal-section-text" id="modal-fix"></div>
     </div>
-    <button class="btn-next" style="width:100%;margin-top:8px" onclick="closeModal()">Got it</button>
+    <button class="modal-close-btn" onclick="closeModal()">Got it</button>
   </div>
 </div>
 
@@ -410,7 +346,7 @@ body::before{content:'';position:fixed;inset:0;background:
     </div>
     <div class="game-header-center">
       <h1>🔍 <span class="hl">Spot the Leak</span></h1>
-      <div class="sub">UX Audit Challenge · 4 Levels · 36 Issues</div>
+      <div class="sub">UX Audit Challenge · 4 Levels · 36 Issues · Facilitator Tool</div>
     </div>
     <div>
       <svg class="sos-logo" viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
@@ -432,22 +368,8 @@ body::before{content:'';position:fixed;inset:0;background:
   <!-- LOBBY -->
   <div class="lobby active" id="lobby">
     <div class="lobby-title">
-      <h2>Choose Your Level</h2>
-      <p>Find intentional CRO, UX, SEO, content, and trust issues hidden in fake business websites.</p>
-    </div>
-    <div class="total-score-bar">
-      <div>
-        <div class="ts-label">Total Score</div>
-        <div class="ts-value" id="total-score-display">0</div>
-        <div class="ts-max">of 5,800 pts</div>
-      </div>
-      <div class="ts-divider"></div>
-      <div class="ts-breakdown">
-        <div class="ts-lv"><div class="ts-lv-label">Level 1</div><div class="ts-lv-val" id="lv-score-0">0</div></div>
-        <div class="ts-lv"><div class="ts-lv-label">Level 2</div><div class="ts-lv-val" id="lv-score-1">0</div></div>
-        <div class="ts-lv"><div class="ts-lv-label">Level 3</div><div class="ts-lv-val" id="lv-score-2">0</div></div>
-        <div class="ts-lv"><div class="ts-lv-label">Level 4</div><div class="ts-lv-val" id="lv-score-3">0</div></div>
-      </div>
+      <h2>Choose a Level</h2>
+      <p>Click any issue on the fake website to reveal it. Use "Reveal All" to debrief the full list.</p>
     </div>
     <div class="level-cards" id="level-cards"></div>
   </div>
@@ -455,34 +377,11 @@ body::before{content:'';position:fixed;inset:0;background:
   <!-- GAME SCREEN -->
   <div class="game-screen" id="game-screen">
     <div class="game-top-bar">
-      <button class="gtb-back" onclick="goToLobby()">← Lobby</button>
-      <div class="gtb-level">
-        <div class="gtb-level-label" id="gtb-level-label">Level 1 of 4</div>
-      </div>
-      <div class="gtb-scores">
-        <div class="gtb-score-item">
-          <div class="gtb-score-val" id="gtb-level-score" style="color:var(--sos-light)">0</div>
-          <div class="gtb-score-lab">Level Pts</div>
-        </div>
-        <div class="gtb-score-item">
-          <div class="gtb-score-val" id="gtb-total-score" style="color:var(--gold)">0</div>
-          <div class="gtb-score-lab">Total Pts</div>
-        </div>
-        <div class="gtb-score-item">
-          <div class="gtb-score-val" id="gtb-found-count" style="color:var(--green)">0/0</div>
-          <div class="gtb-score-lab">Found</div>
-        </div>
-      </div>
+      <button class="gtb-back" onclick="goToLobby()">← All Levels</button>
+      <div class="gtb-level-label" id="gtb-level-label"></div>
+      <div class="gtb-found">Found: <span id="gtb-found-count">0/0</span></div>
     </div>
-    <div class="progress-row">
-      <div class="pr-label">Issues</div>
-      <div class="pr-pills" id="pr-pills"></div>
-      <div class="pr-legend">
-        <div class="pr-leg"><div class="pr-leg-dot" style="background:var(--green)"></div>Obvious</div>
-        <div class="pr-leg"><div class="pr-leg-dot" style="background:var(--orange)"></div>Moderate</div>
-        <div class="pr-leg"><div class="pr-leg-dot" style="background:var(--purple)"></div>Advanced</div>
-      </div>
-    </div>
+
     <div class="browser-chrome">
       <div class="browser-bar">
         <div class="browser-dots">
@@ -494,31 +393,24 @@ body::before{content:'';position:fixed;inset:0;background:
       </div>
       <div class="fake-site-wrap" id="fake-site-wrap"></div>
     </div>
+
     <div class="game-btns">
       <button class="btn-reveal" onclick="toggleReveal()">👁 Reveal All Issues</button>
-      <button class="btn-next" id="btn-next" onclick="goNextLevel()">Next Level →</button>
+      <button class="btn-next" onclick="goNextLevel()">Next Level →</button>
     </div>
+
     <div class="issue-tracker">
       <div class="it-header">
-        <div class="it-title">Issue Tracker</div>
+        <div class="it-title">Issue Checklist</div>
+        <div class="it-complete-banner" id="it-complete-banner">✓ All issues found!</div>
       </div>
       <div class="it-grid" id="it-grid"></div>
     </div>
+
     <div class="reveal-panel" id="reveal-panel">
       <h3>All Issues — Facilitator View</h3>
       <div id="reveal-content"></div>
     </div>
-  </div>
-
-  <!-- WIN SCREEN -->
-  <div class="win-screen" id="win-screen">
-    <div>🏆</div>
-    <h2>All Levels Complete!</h2>
-    <div class="win-sub">You found all the leaks. Excellent UX audit skills.</div>
-    <div class="win-total" id="win-total">0</div>
-    <div class="win-max">points scored</div>
-    <div class="win-breakdown" id="win-breakdown"></div>
-    <button class="btn-play-again" onclick="resetAll()">Play Again</button>
   </div>
 </div>
 
@@ -536,62 +428,61 @@ const LEVELS = [
     pageType: 'Local Service Homepage',
     url: 'dixiesdrains.com',
     color: 'var(--green)',
-    maxPts: 1400,
     emoji: '🚿',
     issues: [
-      { id:'e1', tier:'obvious', cat:'CRO', title:'"Click Here" CTA',
+      { id:'e1', cat:'CRO', title:'"Click Here" CTA',
         what:'The main hero CTA button says "Click Here" with no description of what it does.',
         why:'Meaningless CTAs destroy conversion rate. Users need to know exactly what will happen when they click — "Get a Free Quote," "Book Same-Day Service," etc.',
         fix:'Replace with a specific, benefit-driven CTA like "Get a Free Plumbing Quote" or "Call Now — Available 24/7."' },
-      { id:'e2', tier:'obvious', cat:'SEO + CRO', title:'"Welcome to Our Website!" H1',
+      { id:'e2', cat:'SEO + CRO', title:'"Welcome to Our Website!" H1',
         what:'The page\'s H1 says "Welcome to Our Website!" — a phrase with zero strategic value.',
         why:'H1s carry the most SEO weight on a page. "Welcome to Our Website" targets no keyword, communicates no value, and won\'t rank for anything.',
         fix:'Replace with a keyword-rich, value-communicating headline like "Trusted Plumbing Services in [City] — Available 24/7."' },
-      { id:'e3', tier:'obvious', cat:'Trust', title:'Mismatched Team Photo',
+      { id:'e3', cat:'Trust', title:'Mismatched Team Photo',
         what:'The "Our Team" section shows a stock photo of office workers in business suits.',
         why:'Plumbing customers want to see tradespeople — uniforms, trucks, tools. An office photo destroys credibility and looks like a stock photo grab.',
         fix:'Use actual team photos in branded uniforms, or at minimum a photo of someone doing plumbing work.' },
-      { id:'e4', tier:'obvious', cat:'UX', title:'No Phone Number',
+      { id:'e4', cat:'UX', title:'No Phone Number',
         what:'There is no phone number visible anywhere on the page — not in the nav, hero, or footer.',
         why:'For a plumbing emergency service, a phone number is the #1 conversion element. Its absence is a critical failure.',
         fix:'Put a large, clickable tel: phone number in the top navigation and repeat it in the hero section.' },
-      { id:'e5', tier:'obvious', cat:'Content', title:'Wall of Text Services Section',
+      { id:'e5', cat:'Content', title:'Wall of Text Services Section',
         what:'All services are described in a single unformatted paragraph with no headers, bullets, or visual breaks.',
         why:'Users scan, they don\'t read. A wall of text causes instant abandonment. Services must be scannable.',
         fix:'Use a grid of service cards or a bulleted list with headers, icons, and brief descriptions.' },
-      { id:'e6', tier:'obvious', cat:'Trust', title:'Copyright 2009 + "Mike\'s Web Designs"',
+      { id:'e6', cat:'Trust', title:'Copyright 2009 + "Mike\'s Web Designs"',
         what:'The footer shows "© 2009" and credits a "Mike\'s Web Designs" agency.',
         why:'An outdated copyright suggests the business is inactive, and the DIY credit removes professional credibility.',
         fix:'Update copyright year dynamically, remove third-party credits, add a professional footer with address, license number, and service areas.' },
-      { id:'e7', tier:'obvious', cat:'CRO', title:'"Coming Soon" Nav Link',
+      { id:'e7', cat:'CRO', title:'"Coming Soon" Nav Link',
         what:'A nav item for "Drain Cleaning" is greyed out and says "Coming Soon."',
         why:'Coming soon links look unfinished, signal the business isn\'t fully operational, and waste prime nav real estate.',
         fix:'Either launch the page or remove the link entirely until it exists.' },
-      { id:'e8', tier:'obvious', cat:'Content', title:'Incoherent Subheadline',
+      { id:'e8', cat:'Content', title:'Incoherent Subheadline',
         what:'The hero subheadline is a run-on sentence with no punctuation and vague filler language ("and stuff," "or whatever").',
         why:'This signals unprofessionalism instantly and communicates nothing of value to a potential customer.',
         fix:'Write a clear, specific value statement: "Same-day plumbing repair for homes and businesses in [City]. Available 24/7."' },
-      { id:'e9', tier:'obvious', cat:'Trust', title:'Single Testimonial from "My Neighbor"',
+      { id:'e9', cat:'Trust', title:'Single Testimonial from "My Neighbor"',
         what:'The only testimonial on the page is from "Janet (my neighbor)" — obviously a personal connection, not a vetted customer review.',
         why:'Social proof requires credibility. One review from a neighbor reads as fake and actually reduces trust rather than building it.',
         fix:'Collect and display genuine customer reviews with full names (with permission), job type, and date. Link to your Google Business Profile.' },
-      { id:'e10', tier:'obvious', cat:'CRO', title:'Generic "SUBMIT FORM" Button',
+      { id:'e10', cat:'CRO', title:'Generic "SUBMIT FORM" Button',
         what:'The form submit button says "SUBMIT FORM" in all caps.',
         why:'Generic submit language misses the opportunity to reinforce the action\'s value. All-caps reads as shouting.',
         fix:'Replace with action-confirming language like "Request My Free Quote" or "Get a Plumber Today."' },
-      { id:'e11', tier:'obvious', cat:'Trust', title:'Unprofessional Business Hours',
+      { id:'e11', cat:'Trust', title:'Unprofessional Business Hours',
         what:'Business hours are written informally: "open around 8 or 9, closed when done."',
         why:'Vague hours signal unreliability. Customers can\'t plan around you, and it reads as deeply unprofessional.',
         fix:'List exact hours. If hours vary, say "Call ahead to confirm availability."' },
-      { id:'e12', tier:'obvious', cat:'Content', title:'Spelling and Grammar Errors',
+      { id:'e12', cat:'Content', title:'Spelling and Grammar Errors',
         what:'The About section contains multiple spelling errors: "buisness," "are work," "are hardest," "famly."',
         why:'Spelling errors are an immediate trust killer. They signal carelessness that users naturally extend to the quality of the work itself.',
         fix:'Proofread all copy. Use a spell-checker at minimum. Consider hiring a copywriter for key sections.' },
-      { id:'e13', tier:'obvious', cat:'SEO', title:'Page Title is "Home - Home"',
+      { id:'e13', cat:'SEO', title:'Page Title is "Home - Home"',
         what:'The browser tab shows "Home - Home" as the page title.',
         why:'Page titles are critical for SEO and click-through rate from search results. "Home - Home" targets no keyword, communicates no value, and won\'t attract clicks.',
         fix:'Write a descriptive, keyword-rich title: "Plumbing Repair & Drain Cleaning in [City] | Dixie\'s Drains."' },
-      { id:'e14', tier:'obvious', cat:'Trust', title:'Expired Promotion',
+      { id:'e14', cat:'Trust', title:'Expired Promotion',
         what:'A promotional banner advertises "10% Off!" with an expiration date of December 31, 2021.',
         why:'An expired offer signals the site is unmaintained. It also creates a negative experience if customers expect the discount.',
         fix:'Remove expired promotions immediately or set automated expiration. Update offers seasonally.' },
@@ -604,46 +495,45 @@ const LEVELS = [
     pageType: 'Roofing Service Landing Page',
     url: 'peakproroofing.com',
     color: 'var(--orange)',
-    maxPts: 1300,
     emoji: '🏠',
     issues: [
-      { id:'m1', tier:'obvious', cat:'UX', title:'Phone Not Clickable',
+      { id:'m1', cat:'UX', title:'Phone Not Clickable',
         what:'The phone number in the nav is plain text, not a tel: link.',
         why:'Mobile users (often 60%+ of traffic for local services) can\'t tap to call. Every extra step kills conversions.',
         fix:'Wrap in <code>&lt;a href="tel:+16155550289"&gt;</code> and make it visually prominent.' },
-      { id:'m2', tier:'obvious', cat:'SEO', title:'Missing H1 Tag',
+      { id:'m2', cat:'SEO', title:'Missing H1 Tag',
         what:'The hero headline is a styled div, not an h1. The page has no h1 element.',
         why:'H1 is the single most important on-page SEO signal. Search engines use it to understand page topic. Missing it significantly hurts rankings.',
         fix:'Change the headline div to an <code>&lt;h1&gt;</code> tag containing the primary keyword phrase.' },
-      { id:'m3', tier:'obvious', cat:'CRO', title:'Three Competing Hero CTAs',
+      { id:'m3', cat:'CRO', title:'Three Competing Hero CTAs',
         what:'The hero has three CTA buttons: "Get Free Estimate," "View Our Work," and "Learn More."',
         why:'Every additional CTA reduces the click rate on your primary CTA (Hick\'s Law). "View Our Work" and "Learn More" take users away from conversion.',
         fix:'One primary CTA. One optional secondary (if needed). Remove "Learn More" entirely.' },
-      { id:'m4', tier:'obvious', cat:'Trust', title:'Star Rating Contradicts Numeric Score',
+      { id:'m4', cat:'Trust', title:'Star Rating Contradicts Numeric Score',
         what:'The star display shows 4 stars (★★★★☆) but the label says "4.9 Rating."',
         why:'This inconsistency signals carelessness or dishonesty — exactly what you don\'t want from a trust element. Users notice.',
         fix:'Match the visual stars to the number (4.9 = effectively 5 stars visually), or use a numeric display only.' },
-      { id:'m5', tier:'obvious', cat:'Visual', title:'Hero Image Doesn\'t Show the Service',
+      { id:'m5', cat:'Visual', title:'Hero Image Doesn\'t Show the Service',
         what:'The hero background is a generic neighborhood photo with no roofing work visible.',
         why:'For a roofing company, the hero is prime real estate for showing quality workmanship. A generic neighborhood builds no credibility.',
         fix:'Use a photo of your crew on a roof, a before/after, or a finished roofing project.' },
-      { id:'m6', tier:'moderate', cat:'UX', title:'8-Item Navigation',
+      { id:'m6', cat:'UX', title:'8-Item Navigation',
         what:'The nav has 8 items including Careers, Blog, and Financing.',
         why:'Too many nav options causes decision paralysis and pulls high-intent visitors to low-conversion pages.',
         fix:'Limit nav to 5–6 items max. Move Careers and Blog to the footer.' },
-      { id:'m7', tier:'moderate', cat:'CRO', title:'"3–5 Business Days" Response Time',
+      { id:'m7', cat:'CRO', title:'"3–5 Business Days" Response Time',
         what:'The contact form says responses take 3–5 business days.',
         why:'Anyone contacting a roofing company has an active concern. Telling them to wait a week kills trust and the lead goes to a competitor.',
         fix:'Commit to same-day or 24-hour response. For urgent jobs, provide a direct phone number above the form.' },
-      { id:'m8', tier:'moderate', cat:'Content', title:'Vague, Generic Testimonials',
+      { id:'m8', cat:'Content', title:'Vague, Generic Testimonials',
         what:'All four reviews are 4–5 words of generic praise with no specifics.',
         why:'"Great company!" tells a prospect nothing. Reviews should mention the specific service, outcome, and personal situation to build real credibility.',
         fix:'Solicit detailed reviews. Coach customers to mention what service they had, what the problem was, and how it was resolved.' },
-      { id:'m9', tier:'moderate', cat:'Trust', title:'Stock Photo with Visible Watermark',
+      { id:'m9', cat:'Trust', title:'Stock Photo with Visible Watermark',
         what:'The hero image has a visible "Getty Images" watermark in the corner.',
         why:'Using watermarked stock photos signals you couldn\'t be bothered to license imagery — or worse, you\'re using images illegally. It\'s an instant credibility destroyer.',
         fix:'License your images properly or use royalty-free sources like Unsplash, Pexels, or your own photography.' },
-      { id:'m10', tier:'moderate', cat:'SEO', title:'No Address in Footer',
+      { id:'m10', cat:'SEO', title:'No Address in Footer',
         what:'The footer contains no physical address or service area — just the company name and copyright.',
         why:'For a local service business, a footer address is critical for local SEO (NAP consistency) and trust. Customers want to know you\'re a real local business.',
         fix:'Add full NAP (Name, Address, Phone) to the footer. Include primary service cities if you don\'t have a storefront.' },
@@ -656,34 +546,33 @@ const LEVELS = [
     pageType: 'Emergency Water Damage Landing Page',
     url: 'blueridgerestoration.com',
     color: 'var(--sos-red)',
-    maxPts: 1600,
     emoji: '💧',
     issues: [
-      { id:'h3', tier:'obvious', cat:'SEO', title:'No H1 Tag',
+      { id:'h3', cat:'SEO', title:'No H1 Tag',
         what:'The hero headline is a styled div, not an h1. There\'s no h1 anywhere on the page.',
         why:'H1 is critical for search engine understanding of page content. For competitive local SEO, missing it is a significant ranking disadvantage.',
         fix:'Make the headline an h1 with primary keywords: "Emergency Water Damage Restoration in Asheville, NC."' },
-      { id:'h5', tier:'moderate', cat:'CRO', title:'Competing Hero CTAs',
+      { id:'h5', cat:'CRO', title:'Competing Hero CTAs',
         what:'Two CTA buttons in the hero: "Get a Free Estimate" and "About Our Company."',
         why:'Adding a second CTA splits attention and reduces clicks on the primary. "About Our Company" is especially problematic — users in crisis don\'t want to learn about the company, they want help.',
         fix:'One CTA. "Call Now for Emergency Help" with a tel: link. Everything else is secondary.' },
-      { id:'h7', tier:'moderate', cat:'CRO', title:'9-Field Form for Emergency Lead',
+      { id:'h7', cat:'CRO', title:'9-Field Form for Emergency Lead',
         what:'The contact form requires 9 fields including "How did you hear about us?" and "Estimated Affected Area."',
         why:'Someone with a flooded basement will not fill out a 9-field form. Every field reduces completion rate. For emergency services, friction is deadly.',
         fix:'Emergency form = Name, Phone, Zip, brief description. 4 fields max. The "how did you hear" question is for analytics — put it post-conversion.' },
-      { id:'h8', tier:'moderate', cat:'Content', title:'Generic Service Card Descriptions',
+      { id:'h8', cat:'Content', title:'Generic Service Card Descriptions',
         what:'Each service card has a single throwaway sentence like "Fast response times and professional equipment."',
         why:'These descriptions could apply to any restoration company. There\'s no differentiation, no proof, no specifics that build confidence.',
         fix:'Include 1–2 differentiating details per service: average response time, certifications relevant to that service, or a brief outcome statement.' },
-      { id:'h9', tier:'advanced', cat:'Intent Mismatch', title:'Educational Content on Emergency Page',
+      { id:'h9', cat:'Intent Mismatch', title:'Educational Content on Emergency Page',
         what:'The About section contains a statistics paragraph about water damage insurance claims.',
         why:'This is informational/research content. Emergency users are in action mode — they need to know you can help them RIGHT NOW, not learn about industry statistics.',
         fix:'Replace with urgency-reinforcing content: response time guarantees, direct experience claims, certifications that signal competence.' },
-      { id:'h10', tier:'advanced', cat:'Emotional Mismatch', title:'Hero Image — Wrong Emotional Context',
+      { id:'h10', cat:'Emotional Mismatch', title:'Hero Image — Wrong Emotional Context',
         what:'The hero background shows a pristine, beautiful residential home — aspirational and calm.',
         why:'Users arriving with active water damage are anxious and stressed. A perfect home signals "this company works on beautiful, intact homes" — not "we handle emergencies like yours."',
         fix:'Use imagery that signals emergency response: crew arriving on-site, equipment at work, or a professional assessment photo. Match the user\'s emotional context.' },
-      { id:'h11', tier:'advanced', cat:'Funnel Mismatch', title:'"24 Business Hours" Response + Voicemail After Hours',
+      { id:'h11', cat:'Funnel Mismatch', title:'"24 Business Hours" Response + Voicemail After Hours',
         what:'The contact section promises response "within 24 business hours" and advises after-hours callers to "leave a voicemail."',
         why:'Water damage emergencies happen at 2am on Sundays. A "24 business hours" response destroys trust for the exact peak-urgency use case this business serves.',
         fix:'Emergency services require 24/7 live answering or an answering service. The page should prominently feature "We answer every call, day or night."' },
@@ -696,26 +585,25 @@ const LEVELS = [
     pageType: 'Premium Restoration Service Homepage',
     url: 'premierhomerestoration.com',
     color: 'var(--purple)',
-    maxPts: 1500,
     emoji: '🏆',
     issues: [
-      { id:'x4', tier:'advanced', cat:'CRO', title:'"Learn About Our Process" as Primary CTA',
+      { id:'x4', cat:'CRO', title:'"Learn About Our Process" as Primary CTA',
         what:'The main hero CTA invites users to learn about the company\'s process, not to take an action.',
         why:'This is an informational CTA suited for a mid-funnel blog post, not a service homepage. Users ready to hire don\'t want a process overview — they want to make contact.',
         fix:'Replace with an action CTA tied to the user\'s immediate need: "Get Emergency Help Now" or "Request a Free Assessment."' },
-      { id:'x8', tier:'advanced', cat:'Funnel Mismatch', title:'"Schedule a Consultation" for Emergency Service',
+      { id:'x8', cat:'Funnel Mismatch', title:'"Schedule a Consultation" for Emergency Service',
         what:'Every CTA on the page drives users to "Schedule a Consultation" — a deliberate, planned-purchase behavior.',
         why:'Restoration customers — especially emergency cases — don\'t want to schedule a consultation. They want help now. "Schedule a consultation" is a conversion path designed for B2B software, not emergency home services.',
         fix:'Segment CTAs by urgency. Emergency = clickable phone. Non-emergency / commercial = consultation form. Never use the same CTA for both.' },
-      { id:'x9', tier:'advanced', cat:'Emotional Mismatch', title:'Aspirational Copy for Distressed Users',
-        what:'The hero headline leads with "24/7 Property Damage Restoration" — functional and keyword-driven — but the subheadline pivots to "peace of mind" and aspirational language. The overall tone is calm and polished rather than matching the urgency of someone mid-disaster.',
+      { id:'x9', cat:'Emotional Mismatch', title:'Aspirational Copy for Distressed Users',
+        what:'Hero copy reads: "Restoring your home to better than before" and "Beautiful results, guaranteed." The entire tone is aspirational and outcome-focused.',
         why:'Emergency restoration users are anxious, stressed, and often scared. Leading with aspirational messaging before acknowledging their pain creates emotional disconnect. They need to feel understood before they feel inspired.',
         fix:'Lead with empathy and urgency: "We know how stressful this is. Our team responds in 60 minutes." Move aspirational outcome messaging to post-mitigation sections.' },
-      { id:'x10', tier:'advanced', cat:'Positioning', title:'Conflicting Market Positioning',
+      { id:'x10', cat:'Positioning', title:'Conflicting Market Positioning',
         what:'The page simultaneously claims "No job too big or too small" and "Serving premium residential and commercial clients."',
         why:'These are contradictory market positions. "No job too small" signals small repairs. "Premium clients" signals high-end, large-scope work. This confusion makes the brand feel undefined.',
         fix:'Choose a position. If you serve premium clients, own it with confidence. If you serve all sizes, drop "premium" language.' },
-      { id:'x11', tier:'advanced', cat:'Hidden Friction', title:'"2–3 Business Days" Response on Restoration Form',
+      { id:'x11', cat:'Hidden Friction', title:'"2–3 Business Days" Response on Restoration Form',
         what:'A note below the contact form reads: "Our team will carefully review your restoration request and reach out within 2–3 business days."',
         why:'This is a near-fatal conversion killer for a restoration company. Water damage compounds by the hour. A user reading this will immediately call a competitor.',
         fix:'Replace with: "A restoration specialist will call you within 30 minutes." For emergencies, the CTA should be a phone number, not a form.' },
@@ -723,36 +611,29 @@ const LEVELS = [
   }
 ];
 
-const TIER_PTS = { obvious: 100, moderate: 200, advanced: 300 };
-
-// ─── STATE ─────────────────────────────────────────────────────────────────────
+// ─── STATE ────────────────────────────────────────────────────────────────────
 let state = {
   currentLevel: null,
-  levelScores: [0, 0, 0, 0],
   levelFound: [[], [], [], []],
   revealOpen: false,
 };
 
-function getTotalScore() { return state.levelScores.reduce((a,b)=>a+b,0); }
-function getCurrentIssues() { return LEVELS[state.currentLevel].issues; }
-
-// ─── LOBBY ─────────────────────────────────────────────────────────────────────
+// ─── LOBBY ────────────────────────────────────────────────────────────────────
 function renderLobby() {
-  document.getElementById('total-score-display').textContent = getTotalScore();
-  LEVELS.forEach((lv,i) => {
-    document.getElementById('lv-score-'+i).textContent = state.levelScores[i];
-  });
-
   const cards = document.getElementById('level-cards');
   cards.innerHTML = '';
   LEVELS.forEach((lv, i) => {
     const found = state.levelFound[i].length;
     const total = lv.issues.length;
-    const score = state.levelScores[i];
     const complete = found === total && total > 0;
+    const started = found > 0 && !complete;
     const card = document.createElement('div');
     card.className = 'level-card';
     card.style.borderColor = lv.color;
+    let statusHtml = '';
+    if (complete) statusHtml = '<div class="lc-status complete">✓ All issues revealed</div>';
+    else if (started) statusHtml = `<div class="lc-status started">${found}/${total} revealed</div>`;
+    else statusHtml = '<div class="lc-status">Not started</div>';
     card.innerHTML = `
       <div class="lc-header" style="background:linear-gradient(135deg,${lv.color}22,transparent)">
         <div class="lc-badge" style="background:${lv.color}">${i+1}</div>
@@ -765,12 +646,11 @@ function renderLobby() {
         <div class="lc-page-type">${lv.pageType}</div>
         <div class="lc-stats">
           <div class="lc-stat"><div class="lc-stat-val">${total}</div><div class="lc-stat-label">Issues</div></div>
-          <div class="lc-stat"><div class="lc-stat-val">${lv.maxPts}</div><div class="lc-stat-label">Max Pts</div></div>
-          <div class="lc-stat"><div class="lc-stat-val">${found}/${total}</div><div class="lc-stat-label">Found</div></div>
+          <div class="lc-stat"><div class="lc-stat-val">${found}/${total}</div><div class="lc-stat-label">Revealed</div></div>
         </div>
         <div class="lc-score-row">
-          <div class="lc-score-earned">${score > 0 ? score + ' pts earned' : 'Not started'}</div>
-          ${complete ? '<div class="lc-complete-badge">✓ Complete</div>' : '<div class="lc-play-btn">Play →</div>'}
+          ${statusHtml}
+          <div class="lc-play-btn">${complete ? 'Revisit →' : 'Open →'}</div>
         </div>
       </div>`;
     card.addEventListener('click', () => startLevel(i));
@@ -781,19 +661,17 @@ function renderLobby() {
 function goToLobby() {
   document.getElementById('lobby').classList.add('active');
   document.getElementById('game-screen').classList.remove('active');
-  document.getElementById('win-screen').classList.remove('active');
   document.getElementById('reveal-panel').classList.remove('active');
   state.revealOpen = false;
   renderLobby();
 }
 
-// ─── GAME SCREEN ───────────────────────────────────────────────────────────────
+// ─── GAME SCREEN ──────────────────────────────────────────────────────────────
 function startLevel(idx) {
   state.currentLevel = idx;
   state.revealOpen = false;
   document.getElementById('lobby').classList.remove('active');
   document.getElementById('game-screen').classList.add('active');
-  document.getElementById('win-screen').classList.remove('active');
   document.getElementById('reveal-panel').classList.remove('active');
   renderGameScreen();
 }
@@ -804,49 +682,25 @@ function renderGameScreen() {
 
   // top bar
   const label = document.getElementById('gtb-level-label');
-  label.textContent = `Level ${state.currentLevel+1} of 4 — ${lv.title.toUpperCase()}`;
+  label.textContent = `Level ${state.currentLevel + 1} of 4 — ${lv.title.toUpperCase()}`;
   label.style.background = lv.color;
-  document.getElementById('gtb-level-score').textContent = state.levelScores[state.currentLevel];
-  document.getElementById('gtb-total-score').textContent = getTotalScore();
-  document.getElementById('gtb-found-count').textContent = found.length + '/' + lv.issues.length;
-
-  // browser
+  document.getElementById('gtb-found-count').textContent = `${found.length}/${lv.issues.length}`;
   document.getElementById('browser-url').textContent = lv.url;
 
-  // progress pills
-  const pills = document.getElementById('pr-pills');
-  pills.innerHTML = '';
-  lv.issues.forEach(issue => {
-    const p = document.createElement('div');
-    p.className = 'issue-pill tier-' + issue.tier + (found.includes(issue.id) ? ' found' : '');
-    p.title = found.includes(issue.id) ? issue.title : issue.tier;
-    p.textContent = found.includes(issue.id) ? '✓' : '';
-    pills.appendChild(p);
+  // fake site — only rebuild if switching levels (not on every modal close)
+  const wrap = document.getElementById('fake-site-wrap');
+  if (wrap.dataset.level !== String(state.currentLevel)) {
+    wrap.innerHTML = getFakeSite(state.currentLevel);
+    wrap.dataset.level = String(state.currentLevel);
+    bindSiteClicks();
+  }
+  // re-apply found highlights
+  found.forEach(id => {
+    const el = wrap.querySelector(`[data-issue="${id}"]`);
+    if (el) el.classList.add('found-issue');
   });
 
-  // fake site
-  document.getElementById('fake-site-wrap').innerHTML = getFakeSite(state.currentLevel);
-  bindSiteClicks();
-
-  // issue tracker
   renderIssueTracker();
-
-  // next button
-  const btnNext = document.getElementById('btn-next');
-  const allFound = found.length === lv.issues.length;
-  if (allFound) {
-    btnNext.classList.add('pulse');
-    if (state.currentLevel < 3) {
-      btnNext.textContent = 'Next Level →';
-      btnNext.style.display = '';
-    } else {
-      btnNext.textContent = 'See Final Score →';
-      btnNext.style.display = '';
-    }
-  } else {
-    btnNext.classList.remove('pulse');
-    btnNext.style.display = 'none';
-  }
 }
 
 function renderIssueTracker() {
@@ -857,20 +711,23 @@ function renderIssueTracker() {
   lv.issues.forEach(issue => {
     const isFound = found.includes(issue.id);
     const item = document.createElement('div');
-    item.className = `it-item tier-${issue.tier}${isFound ? ' found' : ''}`;
+    item.className = `it-item${isFound ? ' found' : ''}`;
     item.innerHTML = `
-      <div class="it-dot"></div>
+      <div class="it-check">${isFound ? '✓' : ''}</div>
       <div class="it-text">
         <div class="it-cat">${issue.cat}</div>
-        <div class="it-title-text ${isFound ? '' : 'it-hidden'}">${isFound ? issue.title : 'Not found yet...'}</div>
-      </div>
-      <div class="it-tier-badge">${issue.tier}</div>`;
-    if (isFound) {
-      item.style.cursor = 'pointer';
-      item.addEventListener('click', () => showModal(issue, false));
-    }
+        <div class="it-title-text">${issue.title}</div>
+      </div>`;
+    item.addEventListener('click', () => showModal(issue));
     grid.appendChild(item);
   });
+  // complete banner
+  const banner = document.getElementById('it-complete-banner');
+  if (found.length === lv.issues.length) {
+    banner.classList.add('visible');
+  } else {
+    banner.classList.remove('visible');
+  }
 }
 
 function bindSiteClicks() {
@@ -883,57 +740,32 @@ function bindSiteClicks() {
     const issue = lv.issues.find(i => i.id === issueId);
     if (!issue) return;
     const found = state.levelFound[state.currentLevel];
-    const isNew = !found.includes(issueId);
-    if (isNew) {
+    if (!found.includes(issueId)) {
       found.push(issueId);
-      state.levelScores[state.currentLevel] += TIER_PTS[issue.tier];
       target.classList.add('found-issue');
     }
-    showModal(issue, isNew);
-    renderGameScreen();
+    showModal(issue);
+    renderIssueTracker();
+    document.getElementById('gtb-found-count').textContent = `${found.length}/${lv.issues.length}`;
   });
 }
 
-function showModal(issue, isNew) {
-  const pts = TIER_PTS[issue.tier];
-  document.getElementById('modal-badges').innerHTML = `
-    <div class="modal-cat-badge">${issue.cat}</div>
-    <div class="modal-tier-badge ${issue.tier}">${issue.tier}</div>`;
-  document.getElementById('modal-pts').textContent = isNew ? `+${pts} pts` : `${pts} pts`;
+function showModal(issue) {
+  document.getElementById('modal-cat').textContent = issue.cat;
   document.getElementById('modal-title').textContent = issue.title;
   document.getElementById('modal-what').innerHTML = issue.what;
   document.getElementById('modal-why').innerHTML = issue.why;
   document.getElementById('modal-fix').innerHTML = issue.fix;
   document.getElementById('modal-overlay').classList.add('active');
-  if (isNew) {
-    if (issue.tier === 'advanced') launchConfetti(['#9b59b6','#bb8fce','#7d3c98']);
-    else if (issue.tier === 'moderate') launchConfetti(['#e67e22','#f39c12','#d35400']);
-    else launchConfetti(['#43a047','#66bb6a','#2e7d32']);
-    showToast(`+${pts} pts — ${issue.tier.charAt(0).toUpperCase()+issue.tier.slice(1)} issue found!`);
-  }
 }
 
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('active');
-  const lv = LEVELS[state.currentLevel];
-  const found = state.levelFound[state.currentLevel];
-  if (found.length === lv.issues.length) {
-    const allComplete = LEVELS.every((_,i) => state.levelFound[i].length === LEVELS[i].issues.length);
-    if (allComplete) {
-      setTimeout(showWinScreen, 600);
-    } else {
-      showToast('Level Complete! 🎉');
-      launchConfetti(['#f5c842','#2a6db5','#d43a3a','#43a047','#9b59b6']);
-    }
-  }
 }
 
 function goNextLevel() {
-  if (state.currentLevel < 3) {
-    startLevel(state.currentLevel + 1);
-  } else {
-    showWinScreen();
-  }
+  const next = (state.currentLevel + 1) % LEVELS.length;
+  startLevel(next);
 }
 
 function toggleReveal() {
@@ -949,13 +781,16 @@ function toggleReveal() {
 
 function renderRevealPanel() {
   const lv = LEVELS[state.currentLevel];
+  const found = state.levelFound[state.currentLevel];
   const content = document.getElementById('reveal-content');
   content.innerHTML = '';
   lv.issues.forEach(issue => {
+    const isFound = found.includes(issue.id);
     const el = document.createElement('div');
     el.className = 'reveal-item';
+    el.style.borderColor = isFound ? 'rgba(67,160,71,.4)' : 'var(--border)';
     el.innerHTML = `
-      <h4>${issue.cat} · ${issue.tier.charAt(0).toUpperCase()+issue.tier.slice(1)} · ${issue.title}</h4>
+      <h4>${isFound ? '✓ ' : ''}${issue.cat} · ${issue.title}</h4>
       <div class="reveal-section"><strong>What</strong><p>${issue.what}</p></div>
       <div class="reveal-section"><strong>Why</strong><p>${issue.why}</p></div>
       <div class="reveal-section"><strong>Fix</strong><p>${issue.fix}</p></div>`;
@@ -963,84 +798,7 @@ function renderRevealPanel() {
   });
 }
 
-// ─── WIN SCREEN ────────────────────────────────────────────────────────────────
-function showWinScreen() {
-  document.getElementById('game-screen').classList.remove('active');
-  document.getElementById('lobby').classList.remove('active');
-  const ws = document.getElementById('win-screen');
-  ws.classList.add('active');
-  document.getElementById('win-total').textContent = getTotalScore() + ' pts';
-  const breakdown = document.getElementById('win-breakdown');
-  breakdown.innerHTML = '';
-  LEVELS.forEach((lv,i) => {
-    const el = document.createElement('div');
-    el.className = 'win-lv';
-    el.style.borderColor = lv.color;
-    el.innerHTML = `
-      <h4>Level ${i+1} — ${lv.title}</h4>
-      <div class="win-lv-score">${state.levelScores[i]}</div>
-      <div class="win-lv-max">of ${lv.maxPts} pts</div>`;
-    breakdown.appendChild(el);
-  });
-  launchConfetti(['#f5c842','#2a6db5','#d43a3a','#43a047','#9b59b6','#fff']);
-}
-
-function resetAll() {
-  state = { currentLevel: null, levelScores: [0,0,0,0], levelFound:[[],[],[],[]], revealOpen: false };
-  document.getElementById('win-screen').classList.remove('active');
-  goToLobby();
-}
-
-// ─── TOAST ─────────────────────────────────────────────────────────────────────
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
-}
-
-// ─── CONFETTI ──────────────────────────────────────────────────────────────────
-function launchConfetti(colors) {
-  const canvas = document.getElementById('confetti-canvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  const pieces = Array.from({length:80}, () => ({
-    x: Math.random()*canvas.width,
-    y: Math.random()*canvas.height*-.5 - 20,
-    r: Math.random()*6+3,
-    color: colors[Math.floor(Math.random()*colors.length)],
-    vx: (Math.random()-.5)*4,
-    vy: Math.random()*4+2,
-    alpha: 1,
-    rot: Math.random()*360,
-    rotV: (Math.random()-.5)*6,
-  }));
-  let frame;
-  function draw() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    let alive = false;
-    pieces.forEach(p => {
-      if (p.alpha <= 0) return;
-      alive = true;
-      p.x += p.vx; p.y += p.vy; p.rot += p.rotV; p.vy += .05;
-      if (p.y > canvas.height) p.alpha -= .05;
-      ctx.save();
-      ctx.globalAlpha = Math.max(0,p.alpha);
-      ctx.translate(p.x,p.y);
-      ctx.rotate(p.rot*Math.PI/180);
-      ctx.fillStyle = p.color;
-      ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);
-      ctx.restore();
-    });
-    if (alive) frame = requestAnimationFrame(draw);
-    else ctx.clearRect(0,0,canvas.width,canvas.height);
-  }
-  cancelAnimationFrame(frame);
-  draw();
-}
-
-// ─── FAKE SITES ────────────────────────────────────────────────────────────────
+// ─── FAKE SITES ───────────────────────────────────────────────────────────────
 function getFakeSite(idx) {
   if (idx === 0) return getSite1();
   if (idx === 1) return getSite2();
@@ -1287,10 +1045,10 @@ function getSite4() {
   </nav>
 
   <div class="fs4-hero">
-    <img class="fs4-hero-bg" src="https://images.unsplash.com/photo-1618832515490-e181c4794a45?w=1100&q=80" alt="Restoration worker on site">
-    <div class="fs4-hero-content">
-      <h1>24/7 Property Damage Restoration</h1>
-      <p>Gain peace of mind after a disaster with Atlanta's trusted team for emergency restoration services.</p>
+    <img class="fs4-hero-bg" src="https://picsum.photos/seed/premium/1100/500" alt="Premium home restoration">
+    <div class="fs4-hero-content" data-issue="x9">
+      <h1>Restoring Your Home to Better Than Before</h1>
+      <p>Beautiful results, guaranteed. Premier Home Restoration Group delivers white-glove restoration services for discerning homeowners and commercial property owners throughout the greater Atlanta region.</p>
       <div class="fs4-hero-btns" data-issue="x8">
         <button class="fs4-btn-primary" data-issue="x4">Learn About Our Process</button>
         <button class="fs4-btn-secondary">Schedule a Consultation</button>
@@ -1382,7 +1140,7 @@ function getSite4() {
 </div>`;
 }
 
-// ─── INIT ──────────────────────────────────────────────────────────────────────
+// ─── INIT ─────────────────────────────────────────────────────────────────────
 goToLobby();
 </script>
 </body>

@@ -410,7 +410,7 @@ body::before{content:'';position:fixed;inset:0;background:
     </div>
     <div class="game-header-center">
       <h1>🔍 <span class="hl">Spot the Leak</span></h1>
-      <div class="sub">UX Audit Challenge · 4 Levels · 38 Issues</div>
+      <div class="sub">UX Audit Challenge · 4 Levels · 36 Issues</div>
     </div>
     <div>
       <svg class="sos-logo" viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
@@ -439,7 +439,7 @@ body::before{content:'';position:fixed;inset:0;background:
       <div>
         <div class="ts-label">Total Score</div>
         <div class="ts-value" id="total-score-display">0</div>
-        <div class="ts-max">of 6,700 pts</div>
+        <div class="ts-max">of 5,800 pts</div>
       </div>
       <div class="ts-divider"></div>
       <div class="ts-breakdown">
@@ -536,7 +536,7 @@ const LEVELS = [
     pageType: 'Local Service Homepage',
     url: 'dixiesdrains.com',
     color: 'var(--green)',
-    maxPts: 600,
+    maxPts: 1400,
     emoji: '🚿',
     issues: [
       { id:'e1', tier:'obvious', cat:'CRO', title:'"Click Here" CTA',
@@ -563,6 +563,38 @@ const LEVELS = [
         what:'The footer shows "© 2009" and credits a "Mike\'s Web Designs" agency.',
         why:'An outdated copyright suggests the business is inactive, and the DIY credit removes professional credibility.',
         fix:'Update copyright year dynamically, remove third-party credits, add a professional footer with address, license number, and service areas.' },
+      { id:'e7', tier:'obvious', cat:'CRO', title:'"Coming Soon" Nav Link',
+        what:'A nav item for "Drain Cleaning" is greyed out and says "Coming Soon."',
+        why:'Coming soon links look unfinished, signal the business isn\'t fully operational, and waste prime nav real estate.',
+        fix:'Either launch the page or remove the link entirely until it exists.' },
+      { id:'e8', tier:'obvious', cat:'Content', title:'Incoherent Subheadline',
+        what:'The hero subheadline is a run-on sentence with no punctuation and vague filler language ("and stuff," "or whatever").',
+        why:'This signals unprofessionalism instantly and communicates nothing of value to a potential customer.',
+        fix:'Write a clear, specific value statement: "Same-day plumbing repair for homes and businesses in [City]. Available 24/7."' },
+      { id:'e9', tier:'obvious', cat:'Trust', title:'Single Testimonial from "My Neighbor"',
+        what:'The only testimonial on the page is from "Janet (my neighbor)" — obviously a personal connection, not a vetted customer review.',
+        why:'Social proof requires credibility. One review from a neighbor reads as fake and actually reduces trust rather than building it.',
+        fix:'Collect and display genuine customer reviews with full names (with permission), job type, and date. Link to your Google Business Profile.' },
+      { id:'e10', tier:'obvious', cat:'CRO', title:'Generic "SUBMIT FORM" Button',
+        what:'The form submit button says "SUBMIT FORM" in all caps.',
+        why:'Generic submit language misses the opportunity to reinforce the action\'s value. All-caps reads as shouting.',
+        fix:'Replace with action-confirming language like "Request My Free Quote" or "Get a Plumber Today."' },
+      { id:'e11', tier:'obvious', cat:'Trust', title:'Unprofessional Business Hours',
+        what:'Business hours are written informally: "open around 8 or 9, closed when done."',
+        why:'Vague hours signal unreliability. Customers can\'t plan around you, and it reads as deeply unprofessional.',
+        fix:'List exact hours. If hours vary, say "Call ahead to confirm availability."' },
+      { id:'e12', tier:'obvious', cat:'Content', title:'Spelling and Grammar Errors',
+        what:'The About section contains multiple spelling errors: "buisness," "are work," "are hardest," "famly."',
+        why:'Spelling errors are an immediate trust killer. They signal carelessness that users naturally extend to the quality of the work itself.',
+        fix:'Proofread all copy. Use a spell-checker at minimum. Consider hiring a copywriter for key sections.' },
+      { id:'e13', tier:'obvious', cat:'SEO', title:'Page Title is "Home - Home"',
+        what:'The browser tab shows "Home - Home" as the page title.',
+        why:'Page titles are critical for SEO and click-through rate from search results. "Home - Home" targets no keyword, communicates no value, and won\'t attract clicks.',
+        fix:'Write a descriptive, keyword-rich title: "Plumbing Repair & Drain Cleaning in [City] | Dixie\'s Drains."' },
+      { id:'e14', tier:'obvious', cat:'Trust', title:'Expired Promotion',
+        what:'A promotional banner advertises "10% Off!" with an expiration date of December 31, 2021.',
+        why:'An expired offer signals the site is unmaintained. It also creates a negative experience if customers expect the discount.',
+        fix:'Remove expired promotions immediately or set automated expiration. Update offers seasonally.' },
     ]
   },
   {
@@ -572,7 +604,7 @@ const LEVELS = [
     pageType: 'Roofing Service Landing Page',
     url: 'peakproroofing.com',
     color: 'var(--orange)',
-    maxPts: 1700,
+    maxPts: 1300,
     emoji: '🏠',
     issues: [
       { id:'m1', tier:'obvious', cat:'UX', title:'Phone Not Clickable',
@@ -607,14 +639,14 @@ const LEVELS = [
         what:'All four reviews are 4–5 words of generic praise with no specifics.',
         why:'"Great company!" tells a prospect nothing. Reviews should mention the specific service, outcome, and personal situation to build real credibility.',
         fix:'Solicit detailed reviews. Coach customers to mention what service they had, what the problem was, and how it was resolved.' },
-      { id:'m9', tier:'advanced', cat:'Audience Confusion', title:'All Reviewers Are Property Managers',
-        what:'Every testimonial byline is "Property Manager, [Complex Name]" — indicating a primarily commercial client base.',
-        why:'Residential homeowners (likely 70%+ of search traffic) see no social proof from people like them. The page inadvertently signals "we\'re for commercial clients."',
-        fix:'Segment social proof — show homeowner reviews prominently on residential pages, property manager reviews on commercial pages.' },
-      { id:'m10', tier:'advanced', cat:'Intent Mismatch', title:'Financing Strip in Research Stage',
-        what:'A prominent "0% Financing Available" call-out sits directly below the hero.',
-        why:'Users landing on a roofing site are in comparison/trust-building mode, not purchasing mode. Leading with financing before establishing credibility can feel presumptuous.',
-        fix:'Move financing to the bottom of the page as a commitment-reducing element after value is established. Lead with quality, credentials, and trust.' },
+      { id:'m9', tier:'moderate', cat:'Trust', title:'Stock Photo with Visible Watermark',
+        what:'The hero image has a visible "Getty Images" watermark in the corner.',
+        why:'Using watermarked stock photos signals you couldn\'t be bothered to license imagery — or worse, you\'re using images illegally. It\'s an instant credibility destroyer.',
+        fix:'License your images properly or use royalty-free sources like Unsplash, Pexels, or your own photography.' },
+      { id:'m10', tier:'moderate', cat:'SEO', title:'No Address in Footer',
+        what:'The footer contains no physical address or service area — just the company name and copyright.',
+        why:'For a local service business, a footer address is critical for local SEO (NAP consistency) and trust. Customers want to know you\'re a real local business.',
+        fix:'Add full NAP (Name, Address, Phone) to the footer. Include primary service cities if you don\'t have a storefront.' },
     ]
   },
   {
@@ -624,33 +656,17 @@ const LEVELS = [
     pageType: 'Emergency Water Damage Landing Page',
     url: 'blueridgerestoration.com',
     color: 'var(--sos-red)',
-    maxPts: 2100,
+    maxPts: 1600,
     emoji: '💧',
     issues: [
-      { id:'h1', tier:'obvious', cat:'CRO', title:'Wrong CTA for Emergency Service',
-        what:'The primary CTA says "Get a Free Estimate" — passive, deliberate language.',
-        why:'People with active water damage don\'t want an estimate, they want help NOW. "Free estimate" signals a planned purchase, not emergency response.',
-        fix:'"Call Now — 24/7 Emergency Response" with a clickable phone number as the primary CTA. Reserve "estimate" language for less urgent services.' },
-      { id:'h2', tier:'obvious', cat:'UX', title:'Phone Number Not Clickable',
-        what:'The nav phone number is plain text in a div, not a tel: link.',
-        why:'Most emergency calls happen on mobile. A non-clickable phone number adds a step that costs you emergency leads.',
-        fix:'<code>&lt;a href="tel:+18285550174"&gt;(828) 555-0174&lt;/a&gt;</code> — and make it visually prominent.' },
       { id:'h3', tier:'obvious', cat:'SEO', title:'No H1 Tag',
         what:'The hero headline is a styled div, not an h1. There\'s no h1 anywhere on the page.',
         why:'H1 is critical for search engine understanding of page content. For competitive local SEO, missing it is a significant ranking disadvantage.',
         fix:'Make the headline an h1 with primary keywords: "Emergency Water Damage Restoration in Asheville, NC."' },
-      { id:'h4', tier:'obvious', cat:'UX', title:'Navigation Overload with Distraction Links',
-        what:'7 nav links including Gallery, Blog, and Careers.',
-        why:'Landing page nav should minimize exit paths. Gallery and Blog take high-intent visitors to low-conversion content. Careers actively hurts the impression for customers.',
-        fix:'Strip the nav to: Services | About | Reviews | Contact | [Phone CTA Button].' },
       { id:'h5', tier:'moderate', cat:'CRO', title:'Competing Hero CTAs',
         what:'Two CTA buttons in the hero: "Get a Free Estimate" and "About Our Company."',
         why:'Adding a second CTA splits attention and reduces clicks on the primary. "About Our Company" is especially problematic — users in crisis don\'t want to learn about the company, they want help.',
         fix:'One CTA. "Call Now for Emergency Help" with a tel: link. Everything else is secondary.' },
-      { id:'h6', tier:'moderate', cat:'Trust', title:'Reviews Claim vs. Display Mismatch',
-        what:'The page claims 4.8/5.0 based on 47 Google Reviews but shows only 3, all dated "November 2024."',
-        why:'Three reviews from the same month looks thin and potentially fabricated. The gap between "47 reviews" and showing 3 undermines credibility.',
-        fix:'Show 6–8 recent reviews across a variety of dates, or embed the actual Google Reviews widget.' },
       { id:'h7', tier:'moderate', cat:'CRO', title:'9-Field Form for Emergency Lead',
         what:'The contact form requires 9 fields including "How did you hear about us?" and "Estimated Affected Area."',
         why:'Someone with a flooded basement will not fill out a 9-field form. Every field reduces completion rate. For emergency services, friction is deadly.',
@@ -680,37 +696,13 @@ const LEVELS = [
     pageType: 'Premium Restoration Service Homepage',
     url: 'premierhomerestoration.com',
     color: 'var(--purple)',
-    maxPts: 2300,
+    maxPts: 1500,
     emoji: '🏆',
     issues: [
-      { id:'x1', tier:'obvious', cat:'Trust', title:'Outdated Copyright Year',
-        what:'The footer shows "© 2023" — two to three years out of date.',
-        why:'An outdated copyright makes the site look unmaintained or possibly abandoned. It\'s a subtle but real credibility hit.',
-        fix:'Use JavaScript to dynamically set the current year: <code>new Date().getFullYear()</code>.' },
-      { id:'x2', tier:'obvious', cat:'Trust', title:'Broken Certification Image',
-        what:'One of the certification badge images fails to load, showing a broken image icon.',
-        why:'Broken images signal a poorly maintained site. For a trust element like a certification badge, this actively undermines the credibility it was meant to build.',
-        fix:'Audit all images regularly. Use SVG for logos/badges where possible — they never break. Alt text as a fallback is not a solution.' },
-      { id:'x3', tier:'obvious', cat:'UX', title:'Inconsistent Phone Number Formatting',
-        what:'The phone number appears in three different formats: "1-888-555-0199" in the header, "(888) 555-0199" in the footer, and "888.555.0199" in the body.',
-        why:'Inconsistency signals carelessness. Worse, it can cause issues with click-to-call recognition, call tracking, and citation consistency for local SEO.',
-        fix:'Standardize to one format sitewide (e.g., (888) 555-0199) and use a tel: link everywhere.' },
-      { id:'x4', tier:'moderate', cat:'CRO', title:'"Learn About Our Process" as Primary CTA',
+      { id:'x4', tier:'advanced', cat:'CRO', title:'"Learn About Our Process" as Primary CTA',
         what:'The main hero CTA invites users to learn about the company\'s process, not to take an action.',
         why:'This is an informational CTA suited for a mid-funnel blog post, not a service homepage. Users ready to hire don\'t want a process overview — they want to make contact.',
         fix:'Replace with an action CTA tied to the user\'s immediate need: "Get Emergency Help Now" or "Request a Free Assessment."' },
-      { id:'x5', tier:'moderate', cat:'Trust', title:'All Reviews Are 2+ Years Old',
-        what:'Every visible review is dated 2022 or 2023.',
-        why:'Stale reviews suggest the business may no longer be active or has declined in quality. Most users weight recent reviews heavily.',
-        fix:'Actively solicit post-job reviews. Prioritize showing reviews from the last 6–12 months.' },
-      { id:'x6', tier:'moderate', cat:'Trust', title:'40+ City Service Area List',
-        what:'The service area section lists 40+ cities in a long grid.',
-        why:'An overly broad service area is a red flag — it suggests the company will serve anyone but may not be truly local to the user. It also dilutes local SEO relevance.',
-        fix:'Focus on your true core service area (5–10 cities/zip codes). For outlying areas, create dedicated landing pages.' },
-      { id:'x7', tier:'moderate', cat:'Trust', title:'"Licensed, Bonded & Insured" with No Verification',
-        what:'The trust badge claims licensure but provides no license number, issuing state, or link to verify.',
-        why:'This claim is increasingly expected — what builds trust is verifiable specificity. Without it, savvy users treat it as a boilerplate claim.',
-        fix:'Include the actual license number and state. Link to the contractor license lookup if available.' },
       { id:'x8', tier:'advanced', cat:'Funnel Mismatch', title:'"Schedule a Consultation" for Emergency Service',
         what:'Every CTA on the page drives users to "Schedule a Consultation" — a deliberate, planned-purchase behavior.',
         why:'Restoration customers — especially emergency cases — don\'t want to schedule a consultation. They want help now. "Schedule a consultation" is a conversion path designed for B2B software, not emergency home services.',
@@ -1058,17 +1050,25 @@ function getFakeSite(idx) {
 
 function getSite1() {
   return `<div class="fs1-body">
+  <div style="background:#0d0d1a;padding:4px 14px;font-size:.7rem;color:#888;font-family:'Courier New',monospace;border-bottom:1px solid #222;">
+    <span style="background:#1a1a2e;padding:3px 12px;border-radius:4px 4px 0 0;color:#bbb;margin-right:4px;" data-issue="e13">Home - Home</span>
+    <span style="color:#555;font-size:.6rem">× New Tab</span>
+  </div>
   <div class="fs1-nav" data-issue="e4">
     <div class="fs1-nav-brand">Dixie's Drains &amp; Plumbing</div>
     <div class="fs1-nav-links">
-      <a href="#">Home</a><a href="#">Services</a><a href="#">About</a><a href="#">Contact</a>
+      <a href="#">Home</a><a href="#">Services</a><a href="#" data-issue="e7" style="color:#6a6a8a;opacity:.7">Drain Cleaning <span style="font-size:.7em">(Coming Soon)</span></a><a href="#">About</a><a href="#">Contact</a>
     </div>
     <div class="fs1-nav-contact">Contact us: dixiesdrains@gmail.com</div>
   </div>
 
+  <div style="background:#c8a000;color:#000;text-align:center;padding:7px;font-size:.82rem;font-family:'Courier New',Georgia,serif;" data-issue="e14">
+    🎉 Special Offer: <strong>10% Off All Services!</strong> <span style="font-size:.75em">(Offer expired 12/31/2021 — Call for details)</span>
+  </div>
+
   <div class="fs1-hero">
     <h1 data-issue="e2">Welcome to Our Website!</h1>
-    <p>We do plumbing!!!! Call us today for all your plumbing needs!!! Fast service!!! Affordable rates!!!</p>
+    <p data-issue="e8">We do plumbing and stuff for your home or business or whatever you need we can help with that too</p>
     <a class="fs1-cta-btn" href="#" data-issue="e1">Click Here</a>
   </div>
 
@@ -1079,15 +1079,37 @@ function getSite1() {
   </div>
 
   <div class="fs1-section">
+    <h2>About Us</h2>
+    <p data-issue="e12" style="font-size:.9rem;color:#333;line-height:1.7">Dixie's Drains has been in buisness since 2003. We take pride in are work and will always try are hardest to do good work for you and your famly. We are a local company that cares about are customers and the community we serve.</p>
+  </div>
+
+  <div class="fs1-section">
     <h2>Our Services</h2>
     <div class="fs1-services-text" data-issue="e5">We do all kinds of plumbing work including drain cleaning and unclogging drains that are stopped up and not working right, also we fix leaky faucets and pipes that drip or are broken, we also install new faucets and sinks and toilets and water heaters both traditional and tankless water heaters for homes and businesses, plus we do sewer line repair and replacement when your sewer line is broken or cracked or has tree roots in it, we also fix garbage disposals and dishwasher connections and washing machine hookups, emergency plumbing services available when you have a burst pipe or major leak, also bathroom remodeling plumbing and kitchen plumbing for new construction and remodel projects, and we work with insurance companies too for water damage claims, call us for a free estimate on any of these plumbing services we are here to help you seven days a week.</div>
+  </div>
+
+  <div class="fs1-section">
+    <h2>What People Are Saying</h2>
+    <div data-issue="e9" style="background:#fff;border:2px solid #ccc;padding:16px;max-width:420px;font-family:'Courier New',Georgia,serif;">
+      <p style="font-size:.9rem;color:#333;font-style:italic;">"He fixed our toilet good. 10/10 would recommend to anyone!!!!"</p>
+      <p style="font-size:.8rem;color:#777;margin-top:8px;">— Janet (my neighbor)</p>
+    </div>
+  </div>
+
+  <div class="fs1-section">
+    <h2>Business Hours</h2>
+    <div data-issue="e11" style="font-size:.9rem;color:#333;line-height:2;font-family:'Courier New',Georgia,serif;">
+      <div>Mon-Fri: We open around 8 or 9, closed when done.</div>
+      <div>Saturday: Maybe.</div>
+      <div>Sunday: No.</div>
+    </div>
   </div>
 
   <div class="fs1-contact">
     <h2>Contact Us</h2>
     <p>Send us an email and we'll get back to you!</p>
     <input type="email" placeholder="Your Email Address">
-    <button>Submit</button>
+    <button data-issue="e10">SUBMIT FORM</button>
   </div>
 
   <div class="fs1-footer" data-issue="e6">© 2009 Dixie's Drains &amp; Plumbing. All rights reserved. Website design by Mike's Web Designs.</div>
@@ -1107,10 +1129,11 @@ function getSite2() {
     </div>
   </nav>
 
-  <div class="fs2-financing-strip" data-issue="m10">⚡ <span>0% Financing Available</span> — Ask about our payment plans for any roofing project!</div>
+  <div class="fs2-financing-strip">⚡ <span>0% Financing Available</span> — Ask about our payment plans for any roofing project!</div>
 
   <div class="fs2-hero" data-issue="m5">
     <img class="fs2-hero-bg" src="https://picsum.photos/seed/suburb/1100/500" alt="Neighborhood">
+    <div data-issue="m9" style="position:absolute;bottom:12px;right:14px;z-index:2;background:rgba(0,0,0,.55);color:rgba(255,255,255,.75);font-size:.68rem;font-family:'Courier New',monospace;padding:3px 8px;letter-spacing:.5px;border:1px solid rgba(255,255,255,.2);">Getty Images</div>
     <div class="fs2-hero-content">
       <div class="hero-hl" data-issue="m2">Expert Roofing &amp; Gutter Services in Nashville</div>
       <p>Licensed, insured, and trusted by homeowners across Middle Tennessee for 15+ years.</p>
@@ -1145,7 +1168,7 @@ function getSite2() {
   <div class="fs2-testimonials" data-issue="m8">
     <h2>What Our Customers Say</h2>
     <div class="fs2-review-grid">
-      <div class="fs2-review"><p>"Great company! Very professional!"</p><div class="reviewer" data-issue="m9">— J. Harmon, Property Manager, Greenfield Apartments</div></div>
+      <div class="fs2-review"><p>"Great company! Very professional!"</p><div class="reviewer">— J. Harmon, Property Manager, Greenfield Apartments</div></div>
       <div class="fs2-review"><p>"Highly recommend! Easy to work with."</p><div class="reviewer">— T. Blackwell, Property Manager, Riverside Commons</div></div>
       <div class="fs2-review"><p>"Good experience overall."</p><div class="reviewer">— R. Stanton, Property Manager, Oakwood Estates</div></div>
       <div class="fs2-review"><p>"Fast and clean. Will use again."</p><div class="reviewer">— M. Pryor, Property Manager, Heritage Park Apts</div></div>
@@ -1168,18 +1191,18 @@ function getSite2() {
     </div>
   </div>
 
-  <div class="fs2-footer">© 2025 Peak Pro Roofing &amp; Gutters · Nashville, TN · License #ROF-2241</div>
+  <div class="fs2-footer" data-issue="m10">© 2025 Peak Pro Roofing &amp; Gutters · License #ROF-2241</div>
 </div>`;
 }
 
 function getSite3() {
   return `<div class="fs3-body">
-  <nav class="fs3-nav" data-issue="h4">
+  <nav class="fs3-nav">
     <div class="fs3-nav-logo"><span>Blue Ridge</span> Restoration</div>
     <div class="fs3-nav-links">
       <a href="#">Services</a><a href="#">About</a><a href="#">Gallery</a><a href="#">Reviews</a><a href="#">Blog</a><a href="#">Careers</a><a href="#">Contact</a>
     </div>
-    <div class="fs3-nav-phone" data-issue="h2">(828) 555-0174</div>
+    <div class="fs3-nav-phone">(828) 555-0174</div>
   </nav>
 
   <div class="fs3-hero" data-issue="h10">
@@ -1188,7 +1211,7 @@ function getSite3() {
       <div class="hero-headline" data-issue="h3">Western NC's Trusted Water &amp; Fire Damage Restoration</div>
       <p>Serving Asheville and the surrounding mountains. IICRC certified technicians. Available 24/7.</p>
       <div class="fs3-hero-btns" data-issue="h5">
-        <button class="fs3-btn-primary" data-issue="h1">Get a Free Estimate</button>
+        <button class="fs3-btn-primary">Get a Free Estimate</button>
         <button class="fs3-btn-secondary">About Our Company</button>
       </div>
     </div>
@@ -1220,7 +1243,7 @@ function getSite3() {
     <p data-issue="h9">Did you know that water damage is one of the most common and costly home insurance claims in the United States? According to industry data, the average water damage claim exceeds $11,000, and nearly 1 in 50 homes files a water damage claim each year. Understanding your coverage before disaster strikes is one of the most important steps a homeowner can take.</p>
   </div>
 
-  <div class="fs3-reviews" data-issue="h6">
+  <div class="fs3-reviews">
     <h2>Customer Reviews</h2>
     <div class="fs3-reviews-meta">4.8 / 5.0 · Based on 47 Google Reviews</div>
     <div class="fs3-review-grid">
@@ -1260,7 +1283,7 @@ function getSite4() {
     <div class="fs4-nav-links">
       <a href="#">Services</a><a href="#">About</a><a href="#">Reviews</a><a href="#">Service Area</a><a href="#">Contact</a>
     </div>
-    <div class="fs4-nav-phone" data-issue="x3">1-888-555-0199</div>
+    <div class="fs4-nav-phone">1-888-555-0199</div>
   </nav>
 
   <div class="fs4-hero">
@@ -1276,7 +1299,7 @@ function getSite4() {
   </div>
 
   <div class="fs4-trust-bar">
-    <div class="fs4-trust-badge" data-issue="x7">🛡 Licensed, Bonded &amp; Insured</div>
+    <div class="fs4-trust-badge">🛡 Licensed, Bonded &amp; Insured</div>
     <div class="fs4-trust-badge">⭐ 4.9-Star Rated</div>
     <div class="fs4-trust-badge">🏅 IICRC Certified</div>
     <div class="fs4-trust-badge">🔧 15+ Years Experience</div>
@@ -1298,7 +1321,7 @@ function getSite4() {
 
   <div class="fs4-certs">
     <h2>Certifications &amp; Credentials</h2>
-    <div class="fs4-cert-row" data-issue="x2">
+    <div class="fs4-cert-row">
       <div class="fs4-cert-badge"><img src="iicrc-badge.png" alt="IICRC Certified Firm"><span>IICRC Certified</span></div>
       <div class="fs4-cert-badge"><img src="cert-badge-irc.png" alt="IRC Certified"><span>IRC Certified</span></div>
       <div class="fs4-cert-badge"><img src="https://picsum.photos/seed/certbadge3/60/50" alt="EPA Lead Safe"><span>EPA Lead Safe</span></div>
@@ -1315,12 +1338,12 @@ function getSite4() {
 
   <div class="fs4-service-area">
     <h2>Service Area</h2>
-    <div class="fs4-city-grid" data-issue="x6">${cityHtml}</div>
+    <div class="fs4-city-grid">${cityHtml}</div>
   </div>
 
   <div class="fs4-reviews">
     <h2>What Clients Are Saying</h2>
-    <div class="fs4-review-grid" data-issue="x5">
+    <div class="fs4-review-grid">
       <div class="fs4-review"><div class="fs4-review-stars">★★★★★</div><p>"Absolutely exceptional service from start to finish. The team was professional, communicative, and the results exceeded our expectations."</p><div class="reviewer">— Margaret T., Alpharetta</div><div class="rev-date">March 2022</div></div>
       <div class="fs4-review"><div class="fs4-review-stars">★★★★★</div><p>"Premier handled our water damage claim seamlessly. The restoration was flawless and they worked directly with our insurer."</p><div class="reviewer">— Robert &amp; Claire H., Roswell</div><div class="rev-date">July 2022</div></div>
       <div class="fs4-review"><div class="fs4-review-stars">★★★★★</div><p>"We had significant mold issues and Premier's remediation team was thorough, careful, and completely professional."</p><div class="reviewer">— James W., Sandy Springs</div><div class="rev-date">January 2023</div></div>
@@ -1331,7 +1354,7 @@ function getSite4() {
   <div class="fs4-cta-section">
     <h2>Ready to Restore Your Property?</h2>
     <p>Our specialists are standing by to assess your situation and create a customized restoration plan.</p>
-    <div class="fs4-cta-btns" data-issue="x8">
+    <div class="fs4-cta-btns">
       <button class="fs4-cta-btn-main">Schedule a Consultation</button>
       <button style="background:rgba(255,255,255,.1);color:#fff;border:2px solid rgba(255,255,255,.3);padding:12px 26px;font-weight:700;font-size:.88rem;border-radius:5px;cursor:pointer">View Our Work</button>
     </div>
@@ -1354,7 +1377,7 @@ function getSite4() {
   <div class="fs4-footer">
     <div class="fs4-footer-left">Premier Home Restoration Group</div>
     <div>Atlanta, GA Metro Area · <span>(888) 555-0199</span></div>
-    <div data-issue="x1">© 2023 Premier Home Restoration Group. All rights reserved.</div>
+    <div>© 2023 Premier Home Restoration Group. All rights reserved.</div>
   </div>
 </div>`;
 }

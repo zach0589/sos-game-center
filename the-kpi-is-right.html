@@ -605,43 +605,40 @@ function revealWinner() {
     reason = "All teams over — closest gets wager back";
   }
 
+  // Deduct all wagers upfront
+  for (let i = 0; i < NUM_TEAMS; i++) {
+    scores[i] -= wagers[i];
+  }
+
   // Apply payouts
   for (let i = 0; i < NUM_TEAMS; i++) {
     const w = wagers[i];
     if (w === 0) {
-      // No wager (broke team) — no change
       $("pts" + i).textContent = "No wager";
       $("pts" + i).className = "team-round-pts";
       continue;
     }
 
     if (i === winnerTeam) {
+      // Winner gets wager * multiplier back (2x normal, 3x exact)
       const payout = w * winMultiplier;
+      scores[i] += payout;
       const net = payout - w;
-      scores[i] += net;
       $("pts" + i).textContent = "+" + fmtDollar(net);
       $("pts" + i).className = "team-round-pts";
       $("team" + i).classList.add("winner");
     } else {
-      // Losers
       const wentOver = over.some(function(o) { return o.team === i; });
       if (isBust && wentOver) {
-        // Bust — lose full wager
-        scores[i] -= w;
+        // Bust — lose full wager (already deducted)
         $("pts" + i).textContent = "-" + fmtDollar(w) + " (bust!)";
         $("pts" + i).className = "team-round-pts loss";
         $("team" + i).classList.add("bust");
-      } else if (isBust) {
-        // Didn't win but didn't go over — lose half wager
-        const loss = Math.round(w / 2);
-        scores[i] -= loss;
-        $("pts" + i).textContent = "-" + fmtDollar(loss);
-        $("pts" + i).className = "team-round-pts loss";
       } else {
-        // Bust mode off — all losers lose half wager
-        const loss = Math.round(w / 2);
-        scores[i] -= loss;
-        $("pts" + i).textContent = "-" + fmtDollar(loss);
+        // Didn't win but didn't go over (or bust off) — get half back
+        const refund = Math.round(w / 2);
+        scores[i] += refund;
+        $("pts" + i).textContent = "-" + fmtDollar(w - refund);
         $("pts" + i).className = "team-round-pts loss";
       }
     }

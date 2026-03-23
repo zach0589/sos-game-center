@@ -59,15 +59,29 @@ body::before{content:'';position:fixed;inset:0;background:
 .team-card.winner::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(245,200,66,.08),transparent);pointer-events:none}
 .team-card.bust{border-color:var(--sos-red);opacity:.7}
 .team-name{font-size:clamp(.9rem,1.4vw,1.1rem);font-weight:700;color:#fff;margin-bottom:4px}
-.team-score{font-size:clamp(1.4rem,2.2vw,1.8rem);font-weight:800;color:var(--sos-light);margin-bottom:10px}
-.team-score-controls{display:flex;justify-content:center;gap:6px;margin-bottom:10px}
+.team-balance-label{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.team-score{font-size:clamp(1.4rem,2.2vw,1.8rem);font-weight:800;color:var(--sos-light);margin-bottom:4px}
+.team-score.broke{color:var(--sos-red)}
+.team-score-controls{display:flex;justify-content:center;gap:6px;margin-bottom:8px}
 .score-adj{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .score-adj:hover{background:var(--border);color:#fff}
+.wager-section{margin-bottom:8px}
+.wager-label{font-size:.7rem;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:700}
+.wager-row{display:flex;gap:4px;align-items:center;justify-content:center}
+.team-wager{width:70%;padding:8px 6px;border-radius:8px;border:2px solid var(--gold);background:rgba(245,200,66,.08);color:var(--gold);font-size:clamp(.95rem,1.3vw,1.1rem);font-weight:700;text-align:center;outline:none;transition:border-color .2s}
+.team-wager:focus{border-color:#fff}
+.team-wager:disabled{opacity:.4;cursor:not-allowed;border-color:var(--border)}
+.team-wager.invalid{border-color:var(--sos-red);background:rgba(212,58,58,.08)}
+.btn-allin{padding:6px 8px;border-radius:8px;border:1px solid var(--gold);background:rgba(245,200,66,.15);color:var(--gold);font-size:.6rem;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;transition:all .2s;white-space:nowrap}
+.btn-allin:hover{background:rgba(245,200,66,.3);color:#fff}
+.btn-allin:disabled{opacity:.3;cursor:not-allowed}
+.wager-display{font-size:.75rem;color:var(--gold);min-height:18px;margin-top:2px;font-weight:600}
 .team-input{width:100%;padding:10px 8px;border-radius:8px;border:2px solid var(--border);background:rgba(10,22,40,.6);color:#fff;font-size:clamp(1.1rem,1.6vw,1.3rem);font-weight:700;text-align:center;outline:none;transition:border-color .2s}
 .team-input:focus{border-color:var(--sos-light)}
 .team-input:disabled{opacity:.5;cursor:not-allowed}
 .team-guess-display{margin-top:8px;font-size:.85rem;color:var(--muted);min-height:20px}
 .team-round-pts{font-size:.85rem;font-weight:700;color:var(--gold);min-height:20px;margin-top:4px}
+.team-round-pts.loss{color:var(--sos-red)}
 .winner-crown{display:none;font-size:1.6rem;margin-bottom:4px}
 .team-card.winner .winner-crown{display:block;animation:bounce .6s ease}
 
@@ -179,10 +193,19 @@ body::before{content:'';position:fixed;inset:0;background:
     <div class="team-card" id="team0">
       <div class="winner-crown">&#x1F451;</div>
       <div class="team-name">Team 1</div>
-      <div class="team-score" id="score0">0</div>
+      <div class="team-balance-label">Balance</div>
+      <div class="team-score" id="score0">$500</div>
       <div class="team-score-controls">
         <button class="score-adj" data-team="0" data-adj="-50">&minus;</button>
         <button class="score-adj" data-team="0" data-adj="50">+</button>
+      </div>
+      <div class="wager-section">
+        <div class="wager-label">Wager</div>
+        <div class="wager-row">
+          <input type="number" class="team-wager" id="wager0" placeholder="$25 min" min="25">
+          <button class="btn-allin" id="allin0" data-team="0">All In</button>
+        </div>
+        <div class="wager-display" id="wagerDisplay0"></div>
       </div>
       <input type="number" class="team-input" id="input0" placeholder="Guess">
       <div class="team-guess-display" id="guess0"></div>
@@ -191,10 +214,19 @@ body::before{content:'';position:fixed;inset:0;background:
     <div class="team-card" id="team1">
       <div class="winner-crown">&#x1F451;</div>
       <div class="team-name">Team 2</div>
-      <div class="team-score" id="score1">0</div>
+      <div class="team-balance-label">Balance</div>
+      <div class="team-score" id="score1">$500</div>
       <div class="team-score-controls">
         <button class="score-adj" data-team="1" data-adj="-50">&minus;</button>
         <button class="score-adj" data-team="1" data-adj="50">+</button>
+      </div>
+      <div class="wager-section">
+        <div class="wager-label">Wager</div>
+        <div class="wager-row">
+          <input type="number" class="team-wager" id="wager1" placeholder="$25 min" min="25">
+          <button class="btn-allin" id="allin1" data-team="1">All In</button>
+        </div>
+        <div class="wager-display" id="wagerDisplay1"></div>
       </div>
       <input type="number" class="team-input" id="input1" placeholder="Guess">
       <div class="team-guess-display" id="guess1"></div>
@@ -203,10 +235,19 @@ body::before{content:'';position:fixed;inset:0;background:
     <div class="team-card" id="team2">
       <div class="winner-crown">&#x1F451;</div>
       <div class="team-name">Team 3</div>
-      <div class="team-score" id="score2">0</div>
+      <div class="team-balance-label">Balance</div>
+      <div class="team-score" id="score2">$500</div>
       <div class="team-score-controls">
         <button class="score-adj" data-team="2" data-adj="-50">&minus;</button>
         <button class="score-adj" data-team="2" data-adj="50">+</button>
+      </div>
+      <div class="wager-section">
+        <div class="wager-label">Wager</div>
+        <div class="wager-row">
+          <input type="number" class="team-wager" id="wager2" placeholder="$25 min" min="25">
+          <button class="btn-allin" id="allin2" data-team="2">All In</button>
+        </div>
+        <div class="wager-display" id="wagerDisplay2"></div>
       </div>
       <input type="number" class="team-input" id="input2" placeholder="Guess">
       <div class="team-guess-display" id="guess2"></div>
@@ -215,10 +256,19 @@ body::before{content:'';position:fixed;inset:0;background:
     <div class="team-card" id="team3">
       <div class="winner-crown">&#x1F451;</div>
       <div class="team-name">Team 4</div>
-      <div class="team-score" id="score3">0</div>
+      <div class="team-balance-label">Balance</div>
+      <div class="team-score" id="score3">$500</div>
       <div class="team-score-controls">
         <button class="score-adj" data-team="3" data-adj="-50">&minus;</button>
         <button class="score-adj" data-team="3" data-adj="50">+</button>
+      </div>
+      <div class="wager-section">
+        <div class="wager-label">Wager</div>
+        <div class="wager-row">
+          <input type="number" class="team-wager" id="wager3" placeholder="$25 min" min="25">
+          <button class="btn-allin" id="allin3" data-team="3">All In</button>
+        </div>
+        <div class="wager-display" id="wagerDisplay3"></div>
       </div>
       <input type="number" class="team-input" id="input3" placeholder="Guess">
       <div class="team-guess-display" id="guess3"></div>
@@ -234,14 +284,14 @@ body::before{content:'';position:fixed;inset:0;background:
       <div class="result-item"><div class="label">Winner</div><div class="value gold" id="resWinner">—</div></div>
       <div class="result-item"><div class="label">Winning Guess</div><div class="value" id="resGuess">—</div></div>
       <div class="result-item"><div class="label">Why They Won</div><div class="value" id="resWhy">—</div></div>
-      <div class="result-item"><div class="label">Points Awarded</div><div class="value gold" id="resPoints">—</div></div>
+      <div class="result-item"><div class="label">Wager</div><div class="value gold" id="resWager">—</div></div>
+      <div class="result-item"><div class="label">Payout</div><div class="value gold" id="resPoints">—</div></div>
     </div>
   </div>
 
   <!-- Mode Toggles -->
   <div class="toggles">
-    <label class="toggle-wrap"><input type="checkbox" id="toggleDouble"><span class="toggle-track"></span><span class="toggle-label">Double Points</span></label>
-    <label class="toggle-wrap"><input type="checkbox" id="toggleBust"><span class="toggle-track"></span><span class="toggle-label">Bust Risk</span></label>
+    <label class="toggle-wrap"><input type="checkbox" id="toggleBust" checked><span class="toggle-track"></span><span class="toggle-label">Bust Risk (lose wager if over)</span></label>
   </div>
 
   <!-- Controls -->
@@ -332,8 +382,11 @@ const ALL_QUESTIONS = [
 // ── STATE ──
 const NUM_TEAMS = 4;
 const ROUNDS_PER_GAME = 10;
+const STARTING_BALANCE = 500;
+const MIN_WAGER = 25;
 let questions = [];
 let scores = [0, 0, 0, 0];
+let wagers = [0, 0, 0, 0];
 let currentRound = 0;
 let roundRevealed = false;
 let gameEnded = false;
@@ -353,12 +406,17 @@ function fmt(n) {
   return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+function fmtDollar(n) {
+  return "$" + Math.abs(n).toLocaleString();
+}
+
 function $(id) { return document.getElementById(id); }
 
 // ── INIT ──
 function initGame() {
   questions = shuffle(ALL_QUESTIONS).slice(0, ROUNDS_PER_GAME);
-  scores = [0, 0, 0, 0];
+  scores = Array(NUM_TEAMS).fill(STARTING_BALANCE);
+  wagers = Array(NUM_TEAMS).fill(0);
   currentRound = 0;
   roundRevealed = false;
   gameEnded = false;
@@ -375,6 +433,7 @@ function loadRound() {
 
   const q = questions[currentRound];
   roundRevealed = false;
+  wagers = Array(NUM_TEAMS).fill(0);
 
   // Update badges
   $("roundBadge").textContent = "Round " + (currentRound + 1) + " / " + questions.length;
@@ -391,10 +450,16 @@ function loadRound() {
   // Reset team cards
   for (let i = 0; i < NUM_TEAMS; i++) {
     $("team" + i).classList.remove("winner", "bust");
+    $("wager" + i).value = "";
+    $("wager" + i).disabled = false;
+    $("wager" + i).classList.remove("invalid");
+    $("allin" + i).disabled = false;
+    $("wagerDisplay" + i).textContent = "";
     $("input" + i).value = "";
     $("input" + i).disabled = false;
     $("guess" + i).textContent = "";
     $("pts" + i).textContent = "";
+    $("pts" + i).className = "team-round-pts";
   }
 
   // Results
@@ -404,24 +469,69 @@ function loadRound() {
   $("btnReveal").disabled = true;
   $("btnNext").disabled = true;
 
-  checkAllGuessesEntered();
+  checkAllInputs();
 }
 
 function updateScores() {
   for (let i = 0; i < NUM_TEAMS; i++) {
-    $("score" + i).textContent = scores[i];
+    const el = $("score" + i);
+    el.textContent = fmtDollar(scores[i]);
+    if (scores[i] <= 0) {
+      el.classList.add("broke");
+    } else {
+      el.classList.remove("broke");
+    }
+  }
+}
+
+// ── WAGER VALIDATION ──
+function getValidWager(teamIdx) {
+  const val = parseInt($("wager" + teamIdx).value);
+  if (isNaN(val) || val < MIN_WAGER) return -1;
+  if (val > scores[teamIdx] && scores[teamIdx] >= MIN_WAGER) return -1;
+  return val;
+}
+
+function validateWagerInput(teamIdx) {
+  const el = $("wager" + teamIdx);
+  const val = parseInt(el.value);
+  const balance = scores[teamIdx];
+
+  if (el.value.trim() === "") {
+    el.classList.remove("invalid");
+    $("wagerDisplay" + teamIdx).textContent = "";
+    return;
+  }
+
+  if (isNaN(val) || val < MIN_WAGER) {
+    el.classList.add("invalid");
+    $("wagerDisplay" + teamIdx).textContent = "Min $" + MIN_WAGER;
+  } else if (val > balance && balance >= MIN_WAGER) {
+    el.classList.add("invalid");
+    $("wagerDisplay" + teamIdx).textContent = "Max " + fmtDollar(balance);
+  } else {
+    el.classList.remove("invalid");
+    if (val >= balance) {
+      $("wagerDisplay" + teamIdx).textContent = "ALL IN!";
+    } else {
+      $("wagerDisplay" + teamIdx).textContent = "Risking " + fmtDollar(val);
+    }
   }
 }
 
 // ── INPUT VALIDATION ──
-function checkAllGuessesEntered() {
+function checkAllInputs() {
   if (roundRevealed) { $("btnReveal").disabled = true; return; }
-  let allFilled = true;
+  let allReady = true;
   for (let i = 0; i < NUM_TEAMS; i++) {
+    // Check wager
+    const w = getValidWager(i);
+    if (w < 0 && scores[i] >= MIN_WAGER) { allReady = false; break; }
+    // Check guess
     const v = $("input" + i).value.trim();
-    if (v === "" || isNaN(parseFloat(v))) { allFilled = false; break; }
+    if (v === "" || isNaN(parseFloat(v))) { allReady = false; break; }
   }
-  $("btnReveal").disabled = !allFilled;
+  $("btnReveal").disabled = !allReady;
 }
 
 // ── REVEAL WINNER ──
@@ -433,10 +543,16 @@ function revealWinner() {
 
   const q = questions[currentRound];
   const answer = q.answer;
-  const isDouble = $("toggleDouble").checked;
   const isBust = $("toggleBust").checked;
 
-  // Read guesses
+  // Lock wagers and read guesses
+  for (let i = 0; i < NUM_TEAMS; i++) {
+    const w = getValidWager(i);
+    wagers[i] = (w > 0) ? w : 0;
+    $("wager" + i).disabled = true;
+    $("allin" + i).disabled = true;
+  }
+
   const guesses = [];
   for (let i = 0; i < NUM_TEAMS; i++) {
     guesses.push(parseFloat($("input" + i).value));
@@ -445,7 +561,7 @@ function revealWinner() {
   }
 
   // Determine valid (not over) guesses
-  const valid = []; // { team, guess, diff }
+  const valid = [];
   const over = [];
   for (let i = 0; i < NUM_TEAMS; i++) {
     const diff = answer - guesses[i];
@@ -459,89 +575,95 @@ function revealWinner() {
   let winnerTeam = -1;
   let winnerGuess = 0;
   let reason = "";
-  let basePoints = 0;
-  let bonusPoints = 0;
+  let winMultiplier = 2; // default: win 2x wager
   let allOver = valid.length === 0;
-  let bustPenalties = [];
 
-  // Apply bust penalties first
-  if (isBust) {
-    for (const o of over) {
-      scores[o.team] -= 25;
-      bustPenalties.push(o.team);
-      $("team" + o.team).classList.add("bust");
-      $("pts" + o.team).textContent = "-25 (bust)";
-    }
-  }
-
+  // Determine winner
   if (!allOver) {
-    // Sort valid by closest (smallest diff)
     valid.sort((a, b) => a.diff - b.diff);
     const winner = valid[0];
     winnerTeam = winner.team;
     winnerGuess = winner.guess;
 
     if (winner.diff === 0) {
-      basePoints = 100;
-      bonusPoints += 200; // exact match total = 300
-      reason = "Exact match!";
+      winMultiplier = 3;
+      reason = "Exact match! (3x wager)";
     } else {
-      basePoints = 100;
-      reason = "Closest without going over";
-    }
-
-    // Check if lowest guess
-    const lowestGuess = Math.min(...guesses);
-    if (winnerGuess === lowestGuess) {
-      bonusPoints += 50;
-      reason += (reason.includes("Exact") ? " + lowest guess bonus" : " + lowest guess bonus");
+      winMultiplier = 2;
+      reason = "Closest without going over (2x wager)";
     }
   } else {
-    // All went over — closest overall
+    // All went over — closest gets 1x wager back (breaks even)
     over.sort((a, b) => a.diff - b.diff);
     const winner = over[0];
     winnerTeam = winner.team;
     winnerGuess = winner.guess;
-    basePoints = 75;
-    reason = "All teams over — closest overall";
+    winMultiplier = 1;
+    reason = "All teams over — closest gets wager back";
   }
 
-  // Apply double mode to base only
-  if (isDouble) basePoints *= 2;
+  // Apply payouts
+  for (let i = 0; i < NUM_TEAMS; i++) {
+    const w = wagers[i];
+    if (w === 0) {
+      // No wager (broke team) — no change
+      $("pts" + i).textContent = "No wager";
+      $("pts" + i).className = "team-round-pts";
+      continue;
+    }
 
-  const totalPts = basePoints + bonusPoints;
-  scores[winnerTeam] += totalPts;
+    if (i === winnerTeam) {
+      const payout = w * winMultiplier;
+      const net = payout - w;
+      scores[i] += net;
+      $("pts" + i).textContent = "+" + fmtDollar(net);
+      $("pts" + i).className = "team-round-pts";
+      $("team" + i).classList.add("winner");
+    } else {
+      // Losers
+      const wentOver = over.some(function(o) { return o.team === i; });
+      if (isBust && wentOver) {
+        // Bust — lose full wager
+        scores[i] -= w;
+        $("pts" + i).textContent = "-" + fmtDollar(w) + " (bust!)";
+        $("pts" + i).className = "team-round-pts loss";
+        $("team" + i).classList.add("bust");
+      } else if (isBust) {
+        // Didn't win but didn't go over — lose half wager
+        const loss = Math.round(w / 2);
+        scores[i] -= loss;
+        $("pts" + i).textContent = "-" + fmtDollar(loss);
+        $("pts" + i).className = "team-round-pts loss";
+      } else {
+        // Bust mode off — all losers lose half wager
+        const loss = Math.round(w / 2);
+        scores[i] -= loss;
+        $("pts" + i).textContent = "-" + fmtDollar(loss);
+        $("pts" + i).className = "team-round-pts loss";
+      }
+    }
+  }
+
+  // Floor at 0
+  for (let i = 0; i < NUM_TEAMS; i++) {
+    if (scores[i] < 0) scores[i] = 0;
+  }
+
+  updateScores();
 
   // Show answer
   $("answerValue").textContent = fmt(answer);
   $("answerReveal").classList.add("show");
   $("questionCard").classList.add("revealed");
 
-  // Highlight winner
-  $("team" + winnerTeam).classList.remove("bust");
-  $("team" + winnerTeam).classList.add("winner");
-
-  // Show per-team points
-  for (let i = 0; i < NUM_TEAMS; i++) {
-    if (i === winnerTeam) {
-      let ptText = "+" + totalPts;
-      if (isBust && bustPenalties.includes(i)) ptText += " (net +" + (totalPts - 25) + ")";
-      $("pts" + i).textContent = ptText;
-    } else if (!isBust || !bustPenalties.includes(i)) {
-      $("pts" + i).textContent = "+0";
-    }
-  }
-
-  updateScores();
-
   // Results panel
   $("resAnswer").textContent = fmt(answer);
   $("resWinner").textContent = "Team " + (winnerTeam + 1);
   $("resGuess").textContent = fmt(winnerGuess);
   $("resWhy").textContent = reason;
-  let ptsLabel = "+" + totalPts;
-  if (isDouble) ptsLabel += " (2x base)";
-  $("resPoints").textContent = ptsLabel;
+  $("resWager").textContent = fmtDollar(wagers[winnerTeam]);
+  const winnerPayout = wagers[winnerTeam] * winMultiplier - wagers[winnerTeam];
+  $("resPoints").textContent = "+" + fmtDollar(winnerPayout);
   $("resultsPanel").classList.add("show");
 
   // Confetti
@@ -569,7 +691,7 @@ function endGame() {
     const cls = idx === 0 ? "final-score-card champion" : "final-score-card";
     html += '<div class="' + cls + '">' +
       '<div class="fs-name">Team ' + (r.team + 1) + '</div>' +
-      '<div class="fs-score">' + r.score + '</div>' +
+      '<div class="fs-score">' + fmtDollar(r.score) + '</div>' +
       '<div class="fs-rank">' + labels[idx] + '</div></div>';
   });
   $("finalScores").innerHTML = html;
@@ -578,7 +700,7 @@ function endGame() {
 
 // ── RESETS ──
 function resetScores() {
-  scores = [0, 0, 0, 0];
+  scores = Array(NUM_TEAMS).fill(STARTING_BALANCE);
   updateScores();
 }
 
@@ -607,14 +729,38 @@ function launchConfetti() {
 }
 
 // ── EVENT LISTENERS ──
-// Team inputs
+// Wager inputs
 for (let i = 0; i < NUM_TEAMS; i++) {
-  $("input" + i).addEventListener("input", checkAllGuessesEntered);
+  $("wager" + i).addEventListener("input", function() {
+    validateWagerInput(i);
+    checkAllInputs();
+  });
+  $("wager" + i).addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      $("input" + i).focus();
+    }
+  });
+}
+
+// All-in buttons
+for (let i = 0; i < NUM_TEAMS; i++) {
+  $("allin" + i).addEventListener("click", function() {
+    $("wager" + i).value = scores[i];
+    validateWagerInput(i);
+    checkAllInputs();
+    $("input" + i).focus();
+  });
+}
+
+// Team guess inputs
+for (let i = 0; i < NUM_TEAMS; i++) {
+  $("input" + i).addEventListener("input", checkAllInputs);
   $("input" + i).addEventListener("keydown", function(e) {
     if (e.key === "Enter") {
       e.preventDefault();
-      if (i < NUM_TEAMS - 1) $("input" + (i + 1)).focus();
-      else checkAllGuessesEntered();
+      if (i < NUM_TEAMS - 1) $("wager" + (i + 1)).focus();
+      else checkAllInputs();
     }
   });
 }
@@ -624,7 +770,7 @@ document.querySelectorAll(".score-adj").forEach(function(btn) {
   btn.addEventListener("click", function() {
     const t = parseInt(this.getAttribute("data-team"));
     const adj = parseInt(this.getAttribute("data-adj"));
-    scores[t] += adj;
+    scores[t] = Math.max(0, scores[t] + adj);
     updateScores();
   });
 });

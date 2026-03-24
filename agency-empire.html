@@ -1,0 +1,1007 @@
+<!-- agency-empire.html — SOS Game Center -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agency Empire — SOS Game Center</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a1628;--surface:#0f1f38;--border:#1e3a5f;
+  --sos-blue:#2a6db5;--sos-light:#5bb8f5;--sos-red:#d43a3a;
+  --text:#eef;--muted:#7a9bc0;--radius:12px;
+  --green:#43a047;--gold:#f5c842;--orange:#e67e22;--purple:#9b59b6;
+  --team-blue:#2a6db5;--team-red:#d43a3a;--team-gold:#f5c842;--team-teal:#26a69a;
+}
+html{font-size:16px}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(circle at 20% 30%,rgba(42,109,181,.12) 0%,transparent 50%),
+  radial-gradient(circle at 80% 70%,rgba(212,58,58,.08) 0%,transparent 50%),
+  radial-gradient(circle at 50% 50%,rgba(91,184,245,.05) 0%,transparent 60%);
+  pointer-events:none;z-index:0}
+.header{position:relative;z-index:1;text-align:center;padding:10px 20px 8px;border-bottom:2px solid var(--border);background:linear-gradient(180deg,rgba(15,31,56,.95),rgba(10,22,40,.98))}
+.header-row{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+.sos-logo{height:36px}
+.header h1{font-size:clamp(1rem,2.4vw,1.6rem);letter-spacing:2px;color:#fff;text-transform:uppercase;text-shadow:0 0 20px rgba(58,143,212,.3)}
+.header h1 .hl{color:var(--sos-light)}
+.header .sub{color:var(--muted);font-size:clamp(.6rem,.9vw,.75rem);margin-top:1px;letter-spacing:3px;text-transform:uppercase}
+.back-link{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--sos-light);text-decoration:none;font-size:.8rem;font-weight:600;display:flex;align-items:center;gap:5px;transition:gap .2s}
+.back-link:hover{gap:9px;color:#fff}
+#startScreen{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column}
+#startScreen::before{content:'';position:absolute;inset:0;background:
+  radial-gradient(circle at 30% 40%,rgba(42,109,181,.15) 0%,transparent 50%),
+  radial-gradient(circle at 70% 60%,rgba(212,58,58,.1) 0%,transparent 50%);pointer-events:none}
+.start-content{position:relative;z-index:1;text-align:center;max-width:560px;padding:40px}
+.start-content .start-logo{height:80px;margin-bottom:24px}
+.start-content h1{font-size:clamp(2rem,5vw,3.2rem);color:#fff;text-transform:uppercase;letter-spacing:4px;margin-bottom:4px;text-shadow:0 0 40px rgba(42,109,181,.4)}
+.start-content h1 .hl{color:var(--sos-light)}
+.start-content .subtitle{color:var(--sos-light);font-size:1.1rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:24px}
+.start-content .desc{color:var(--muted);font-size:.95rem;line-height:1.6;margin-bottom:32px}
+.team-selector{margin-bottom:28px}
+.team-selector label{display:block;color:var(--muted);font-size:.85rem;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;font-weight:600}
+.team-btns{display:flex;gap:10px;justify-content:center}
+.team-btn{width:56px;height:56px;border-radius:var(--radius);border:2px solid var(--border);background:var(--surface);color:var(--text);font-size:1.4rem;font-weight:800;cursor:pointer;transition:all .2s}
+.team-btn:hover{border-color:var(--sos-light);color:#fff}
+.team-btn.active{border-color:var(--sos-light);background:rgba(91,184,245,.15);color:#fff;box-shadow:0 0 20px rgba(91,184,245,.2)}
+.btn{padding:12px 32px;border-radius:var(--radius);border:none;font-size:1rem;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,var(--sos-blue),#1e5a9e);color:#fff;box-shadow:0 4px 20px rgba(42,109,181,.3)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(42,109,181,.5)}
+.btn-secondary{background:var(--surface);color:var(--muted);border:1px solid var(--border);padding:10px 24px;font-size:.85rem}
+.btn-secondary:hover{border-color:var(--sos-light);color:#fff}
+.btn-red{background:linear-gradient(135deg,var(--sos-red),#a02e2e);color:#fff;box-shadow:0 4px 16px rgba(212,58,58,.3)}
+.btn-red:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(212,58,58,.5)}
+.btn-green{background:linear-gradient(135deg,var(--green),#2e7d32);color:#fff}
+.btn-green:hover{transform:translateY(-2px)}
+.btn-gold{background:linear-gradient(135deg,#c9a020,#f5c842);color:#1a1a2e;font-weight:800}
+.btn-gold:hover{transform:translateY(-2px)}
+.btn-sm{padding:8px 18px;font-size:.8rem}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+.start-links{display:flex;gap:12px;justify-content:center;margin-top:16px}
+#gameScreen{display:none;position:relative;z-index:1}
+.game-layout{display:flex;gap:12px;max-width:1440px;margin:0 auto;padding:10px 12px 8px}
+.board-wrapper{flex:1;min-width:0;position:relative}
+.sidebar{width:320px;flex-shrink:0;display:flex;flex-direction:column;gap:10px;max-height:calc(100vh - 80px);overflow-y:auto}
+.board-grid{display:grid;grid-template-columns:repeat(9,1fr);grid-template-rows:repeat(7,1fr);gap:2px;aspect-ratio:9/7;width:100%;position:relative}
+.board-center{grid-column:2/9;grid-row:2/7;background:linear-gradient(135deg,rgba(15,31,56,.98),rgba(10,22,40,.95));border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px;z-index:1}
+.center-title{font-size:clamp(.85rem,1.6vw,1.4rem);font-weight:800;text-transform:uppercase;letter-spacing:3px;color:#fff;text-shadow:0 0 20px rgba(42,109,181,.3)}
+.center-subtitle{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:2px}
+.turn-info{font-size:clamp(.75rem,1.2vw,1rem);font-weight:700;padding:5px 18px;border-radius:20px;background:rgba(42,109,181,.15);border:1px solid var(--sos-blue);color:var(--sos-light);transition:all .3s}
+.round-info{font-size:.75rem;color:var(--muted);font-weight:600;letter-spacing:1px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
+
+/* UX1: Action Hint */
+.action-hint{font-size:.7rem;color:#fff;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 14px;border-radius:12px;background:rgba(91,184,245,.12);min-height:22px;transition:all .25s}
+
+/* ===== DICE ===== */
+.die-area{display:flex;align-items:center;gap:4px}
+.die{width:44px;height:44px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:900;color:var(--bg);box-shadow:0 3px 12px rgba(0,0,0,.3);transition:transform .1s, box-shadow .2s;user-select:none}
+.die.rolling{animation:dieRoll .12s infinite alternate}
+@keyframes dieRoll{0%{transform:rotate(-8deg) scale(1.05)}100%{transform:rotate(8deg) scale(.95)}}
+.die.landed{animation:dieBounce .3s ease;transform:scale(1)}
+@keyframes dieBounce{0%{transform:scale(1.2) rotate(5deg)}50%{transform:scale(.9)}100%{transform:scale(1) rotate(0)}}
+.die-plus{color:var(--muted);font-size:1rem;font-weight:700}
+.die-eq{color:var(--muted);font-size:.9rem;font-weight:700;margin:0 2px}
+.die-total{font-size:1.3rem;font-weight:900;color:var(--sos-light);min-width:24px;text-align:center;transition:all .2s}
+/* UX3: Dice pop */
+.die-total.pop{animation:dieTotalPop .35s ease;color:#fff;text-shadow:0 0 12px rgba(91,184,245,.6)}
+@keyframes dieTotalPop{0%{transform:scale(1)}40%{transform:scale(1.6)}100%{transform:scale(1)}}
+.die-total.doubles-glow{color:var(--gold);text-shadow:0 0 16px rgba(245,200,66,.7)}
+.doubles-badge{font-size:.55rem;color:var(--gold);text-transform:uppercase;letter-spacing:1px;font-weight:800;position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);white-space:nowrap;animation:pulseSoft 1s ease-in-out infinite}
+.die-wrapper{position:relative;display:flex;align-items:center;gap:4px}
+
+/* ===== BOARD SPACE CELLS ===== */
+.space-cell{background:rgba(235,240,248,.95);border:1px solid rgba(200,210,225,.6);border-radius:4px;padding:2px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow:hidden;position:relative;cursor:pointer;transition:all .2s;min-width:0}
+.space-cell:hover{border-color:var(--sos-blue);z-index:2;background:#fff}
+.space-cell.active-space{border-color:var(--sos-light);box-shadow:0 0 14px rgba(91,184,245,.5);z-index:3;background:#fff}
+/* UX6: Owned vs unowned */
+.space-cell.owned-space{background:rgba(245,248,255,.98)}
+.space-cell.owned-space .space-strip{box-shadow:0 0 6px currentColor}
+.space-cell.unowned-prop{background:rgba(220,228,240,.8)}
+.space-cell.unowned-prop:hover{background:rgba(235,240,248,.95)}
+/* UX7: Set flash */
+.space-cell.set-flash{animation:setFlash .6s ease}
+@keyframes setFlash{0%{box-shadow:0 0 0 rgba(245,200,66,0)}30%{box-shadow:0 0 18px rgba(245,200,66,.6)}100%{box-shadow:0 0 0 rgba(245,200,66,0)}}
+.space-strip{width:100%;height:4px;border-radius:2px 2px 0 0;flex-shrink:0;transition:all .2s}
+/* Property strips are thick like Monopoly color bars */
+.space-strip.set-strip{height:10px;border-radius:3px 3px 0 0;border-bottom:1px solid rgba(0,0,0,.15)}
+.space-strip.type-property{background:var(--sos-light)}
+.space-strip.type-event{background:var(--purple)}
+.space-strip.type-penalty{background:var(--sos-red)}
+.space-strip.type-start{background:var(--green);height:8px;border-radius:3px 3px 0 0}
+.space-cell.start-space{background:#e8ffe8;border:2px solid var(--green);font-weight:800}
+.space-strip.type-safe{background:var(--green)}
+.space-strip.type-bonus{background:var(--gold)}
+.space-strip.type-crisis{background:var(--sos-red)}
+.space-strip.type-ghosted{background:var(--muted)}
+/* Owner dot overlaid on property */
+.owner-dot{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;border:1.5px solid #fff;z-index:2;box-shadow:0 0 4px rgba(0,0,0,.4)}
+.space-icon{font-size:clamp(.65rem,1.1vw,.9rem);line-height:1;margin-top:1px}
+.space-name{font-size:clamp(.35rem,.6vw,.52rem);font-weight:700;text-align:center;color:#1a2a40;line-height:1.15;margin-top:1px;overflow:hidden;text-overflow:ellipsis;width:100%}
+.space-cost{font-size:clamp(.3rem,.5vw,.45rem);color:#5a6a80;font-weight:600}
+.space-level{display:flex;gap:1px;margin-top:1px}
+.space-level-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.2)}
+.space-level-dot.filled{background:var(--gold)}
+.space-tokens{display:flex;gap:2px;margin-top:auto;flex-wrap:wrap;justify-content:center;align-items:center;padding-top:1px}
+.token{width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:13px;border-radius:50%;transition:all .3s;line-height:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,.5))}
+.token.team-0{background:var(--team-blue);border:2px solid rgba(255,255,255,.8);box-shadow:0 1px 6px rgba(42,109,181,.5)}
+.token.team-1{background:var(--team-red);border:2px solid rgba(255,255,255,.8);box-shadow:0 1px 6px rgba(212,58,58,.5)}
+.token.team-2{background:var(--team-gold);border:2px solid rgba(255,255,255,.8);box-shadow:0 1px 6px rgba(245,200,66,.5)}
+.token.team-3{background:var(--team-teal);border:2px solid rgba(255,255,255,.8);box-shadow:0 1px 6px rgba(38,166,154,.5)}
+/* UX4: Active token glow */
+.token.active-tok{filter:drop-shadow(0 0 6px rgba(255,255,255,.8));transform:scale(1.1)}
+
+.center-controls{display:flex;gap:10px;align-items:center}
+.btn-roll{padding:9px 26px;border-radius:var(--radius);border:none;background:linear-gradient(135deg,var(--sos-red),#a02e2e);color:#fff;font-size:.95rem;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:2px;box-shadow:0 4px 20px rgba(212,58,58,.3);transition:all .2s;animation:btnPulse 2s ease-in-out infinite}
+@keyframes btnPulse{0%,100%{box-shadow:0 4px 20px rgba(212,58,58,.3)}50%{box-shadow:0 4px 28px rgba(212,58,58,.6)}}
+.btn-roll:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 28px rgba(212,58,58,.5);animation:none}
+.btn-roll:disabled{opacity:.4;cursor:not-allowed;transform:none;animation:none}
+.btn-next{padding:9px 26px;border-radius:var(--radius);border:none;background:linear-gradient(135deg,var(--green),#2e7d32);color:#fff;font-size:.9rem;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:1px;box-shadow:0 4px 16px rgba(67,160,71,.3);transition:all .2s;animation:btnPulseG 2s ease-in-out infinite}
+@keyframes btnPulseG{0%,100%{box-shadow:0 4px 16px rgba(67,160,71,.3)}50%{box-shadow:0 4px 24px rgba(67,160,71,.6)}}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(67,160,71,.5);animation:none}
+.fast-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.6rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;user-select:none;padding:3px 0}
+.fast-toggle:hover{color:var(--text)}
+.toggle-track{width:32px;height:18px;border-radius:9px;background:var(--border);position:relative;transition:background .2s;flex-shrink:0}
+.toggle-track.on{background:var(--green)}
+.toggle-knob{width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.toggle-track.on .toggle-knob{left:16px}
+/* UX9: Fast mode indicator */
+.fast-badge{font-size:.5rem;padding:2px 7px;border-radius:8px;background:rgba(67,160,71,.15);color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.surge-badge{display:inline-block;padding:2px 8px;border-radius:10px;background:rgba(230,126,34,.15);color:var(--orange);font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;animation:pulseSoft 2s ease-in-out infinite}
+@keyframes pulseSoft{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* ===== SIDEBAR ===== */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px;overflow:visible;position:relative}
+.panel h3{font-size:.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:6px;font-weight:700}
+.team-card{border:2px solid var(--border);border-radius:8px;padding:8px;margin-bottom:6px;transition:all .3s;position:relative;overflow:visible}
+.team-card:last-child{margin-bottom:0}
+/* UX4: Active team pulse */
+.team-card.active{animation:teamGlow 2s ease-in-out infinite}
+@keyframes teamGlow{0%,100%{box-shadow:0 0 12px rgba(91,184,245,.15)}50%{box-shadow:0 0 22px rgba(91,184,245,.35)}}
+.team-card .tc-header{display:flex;align-items:center;gap:8px;margin-bottom:2px}
+.team-card .tc-color{width:22px;height:22px;flex-shrink:0;border:2px solid rgba(255,255,255,.5);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1}
+.team-card .tc-name{font-weight:700;font-size:.85rem;color:#fff;flex:1}
+.team-card .tc-cash{font-size:1.1rem;font-weight:800;color:var(--sos-light);transition:all .2s}
+.team-card .tc-status{font-size:.6rem;color:var(--sos-red);text-transform:uppercase;font-weight:700;letter-spacing:1px;margin-top:2px}
+.team-card .tc-props{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px}
+.tc-prop{font-size:.55rem;padding:1px 5px;border-radius:8px;background:rgba(91,184,245,.1);border:1px solid rgba(91,184,245,.2);color:var(--sos-light);font-weight:600;white-space:nowrap}
+.tc-prop .lv{color:var(--gold);margin-left:2px}
+.set-complete{font-size:.5rem;padding:1px 5px;border-radius:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;display:inline-block;margin-right:3px}
+.tc-objective{font-size:.55rem;color:var(--muted);margin-top:4px;padding:3px 6px;background:rgba(155,89,182,.06);border:1px solid rgba(155,89,182,.12);border-radius:5px;line-height:1.3}
+.tc-objective.completed{background:rgba(67,160,71,.06);border-color:rgba(67,160,71,.15);color:var(--green)}
+/* UX8: Objective progress */
+.obj-progress{color:var(--sos-light);font-weight:700;margin-left:3px}
+
+/* Team detail modal */
+.team-detail-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.td-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:3px solid rgba(255,255,255,.5);flex-shrink:0}
+.td-info{flex:1}
+.td-info .td-name{font-size:1.2rem;font-weight:800;color:#fff}
+.td-info .td-sub{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.td-cash{font-size:1.6rem;font-weight:900}
+.td-section{margin-bottom:14px}
+.td-section h4{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;font-weight:700}
+.td-prop-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;margin-bottom:4px;background:rgba(10,22,40,.4)}
+.td-prop-color{width:6px;height:28px;border-radius:3px;flex-shrink:0}
+.td-prop-info{flex:1}
+.td-prop-name{font-size:.85rem;font-weight:700;color:#fff}
+.td-prop-level{font-size:.65rem;color:var(--muted)}
+.td-prop-payout{font-size:.85rem;font-weight:800;color:var(--green)}
+.td-set-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;margin-bottom:4px}
+.td-set-row.complete{background:rgba(67,160,71,.08);border:1px solid rgba(67,160,71,.2)}
+.td-set-row.incomplete{background:rgba(122,155,192,.06);border:1px solid rgba(122,155,192,.1)}
+.td-set-icon{font-size:1rem}
+.td-set-name{flex:1;font-size:.8rem;font-weight:700;color:#fff}
+.td-set-count{font-size:.75rem;font-weight:700}
+.td-set-count.done{color:var(--green)}
+.td-set-count.partial{color:var(--muted)}
+.td-obj{padding:8px 10px;border-radius:8px;font-size:.8rem;line-height:1.4}
+.td-obj.active{background:rgba(155,89,182,.08);border:1px solid rgba(155,89,182,.15);color:var(--text)}
+.td-obj.done{background:rgba(67,160,71,.08);border:1px solid rgba(67,160,71,.2);color:var(--green)}
+.td-empty{color:var(--muted);font-size:.8rem;font-style:italic;padding:8px 0}
+
+/* UX2: Floating money (sidebar) */
+.money-float{position:absolute;right:10px;top:-2px;font-size:.85rem;font-weight:900;pointer-events:none;z-index:10;animation:moneyUp 1.1s ease-out forwards;white-space:nowrap}
+.money-float.pos{color:var(--green);text-shadow:0 0 8px rgba(67,160,71,.5)}
+.money-float.neg{color:var(--sos-red);text-shadow:0 0 8px rgba(212,58,58,.5)}
+@keyframes moneyUp{0%{opacity:1;transform:translateY(0)}70%{opacity:1}100%{opacity:0;transform:translateY(-28px)}}
+
+/* UX2b: Big center-screen money splash */
+.money-splash{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:180;pointer-events:none;animation:splashIn .15s ease}
+.money-splash .splash-amount{font-size:clamp(3rem,8vw,5rem);font-weight:900;letter-spacing:2px;text-shadow:0 4px 30px rgba(0,0,0,.5)}
+.money-splash .splash-amount.pos{color:var(--green)}
+.money-splash .splash-amount.neg{color:var(--sos-red)}
+.money-splash .splash-label{font-size:clamp(.8rem,2vw,1.2rem);font-weight:700;color:#fff;margin-top:4px;text-shadow:0 2px 10px rgba(0,0,0,.4);text-transform:uppercase;letter-spacing:2px}
+.money-splash .splash-bg{position:absolute;inset:0;border-radius:0}
+.money-splash .splash-bg.pos{background:radial-gradient(ellipse at center,rgba(67,160,71,.2) 0%,transparent 70%)}
+.money-splash .splash-bg.neg{background:radial-gradient(ellipse at center,rgba(212,58,58,.2) 0%,transparent 70%)}
+.money-splash.out{animation:splashOut .4s ease forwards}
+
+/* Landing splash — shows what space you landed on */
+.landing-splash{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:175;pointer-events:none;animation:splashIn .2s ease}
+.landing-splash .land-bg{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(10,22,40,.7) 0%,rgba(10,22,40,.3) 60%,transparent 80%)}
+.landing-splash .land-icon{font-size:clamp(3rem,8vw,4.5rem);z-index:1;animation:landBounce .5s ease}
+@keyframes landBounce{0%{transform:scale(0) rotate(-10deg)}50%{transform:scale(1.2) rotate(3deg)}100%{transform:scale(1) rotate(0)}}
+.landing-splash .land-name{font-size:clamp(1.4rem,4vw,2.2rem);font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:3px;text-shadow:0 3px 20px rgba(0,0,0,.6);z-index:1;margin-top:8px}
+.landing-splash .land-type{font-size:clamp(.7rem,1.5vw,.95rem);font-weight:700;text-transform:uppercase;letter-spacing:3px;z-index:1;margin-top:4px;padding:4px 16px;border-radius:20px}
+.landing-splash .land-type.t-property{color:var(--sos-light);background:rgba(91,184,245,.15)}
+.landing-splash .land-type.t-event{color:var(--purple);background:rgba(155,89,182,.15)}
+.landing-splash .land-type.t-penalty{color:var(--sos-red);background:rgba(212,58,58,.15)}
+.landing-splash .land-type.t-bonus{color:var(--gold);background:rgba(245,200,66,.15)}
+.landing-splash .land-type.t-safe{color:var(--green);background:rgba(67,160,71,.15)}
+.landing-splash .land-type.t-start{color:var(--green);background:rgba(67,160,71,.15)}
+.landing-splash .land-type.t-crisis{color:var(--sos-red);background:rgba(212,58,58,.15)}
+.landing-splash .land-type.t-ghosted{color:var(--muted);background:rgba(122,155,192,.15)}
+.landing-splash.out{animation:splashOut .3s ease forwards}
+@keyframes splashIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+@keyframes splashOut{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(1.1)}}
+
+/* ===== GAME LOG ===== */
+.log-panel{max-height:180px;overflow-y:auto}
+.log-entry{font-size:.68rem;padding:3px 0;border-bottom:1px solid rgba(30,58,95,.4);color:var(--muted);line-height:1.3}
+.log-entry:last-child{border-bottom:none}
+.log-entry .log-team{font-weight:700}
+.log-entry .log-money-pos{color:var(--green);font-weight:700}
+.log-entry .log-money-neg{color:var(--sos-red);font-weight:700}
+.log-entry .log-action{color:var(--sos-light);font-weight:600}
+.log-entry .log-bonus{color:var(--orange);font-weight:600}
+/* UX5: Log icons */
+.log-icon{margin-right:3px}
+
+/* ===== MODAL ===== */
+.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(5,11,20,.85);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--surface);border:2px solid var(--border);border-radius:16px;padding:24px 28px;max-width:500px;width:90%;max-height:90vh;overflow-y:auto;animation:modalSlideIn .3s ease;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+@keyframes modalSlideIn{from{opacity:0;transform:translateY(20px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+.modal h2{font-size:1.3rem;color:#fff;margin-bottom:4px;text-align:center}
+.modal h2 .hl{color:var(--sos-light)}
+.modal .modal-sub{color:var(--muted);font-size:.8rem;text-align:center;margin-bottom:14px}
+.modal .prop-cost{font-size:1.8rem;font-weight:900;color:var(--sos-light);text-align:center;margin:10px 0}
+.modal .prop-payout{text-align:center;color:var(--green);font-size:.95rem;font-weight:700;margin-bottom:14px}
+.modal .upgrade-table{width:100%;border-collapse:collapse;margin:10px 0}
+.modal .upgrade-table th{font-size:.6rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:3px 6px;text-align:left;border-bottom:1px solid var(--border)}
+.modal .upgrade-table td{padding:5px 6px;font-size:.8rem;border-bottom:1px solid rgba(30,58,95,.3)}
+.modal .upgrade-table .current-row{background:rgba(91,184,245,.08);border-radius:4px}
+.modal .upgrade-table .level-name{color:#fff;font-weight:600}
+.modal .upgrade-table .level-cost{color:var(--gold)}
+.modal .upgrade-table .level-payout{color:var(--green)}
+/* UX11: Stronger modal buttons */
+.modal-btns{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.modal-btns .btn{min-width:120px;font-size:.9rem;padding:12px 24px}
+.modal-btns .btn-primary{box-shadow:0 4px 24px rgba(42,109,181,.4)}
+.modal-btns .btn-secondary{border:2px solid var(--border)}
+/* Event card back (draw anticipation) */
+.card-draw-display{text-align:center;padding:24px 0;perspective:800px}
+.card-back{width:160px;height:220px;margin:0 auto 16px;border-radius:14px;background:linear-gradient(135deg,#1a237e,#0d47a1);border:3px solid var(--sos-light);box-shadow:0 8px 40px rgba(42,109,181,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;animation:cardFloat 1.2s ease-in-out infinite}
+.card-back::before{content:'';position:absolute;inset:8px;border:2px solid rgba(91,184,245,.3);border-radius:10px}
+.card-back::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,.08) 50%,transparent 60%);animation:cardShimmer 1.5s ease-in-out infinite}
+@keyframes cardShimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+@keyframes cardFloat{0%,100%{transform:translateY(0) rotateY(0deg)}50%{transform:translateY(-6px) rotateY(3deg)}}
+.card-back-icon{font-size:3rem;z-index:1;margin-bottom:6px}
+.card-back-label{font-size:.7rem;color:var(--sos-light);text-transform:uppercase;letter-spacing:3px;font-weight:800;z-index:1}
+.card-draw-text{font-size:1rem;color:#fff;font-weight:700;animation:pulseSoft 1s ease-in-out infinite}
+
+/* Event card front (revealed) */
+.event-card-display{text-align:center;padding:16px 0;animation:cardReveal .4s ease}
+@keyframes cardReveal{from{opacity:0;transform:scale(.85) rotateY(90deg)}to{opacity:1;transform:scale(1) rotateY(0deg)}}
+.event-icon{font-size:2.8rem;margin-bottom:10px}
+.event-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:6px;line-height:1.3}
+.event-effect{font-size:1.3rem;font-weight:800;margin:6px 0}
+.event-effect.positive{color:var(--green)}
+.event-effect.negative{color:var(--sos-red)}
+.event-effect.neutral{color:var(--sos-light)}
+.winner-display{text-align:center;padding:16px 0}
+.winner-trophy{font-size:3.5rem;margin-bottom:10px;animation:float 2s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.winner-name{font-size:1.8rem;font-weight:900;color:var(--gold);margin-bottom:4px}
+.winner-cash{font-size:1.3rem;color:var(--green);font-weight:700;margin-bottom:16px}
+.final-standings{text-align:left;margin:14px 0}
+.standing-row{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;margin-bottom:4px;background:rgba(15,31,56,.5);flex-wrap:wrap}
+.standing-row:first-child{background:rgba(245,200,66,.08);border:1px solid rgba(245,200,66,.2)}
+.standing-rank{font-size:1.1rem;font-weight:900;color:var(--gold);width:26px;text-align:center}
+.standing-color{width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,.3)}
+.standing-name{flex:1;font-weight:700;color:#fff;font-size:.9rem}
+.standing-cash{font-weight:800;color:var(--sos-light);font-size:.95rem}
+.standing-obj{font-size:.6rem;width:100%;padding-left:46px;margin-top:2px}
+.standing-obj.done{color:var(--green)}
+.standing-obj.miss{color:var(--muted)}
+.htp-section{margin-bottom:14px}
+.htp-section h3{font-size:.85rem;color:var(--sos-light);margin-bottom:5px;text-transform:uppercase;letter-spacing:1px}
+.htp-section p,.htp-section li{font-size:.8rem;color:var(--muted);line-height:1.45}
+.htp-section ul{padding-left:16px}
+.htp-section li{margin-bottom:3px}
+.sidebar-controls{display:flex;gap:6px;flex-wrap:wrap}
+.sidebar-controls .btn{flex:1;min-width:0;padding:7px 10px;font-size:.65rem}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);z-index:300;padding:10px 24px;border-radius:var(--radius);font-weight:700;font-size:.85rem;transition:transform .3s ease;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.positive{background:var(--green);color:#fff;box-shadow:0 4px 20px rgba(67,160,71,.4)}
+.toast.negative{background:var(--sos-red);color:#fff;box-shadow:0 4px 20px rgba(212,58,58,.4)}
+.toast.neutral{background:var(--sos-blue);color:#fff;box-shadow:0 4px 20px rgba(42,109,181,.4)}
+#confettiContainer{position:fixed;inset:0;pointer-events:none;z-index:250;overflow:hidden}
+.confetti-piece{position:absolute;width:10px;height:10px;top:-20px;animation:confettiFall 2.5s ease-out forwards}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+.footer{position:relative;z-index:1;text-align:center;padding:6px;color:var(--muted);font-size:.65rem;border-top:1px solid var(--border)}
+.footer a{color:var(--sos-light);text-decoration:none}
+@media(max-width:1100px){.game-layout{flex-direction:column}.sidebar{width:100%;max-height:none;flex-direction:row;flex-wrap:wrap}.sidebar>.panel{flex:1;min-width:260px}}
+@media(max-width:700px){.board-grid{aspect-ratio:auto;grid-template-rows:repeat(7,55px)}.space-name{font-size:.35rem}}
+</style>
+</head>
+<body>
+<div id="startScreen">
+  <div class="start-content">
+    <svg class="start-logo" viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <text x="28" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text>
+      <g transform="translate(160,68)"><circle cx="0" cy="0" r="48" fill="none" stroke="#fff" stroke-width="18"/><circle cx="0" cy="0" r="48" fill="none" stroke="#d43a3a" stroke-width="18" stroke-dasharray="25 50.7" stroke-dashoffset="0"/><line x1="-32" y1="-32" x2="-44" y2="-44" stroke="#ddd" stroke-width="2"/><line x1="32" y1="-32" x2="44" y2="-44" stroke="#ddd" stroke-width="2"/><line x1="-32" y1="32" x2="-44" y2="44" stroke="#ddd" stroke-width="2"/><line x1="32" y1="32" x2="44" y2="44" stroke="#ddd" stroke-width="2"/></g>
+      <text x="222" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text>
+      <text x="160" y="150" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="#5bb8f5" text-anchor="middle" letter-spacing="4">SPOTONSOLUTIONS</text>
+    </svg>
+    <h1>Agency <span class="hl">Empire</span></h1>
+    <div class="subtitle">A Digital Marketing Board Game</div>
+    <p class="desc">Build your agency empire by buying services, completing property sets, upgrading your offerings, and outearning the competition. Navigate event cards, dodge scope creep, survive crisis mode, and prove your team runs the best agency in town.</p>
+    <div class="team-selector"><label>How many teams?</label>
+      <div class="team-btns"><button class="team-btn" onclick="selectTeamCount(2)">2</button><button class="team-btn active" onclick="selectTeamCount(3)">3</button><button class="team-btn" onclick="selectTeamCount(4)">4</button></div>
+    </div>
+    <button class="btn btn-primary" onclick="startGame()" style="font-size:1.1rem;padding:14px 48px">Start Game</button>
+    <div class="start-links"><button class="btn btn-secondary btn-sm" onclick="showHowToPlay()">How to Play</button></div>
+  </div>
+</div>
+<div id="gameScreen">
+  <div class="header">
+    <a href="index.html" class="back-link"><span>&#8592;</span> Game Center</a>
+    <div class="header-row">
+      <svg class="sos-logo" viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg"><text x="28" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text><g transform="translate(160,68)"><circle cx="0" cy="0" r="48" fill="none" stroke="#fff" stroke-width="18"/><circle cx="0" cy="0" r="48" fill="none" stroke="#d43a3a" stroke-width="18" stroke-dasharray="25 50.7" stroke-dashoffset="0"/></g><text x="222" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text></svg>
+      <div><h1>Agency <span class="hl">Empire</span></h1><div class="sub">A Digital Marketing Board Game</div></div>
+    </div>
+  </div>
+  <div class="game-layout">
+    <div class="board-wrapper"><div id="boardGrid" class="board-grid"></div></div>
+    <div class="sidebar">
+      <div id="teamsPanel" class="panel"></div>
+      <div class="panel"><h3>Activity Log</h3><div id="gameLog" class="log-panel"></div></div>
+      <div class="sidebar-controls"><button class="btn btn-secondary btn-sm" onclick="showHowToPlay()">How to Play</button><button class="btn btn-secondary btn-sm" onclick="confirmNewGame()">New Game</button></div>
+    </div>
+  </div>
+  <div class="footer"><p>SpotOn Solutions Game Center &middot; Built for Elevation &middot; <a href="https://spotonsolutions.com">spotonsolutions.com</a></p></div>
+</div>
+<div id="modalOverlay" class="modal-overlay" style="display:none"><div id="modalContent" class="modal"></div></div>
+<div id="toast" class="toast"></div>
+<div id="confettiContainer"></div>
+
+<script>
+/* ===========================================================
+   CONSTANTS & GAME DATA (unchanged)
+   =========================================================== */
+const TEAM_HEX=['#2a6db5','#d43a3a','#f5c842','#26a69a'];
+const TEAM_ICONS=['📣','🔍','📶','📊'];
+const TEAM_NAMES=['Team 1','Team 2','Team 3','Team 4'];
+const UPGRADE_NAMES=['Owned','Basic Setup','Optimized','Market Leader'];
+const MAX_ROUNDS=15, START_CASH=3000, BOARD_SIZE=28, SURGE_START=13;
+const SPEED={normal:{dieInterval:90,dieTicks:14,moveStep:220,resolveDelay:400},fast:{dieInterval:30,dieTicks:6,moveStep:80,resolveDelay:120}};
+const PROPERTY_SETS={
+  paidMedia:{name:'Paid Media',keys:['googleAds','metaAds','lsa'],color:'#e67e22',icon:'📢'},
+  organic:{name:'Organic',keys:['seo','gbp','contentMarketing'],color:'#43a047',icon:'🌱'},
+  conversion:{name:'Conversion',keys:['cro','landingPages','retargeting'],color:'#9b59b6',icon:'🎯'},
+  operations:{name:'Operations',keys:['email','analytics','aiAutomation','repManagement'],color:'#2a6db5',icon:'⚙️'}
+};
+const PROPERTIES={
+  googleAds:{key:'googleAds',name:'Google Ads',cost:300,upgradeCosts:[150,250,350],payoutLevels:[60,100,150,225],set:'paidMedia'},
+  seo:{key:'seo',name:'SEO',cost:350,upgradeCosts:[175,275,375],payoutLevels:[70,115,170,250],set:'organic'},
+  lsa:{key:'lsa',name:'Local Service Ads',cost:400,upgradeCosts:[200,300,400],payoutLevels:[80,130,190,275],set:'paidMedia'},
+  cro:{key:'cro',name:'Website CRO',cost:300,upgradeCosts:[150,250,350],payoutLevels:[60,100,150,225],set:'conversion'},
+  metaAds:{key:'metaAds',name:'Meta Ads',cost:325,upgradeCosts:[160,260,360],payoutLevels:[65,105,160,235],set:'paidMedia'},
+  contentMarketing:{key:'contentMarketing',name:'Content Marketing',cost:300,upgradeCosts:[150,250,350],payoutLevels:[60,100,150,225],set:'organic'},
+  gbp:{key:'gbp',name:'GBP / Local SEO',cost:375,upgradeCosts:[190,290,390],payoutLevels:[75,120,180,260],set:'organic'},
+  email:{key:'email',name:'Email Marketing',cost:250,upgradeCosts:[125,225,325],payoutLevels:[50,85,130,190],set:'operations'},
+  landingPages:{key:'landingPages',name:'Landing Pages',cost:350,upgradeCosts:[175,275,375],payoutLevels:[70,115,170,250],set:'conversion'},
+  retargeting:{key:'retargeting',name:'Retargeting',cost:300,upgradeCosts:[150,250,350],payoutLevels:[60,100,150,225],set:'conversion'},
+  aiAutomation:{key:'aiAutomation',name:'AI Automation',cost:450,upgradeCosts:[225,325,425],payoutLevels:[90,145,210,300],set:'operations'},
+  repManagement:{key:'repManagement',name:'Reputation Mgmt',cost:325,upgradeCosts:[160,260,360],payoutLevels:[65,105,160,235],set:'operations'},
+  analytics:{key:'analytics',name:'Analytics & Reporting',cost:325,upgradeCosts:[160,260,360],payoutLevels:[65,105,160,235],set:'operations'}
+};
+const BOARD_SPACES=[
+  {id:1,name:'New Client',shortName:'New Client',type:'start',icon:'🚀',description:'Collect income when you pass or land here'},
+  {id:2,name:'Google Ads',shortName:'Google Ads',type:'property',icon:'📢',propertyKey:'googleAds'},
+  {id:3,name:'Event Card',shortName:'EVENT',type:'event',icon:'📋'},
+  {id:4,name:'SEO',shortName:'SEO',type:'property',icon:'🔍',propertyKey:'seo'},
+  {id:5,name:'Scope Creep',shortName:'Scope Creep',type:'penalty',icon:'😰',amount:150,description:'Pay $150'},
+  {id:6,name:'Local Service Ads',shortName:'LSA',type:'property',icon:'📍',propertyKey:'lsa'},
+  {id:7,name:'Event Card',shortName:'EVENT',type:'event',icon:'📋'},
+  {id:8,name:'Website CRO',shortName:'CRO',type:'property',icon:'🎯',propertyKey:'cro'},
+  {id:9,name:'Overhead',shortName:'Overhead',type:'penalty',icon:'💸',amount:200,description:'Pay $200'},
+  {id:10,name:'Meta Ads',shortName:'Meta Ads',type:'property',icon:'📱',propertyKey:'metaAds'},
+  {id:11,name:'Content Marketing',shortName:'Content',type:'property',icon:'✍️',propertyKey:'contentMarketing'},
+  {id:12,name:'Algorithm Update',shortName:'Algorithm',type:'penalty',icon:'⚡',amount:250,description:'Pay $250'},
+  {id:13,name:'Event Card',shortName:'EVENT',type:'event',icon:'📋'},
+  {id:14,name:'GBP / Local SEO',shortName:'GBP',type:'property',icon:'📌',propertyKey:'gbp'},
+  {id:15,name:'Break Room',shortName:'Break Room',type:'safe',icon:'☕',description:'Take a breath. No fires right now.'},
+  {id:16,name:'Email Marketing',shortName:'Email Mktg',type:'property',icon:'✉️',propertyKey:'email'},
+  {id:17,name:'Event Card',shortName:'EVENT',type:'event',icon:'📋'},
+  {id:18,name:'Landing Pages',shortName:'Landing Pgs',type:'property',icon:'📄',propertyKey:'landingPages'},
+  {id:19,name:'Client Ghosted You',shortName:'Ghosted',type:'ghosted',icon:'👻',description:'Lose your next turn'},
+  {id:20,name:'Retargeting',shortName:'Retargeting',type:'property',icon:'🔄',propertyKey:'retargeting'},
+  {id:21,name:'Team Training',shortName:'Training',type:'bonus',icon:'📚',amount:200,description:'Collect $200'},
+  {id:22,name:'Event Card',shortName:'EVENT',type:'event',icon:'📋'},
+  {id:23,name:'AI Automation',shortName:'AI Auto',type:'property',icon:'🤖',propertyKey:'aiAutomation'},
+  {id:24,name:'Client Budget Cut',shortName:'Budget Cut',type:'penalty',icon:'✂️',amount:200,description:'Pay $200'},
+  {id:25,name:'Reputation Mgmt',shortName:'Rep Mgmt',type:'property',icon:'⭐',propertyKey:'repManagement'},
+  {id:26,name:'Crisis Mode',shortName:'CRISIS',type:'crisis',icon:'🔥',description:'Go to Crisis! Miss your next turn.'},
+  {id:27,name:'Analytics & Reporting',shortName:'Analytics',type:'property',icon:'📊',propertyKey:'analytics'},
+  {id:28,name:'Big Referral',shortName:'Referral',type:'bonus',icon:'🌟',amount:300,description:'Collect $300'}
+];
+const EVENT_CARDS=[
+  {id:1,title:'Client left a 5-star review.',type:'gain',value:250},{id:2,title:'Great close rate this month.',type:'gain',value:300},
+  {id:3,title:'Your landing page converted like crazy.',type:'gain',value:350},{id:4,title:'Huge referral partner sends you business.',type:'gain',value:300},
+  {id:5,title:'Your strategist caught a problem early.',type:'gain',value:200},{id:6,title:'You nailed quarterly reporting.',type:'gain',value:200},
+  {id:7,title:'Strong upsell month.',type:'gain',value:250},{id:8,title:'Great retention this quarter.',type:'gain',value:300},
+  {id:9,title:'Team training paid off.',type:'gain',value:150},{id:10,title:'Your case study brought in a new lead.',type:'gain',value:250},
+  {id:11,title:'Google algorithm update shook your rankings.',type:'loss',value:250},{id:12,title:'Scope creep hit hard.',type:'loss',value:200},
+  {id:13,title:'Tracking broke before reporting day.',type:'loss',value:200},{id:14,title:'Bad leads this month.',type:'loss',value:150},
+  {id:15,title:'Client asked for one more thing... and five more after that.',type:'loss',value:200},
+  {id:16,title:'Your PPC spend got sloppy.',type:'loss',value:180},{id:17,title:'Missed follow-up cost you an opportunity.',type:'loss',value:150},
+  {id:18,title:'Reporting delay caused frustration.',type:'loss',value:125},{id:19,title:'Emergency website issue.',type:'loss',value:225},
+  {id:20,title:'Budget pacing mistake.',type:'loss',value:175},{id:21,title:'Move forward 3 spaces.',type:'move',value:3},
+  {id:22,title:'Move back 2 spaces.',type:'move',value:-2},{id:23,title:'Jump to New Client and collect $250.',type:'goToSpace',target:0,value:250},
+  {id:24,title:'Go directly to Break Room.',type:'goToSpace',target:14},{id:25,title:'Lose your next turn due to internal fire drill.',type:'skipTurn'},
+  {id:26,title:'Collect $100 from every other team for being the trusted expert.',type:'collectFromOthers',value:100},
+  {id:27,title:'Pay $100 to every other team because your client copied everyone on the email.',type:'payOthers',value:100},
+  {id:28,title:'Client renews for another year.',type:'gain',value:400},{id:29,title:'Surprise testimonial video performs great.',type:'gain',value:200},
+  {id:30,title:'Your CRM cleanup saved the day.',type:'gain',value:175}
+];
+const OBJECTIVES=[
+  {id:1,name:'Media Mogul',desc:'Own all 3 Paid Media properties',check:t=>PROPERTY_SETS.paidMedia.keys.every(k=>t.properties.includes(k)),progress:t=>{const c=PROPERTY_SETS.paidMedia.keys.filter(k=>t.properties.includes(k)).length;return c+'/3'}},
+  {id:2,name:'Set Collector',desc:'Complete any property set',check:t=>Object.values(PROPERTY_SETS).some(s=>s.keys.every(k=>t.properties.includes(k))),progress:t=>{let best=0;Object.values(PROPERTY_SETS).forEach(s=>{const c=s.keys.filter(k=>t.properties.includes(k)).length;const r=c/s.keys.length;if(r>best)best=r});return Math.round(best*100)+'%'}},
+  {id:3,name:'Market Leader',desc:'Upgrade 2 properties to Market Leader',check:t=>t.properties.filter(k=>state.propertyOwners[k]&&state.propertyOwners[k].level===3).length>=2,progress:t=>{const c=t.properties.filter(k=>state.propertyOwners[k]&&state.propertyOwners[k].level===3).length;return c+'/2'}},
+  {id:4,name:'Lucky Draw',desc:'Earn $500+ from event cards',check:t=>t.eventCardGains>=500,progress:t=>fmt(t.eventCardGains)+'/'+fmt(500)},
+  {id:5,name:'Card Shark',desc:'Land on Event spaces 4+ times',check:t=>t.eventLandings>=4,progress:t=>t.eventLandings+'/4'},
+  {id:6,name:'Steady Ship',desc:'Never skip a turn',check:t=>!t.wasSkipped,progress:t=>t.wasSkipped?'Failed':'On track'}
+];
+
+/* ===========================================================
+   GRID / STATE / HELPERS (unchanged logic)
+   =========================================================== */
+function getGridPosition(i){if(i<9)return{row:0,col:i};if(i<14)return{row:i-8,col:8};if(i<23)return{row:6,col:22-i};return{row:28-i,col:0}}
+let state={teams:[],teamCount:3,currentTeamIndex:0,round:1,phase:'setup',eventDeck:[],eventDeckIndex:0,propertyOwners:{},log:[],fastMode:false,_pendingCard:null};
+let selectedTeamCount=3;
+function shuffleArray(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}}
+function currentTeam(){return state.teams[state.currentTeamIndex]}
+function fmt(n){return '$'+n.toLocaleString()}
+function spd(){return state.fastMode?SPEED.fast:SPEED.normal}
+function teamSpan(t){return`<span class="log-team" style="color:${TEAM_HEX[t.index]}">${t.name}</span>`}
+function moneySpan(a){return a>0?`<span class="log-money-pos">+${fmt(a)}</span>`:a<0?`<span class="log-money-neg">${fmt(a)}</span>`:fmt(0)}
+function hasCompleteSet(ti,sk){const s=PROPERTY_SETS[sk];if(!s)return false;return s.keys.every(k=>{const o=state.propertyOwners[k];return o&&o.teamIndex===ti})}
+function calculateRent(pk,oi){const p=PROPERTIES[pk],o=state.propertyOwners[pk];if(!o)return{rent:0,bonuses:[]};let r=p.payoutLevels[o.level],b=[];if(p.set&&hasCompleteSet(oi,p.set)){r=Math.floor(r*1.5);b.push('Set Bonus')}if(state.round>=SURGE_START){r=Math.floor(r*1.25);b.push('Market Surge')}return{rent:r,bonuses:b}}
+function calculateStartIncome(t){return 250+25*t.properties.length}
+function getTeamCompletedSets(t){const s=[];Object.entries(PROPERTY_SETS).forEach(([k,v])=>{if(v.keys.every(pk=>t.properties.includes(pk)))s.push(v)});return s}
+
+/* UX1: Action hint text */
+function getActionHint(){
+  switch(state.phase){
+    case 'waitRoll':return'🎲 Roll the dice';case 'rolling':return'Rolling…';case 'moving':return'Moving…';
+    case 'resolving':return'Resolving space…';case 'turnEnd':return'👉 Click Next Turn';case 'gameOver':return'Game Over!';
+    default:return'';
+  }
+}
+
+/* UX2b: Big center-screen money splash */
+/* Landing splash — big center announcement of where you landed */
+function showLandingSplash(spaceIdx,callback){
+  const space=BOARD_SPACES[spaceIdx];
+  const existing=document.querySelector('.landing-splash');if(existing)existing.remove();
+  const el=document.createElement('div');el.className='landing-splash';
+  const typeLabels={property:'Property',event:'Event Card',penalty:'Penalty',bonus:'Bonus',safe:'Safe Space',start:'New Client',crisis:'Crisis!',ghosted:'Ghosted!'};
+  const typeLabel=typeLabels[space.type]||space.type;
+  el.innerHTML=`<div class="land-bg"></div>
+    <div class="land-icon">${space.icon}</div>
+    <div class="land-name">${space.name}</div>
+    <div class="land-type t-${space.type}">${typeLabel}</div>`;
+  document.body.appendChild(el);
+  const stayDur=state.fastMode?800:1500;
+  setTimeout(()=>el.classList.add('out'),stayDur);
+  setTimeout(()=>{el.remove();if(callback)callback()},stayDur+300);
+}
+
+function showMoneySplash(teamIdx,amount,label){
+  const existing=document.querySelector('.money-splash');if(existing)existing.remove();
+  const isPos=amount>=0;
+  const el=document.createElement('div');el.className='money-splash';
+  const dur=state.fastMode?800:1400;
+  el.innerHTML=`<div class="splash-bg ${isPos?'pos':'neg'}"></div>
+    <div class="splash-amount ${isPos?'pos':'neg'}">${isPos?'+':''}${fmt(Math.abs(amount))}</div>
+    <div class="splash-label">${label||''}</div>`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.classList.add('out'),dur-400);
+  setTimeout(()=>el.remove(),dur);
+}
+
+/* UX2: Floating money feedback */
+function showMoneyFloat(teamIdx,amount){
+  const cards=document.querySelectorAll('.team-card');
+  if(!cards[teamIdx])return;
+  const el=document.createElement('div');
+  el.className='money-float '+(amount>=0?'pos':'neg');
+  el.textContent=(amount>=0?'+':'')+fmt(Math.abs(amount));
+  if(state.fastMode)el.style.animationDuration='.5s';
+  cards[teamIdx].appendChild(el);
+  setTimeout(()=>el.remove(),state.fastMode?550:1200);
+}
+
+/* UX7: Set completion flash on board */
+function flashSetSpaces(setKey){
+  const s=PROPERTY_SETS[setKey];if(!s)return;
+  s.keys.forEach(pk=>{
+    BOARD_SPACES.forEach((sp,idx)=>{if(sp.propertyKey===pk){const el=document.getElementById('space-'+idx);if(el){el.classList.add('set-flash');setTimeout(()=>el.classList.remove('set-flash'),700)}}});
+  });
+}
+
+/* UX8: Objective progress */
+function getObjProgress(t){
+  if(!t.objective)return'';
+  const o=OBJECTIVES.find(x=>x.id===t.objective.id);
+  return o&&o.progress?o.progress(t):'';
+}
+
+/* ===========================================================
+   INIT
+   =========================================================== */
+function selectTeamCount(n){selectedTeamCount=n;document.querySelectorAll('.team-btn').forEach((b,i)=>b.classList.toggle('active',[2,3,4][i]===n))}
+function startGame(){
+  state.teamCount=selectedTeamCount;state.teams=[];
+  const so=[...OBJECTIVES];shuffleArray(so);
+  for(let i=0;i<state.teamCount;i++) state.teams.push({index:i,name:TEAM_NAMES[i],cash:START_CASH,position:0,skipNextTurn:false,properties:[],eventCardGains:0,eventLandings:0,wasSkipped:false,objective:so[i%so.length],objectiveCompleted:false});
+  state.currentTeamIndex=0;state.round=1;state.phase='waitRoll';state.propertyOwners={};state.log=[];state._pendingCard=null;
+  state.eventDeck=[...EVENT_CARDS];shuffleArray(state.eventDeck);state.eventDeckIndex=0;
+  document.getElementById('startScreen').style.display='none';document.getElementById('gameScreen').style.display='block';
+  renderBoard();renderTeams();renderLog();updateTurnUI();
+  addLog('🎮 Game started with '+state.teamCount+' teams. Each team has '+fmt(START_CASH)+'.');
+  addLog('🎲 '+currentTeam().name+"'s turn — Roll the dice!");
+}
+function confirmNewGame(){showModal('<h2>New Game?</h2><p class="modal-sub">This will end the current game.</p><div class="modal-btns"><button class="btn btn-red" onclick="resetToStart()">Yes, New Game</button><button class="btn btn-secondary" onclick="hideModal()">Cancel</button></div>')}
+function resetToStart(){hideModal();document.getElementById('gameScreen').style.display='none';document.getElementById('startScreen').style.display='flex';state.phase='setup'}
+function toggleFastMode(){state.fastMode=!state.fastMode;renderBoard()}
+
+/* ===========================================================
+   RENDER BOARD
+   =========================================================== */
+function renderBoard(){
+  const grid=document.getElementById('boardGrid');grid.innerHTML='';
+  BOARD_SPACES.forEach((space,idx)=>{
+    const pos=getGridPosition(idx),cell=document.createElement('div');
+    cell.className='space-cell'+(space.type==='start'?' start-space':'');cell.id='space-'+idx;
+    cell.style.gridColumn=pos.col+1;cell.style.gridRow=pos.row+1;
+    const strip=document.createElement('div');
+    strip.className='space-strip type-'+space.type;
+    const isOwned=space.propertyKey&&state.propertyOwners[space.propertyKey];
+    // Properties always show set color as their strip
+    if(space.propertyKey){
+      const prop=PROPERTIES[space.propertyKey];
+      const setInfo=PROPERTY_SETS[prop.set];
+      if(setInfo){strip.style.background=setInfo.color;strip.className='space-strip set-strip'}
+      if(isOwned){
+        cell.classList.add('owned-space');
+        // Add owner dot in corner
+        const dot=document.createElement('div');dot.className='owner-dot';
+        dot.style.background=TEAM_HEX[state.propertyOwners[space.propertyKey].teamIndex];
+        cell.appendChild(dot);
+      }else{cell.classList.add('unowned-prop')}
+    }
+    cell.appendChild(strip);
+    const ic=document.createElement('div');ic.className='space-icon';ic.textContent=space.icon;cell.appendChild(ic);
+    const nm=document.createElement('div');nm.className='space-name';nm.textContent=space.shortName;cell.appendChild(nm);
+    if(space.propertyKey){
+      const prop=PROPERTIES[space.propertyKey],owner=state.propertyOwners[space.propertyKey];
+      if(!owner){const c=document.createElement('div');c.className='space-cost';c.textContent=fmt(prop.cost);cell.appendChild(c)}
+      else{const lv=document.createElement('div');lv.className='space-level';for(let l=0;l<3;l++){const d=document.createElement('div');d.className='space-level-dot'+(l<owner.level?' filled':'');lv.appendChild(d)}cell.appendChild(lv)}
+    }
+    const toks=document.createElement('div');toks.className='space-tokens';
+    state.teams.forEach(t=>{if(t.position===idx){const tk=document.createElement('div');
+      tk.className='token team-'+t.index+(t.index===state.currentTeamIndex&&state.phase!=='gameOver'?' active-tok':'');
+      tk.textContent=TEAM_ICONS[t.index];toks.appendChild(tk)}});
+    cell.appendChild(toks);
+    cell.onclick=()=>showSpaceInfo(idx);
+    grid.appendChild(cell);
+  });
+  const c=document.createElement('div');c.className='board-center';
+  c.innerHTML=`
+    <div class="center-title">Agency <span style="color:var(--sos-light)">Empire</span></div>
+    <div class="center-subtitle">Digital Marketing Board Game</div>
+    <div id="turnInfo" class="turn-info"></div>
+    <div id="actionHint" class="action-hint"></div>
+    <div class="die-area"><div class="die-wrapper"><div id="die1" class="die">?</div><span class="die-plus">+</span><div id="die2" class="die">?</div><span class="die-eq">=</span><span id="dieTotal" class="die-total">?</span><span id="doublesBadge" class="doubles-badge" style="display:none">Doubles!</span></div></div>
+    <div id="centerControls" class="center-controls"></div>
+    <div id="roundInfo" class="round-info"></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="fast-toggle" onclick="toggleFastMode()"><div class="toggle-track${state.fastMode?' on':''}"><div class="toggle-knob"></div></div> Fast Mode</div>
+      ${state.fastMode?'<span class="fast-badge">⚡ FAST</span>':''}
+    </div>`;
+  grid.appendChild(c);
+  updateTurnUI();
+}
+
+/* ===========================================================
+   RENDER TEAMS
+   =========================================================== */
+function renderTeams(){
+  const panel=document.getElementById('teamsPanel');if(!panel)return;
+  let html='<h3>Teams</h3>';
+  state.teams.forEach((t,i)=>{
+    const isActive=i===state.currentTeamIndex&&state.phase!=='gameOver';
+    html+=`<div class="team-card${isActive?' active':''}" id="tc-${i}" style="border-color:${isActive?TEAM_HEX[i]:'var(--border)'};cursor:pointer" onclick="showTeamDetail(${i})">
+      <div class="tc-header"><div class="tc-color" style="background:${TEAM_HEX[i]}">${TEAM_ICONS[i]}</div><div class="tc-name">${t.name}</div>
+      <div class="tc-cash" style="color:${t.cash<0?'var(--sos-red)':'var(--sos-light)'}">${fmt(t.cash)}</div></div>`;
+    if(t.skipNextTurn) html+=`<div class="tc-status">⏭ Skipping Next Turn</div>`;
+    if(t.properties.length>0){
+      html+='<div class="tc-props">';
+      t.properties.forEach(pk=>{const p=PROPERTIES[pk],o=state.propertyOwners[pk];
+        html+=`<span class="tc-prop">${p.name}${o&&o.level>0?' <span class="lv">★'+o.level+'</span>':''}</span>`});
+      html+='</div>';
+    }
+    const sets=getTeamCompletedSets(t);
+    if(sets.length>0){html+='<div style="margin-top:3px">';sets.forEach(s=>{html+=`<span class="set-complete" style="background:${s.color}15;color:${s.color};border:1px solid ${s.color}30">${s.icon} ${s.name}</span>`});html+='</div>'}
+    if(t.objective){const prog=getObjProgress(t);html+=`<div class="tc-objective${t.objectiveCompleted?' completed':''}">${t.objectiveCompleted?'✅':'🎯'} ${t.objective.desc}${prog?' <span class="obj-progress">('+prog+')</span>':''}</div>`}
+    html+='</div>';
+  });
+  panel.innerHTML=html;
+}
+
+/* ===========================================================
+   LOG (UX5: icons added via addLog calls)
+   =========================================================== */
+function addLog(m){state.log.unshift(m);if(state.log.length>60)state.log.pop();renderLog()}
+function renderLog(){const el=document.getElementById('gameLog');if(el)el.innerHTML=state.log.map(m=>`<div class="log-entry">${m}</div>`).join('')}
+
+/* ===========================================================
+   TURN UI (UX1: action hint)
+   =========================================================== */
+function updateTurnUI(){
+  const ti=document.getElementById('turnInfo'),ctrl=document.getElementById('centerControls'),ri=document.getElementById('roundInfo'),ah=document.getElementById('actionHint');
+  if(!ti||!ctrl)return;
+  const t=currentTeam();
+  ti.textContent=t.name+"'s Turn";ti.style.borderColor=TEAM_HEX[t.index];ti.style.color=TEAM_HEX[t.index];ti.style.background=TEAM_HEX[t.index]+'20';
+  if(ah)ah.textContent=getActionHint();
+  if(ri){let rTxt='Round '+state.round+' / '+MAX_ROUNDS;if(state.round>=SURGE_START)rTxt+=' <span class="surge-badge">Market Surge +25%</span>';ri.innerHTML=rTxt}
+  if(state.phase==='waitRoll')ctrl.innerHTML='<button class="btn-roll" onclick="rollDice()">Roll</button>';
+  else if(state.phase==='turnEnd')ctrl.innerHTML='<button class="btn-next" onclick="nextTurn()">Next Turn</button>';
+  else ctrl.innerHTML='';
+}
+
+/* ===========================================================
+   DICE ROLL (UX3: pop + doubles glow)
+   =========================================================== */
+function rollDice(){
+  if(state.phase!=='waitRoll')return;
+  state.phase='rolling';updateTurnUI();
+  const d1=document.getElementById('die1'),d2=document.getElementById('die2'),tot=document.getElementById('dieTotal'),db=document.getElementById('doublesBadge');
+  d1.className='die rolling';d2.className='die rolling';db.style.display='none';tot.textContent='?';tot.className='die-total';
+  const s=spd();let ticks=0;
+  const iv=setInterval(()=>{
+    d1.textContent=Math.floor(Math.random()*6)+1;d2.textContent=Math.floor(Math.random()*6)+1;ticks++;
+    if(ticks>=s.dieTicks){clearInterval(iv);
+      const r1=Math.floor(Math.random()*6)+1,r2=Math.floor(Math.random()*6)+1;
+      d1.textContent=r1;d2.textContent=r2;d1.className='die landed';d2.className='die landed';
+      const total=r1+r2;tot.textContent=total;
+      const doubles=r1===r2;
+      tot.className='die-total pop'+(doubles?' doubles-glow':'');
+      if(doubles)db.style.display='inline';
+      addLog('🎲 '+teamSpan(currentTeam())+' rolled '+r1+' + '+r2+' = <span class="log-action">'+total+'</span>'+(doubles?' (Doubles!)':''));
+      setTimeout(()=>moveToken(total),s.resolveDelay);
+    }
+  },s.dieInterval);
+}
+
+/* ===========================================================
+   TOKEN MOVEMENT
+   =========================================================== */
+function moveToken(steps){
+  state.phase='moving';updateTurnUI();const team=currentTeam(),startPos=team.position;
+  let moved=0,passedStart=false;const s=spd();
+  const iv=setInterval(()=>{
+    moved++;team.position=(startPos+moved)%BOARD_SIZE;
+    if(team.position===0&&moved<steps)passedStart=true;
+    renderBoard();highlightSpace(team.position);
+    if(moved>=steps){clearInterval(iv);
+      if(passedStart){const inc=calculateStartIncome(team);team.cash+=inc;
+        addLog('🚀 '+teamSpan(team)+' passed New Client — '+moneySpan(inc)+(team.properties.length>0?' ('+team.properties.length+' properties)':''));
+        showToast('Passed Start: +'+fmt(inc)+'!','positive');showMoneySplash(team.index,inc,'New Client');showMoneyFloat(team.index,inc);renderTeams()}
+      showLandingSplash(team.position,()=>resolveSpace(team,team.position,false))}
+  },s.moveStep);
+}
+function highlightSpace(idx){document.querySelectorAll('.space-cell').forEach(c=>c.classList.remove('active-space'));const c=document.getElementById('space-'+idx);if(c)c.classList.add('active-space')}
+
+/* ===========================================================
+   SPACE RESOLUTION (UX2: money floats added)
+   =========================================================== */
+function resolveSpace(team,si,fromCard){
+  state.phase='resolving';updateTurnUI();const space=BOARD_SPACES[si];
+  switch(space.type){
+    case 'start':
+      if(!fromCard){const inc=calculateStartIncome(team);team.cash+=inc;
+        addLog('🚀 '+teamSpan(team)+' landed on New Client — '+moneySpan(inc));
+        showToast('New Client: +'+fmt(inc)+'!','positive');showMoneyFloat(team.index,inc);renderTeams()}
+      finishResolution();break;
+    case 'property':handleProperty(team,space);break;
+    case 'event':
+      team.eventLandings++;
+      if(fromCard){addLog('📋 '+teamSpan(team)+' landed on Event space (no chain draw)');finishResolution()}
+      else handleEventCard(team);break;
+    case 'penalty':
+      team.cash-=space.amount;addLog('⚠️ '+teamSpan(team)+' hit '+space.name+' — '+moneySpan(-space.amount));
+      showToast(space.name+': -$'+space.amount,'negative');showMoneySplash(team.index,-space.amount,space.name);showMoneyFloat(team.index,-space.amount);renderTeams();finishResolution();break;
+    case 'safe':
+      addLog('☕ '+teamSpan(team)+' is in the Break Room. '+space.description);
+      showToast('Break Room — No fires right now.','neutral');finishResolution();break;
+    case 'bonus':
+      team.cash+=space.amount;addLog('🎉 '+teamSpan(team)+' got '+space.name+' — '+moneySpan(space.amount));
+      showToast(space.name+': +$'+space.amount+'!','positive');showMoneySplash(team.index,space.amount,space.name);showMoneyFloat(team.index,space.amount);renderTeams();finishResolution();break;
+    case 'ghosted':
+      team.skipNextTurn=true;team.wasSkipped=true;
+      addLog('👻 '+teamSpan(team)+' got ghosted! Skipping next turn.');
+      showToast('Client Ghosted You!','negative');renderTeams();finishResolution();break;
+    case 'crisis':
+      team.skipNextTurn=true;team.wasSkipped=true;
+      addLog('🔥 '+teamSpan(team)+' entered <span class="log-money-neg">CRISIS MODE</span>!');
+      showToast('CRISIS MODE!','negative');renderTeams();finishResolution();break;
+    default:finishResolution();
+  }
+}
+function finishResolution(){state.phase='turnEnd';renderBoard();renderTeams();updateTurnUI()}
+
+/* ===========================================================
+   PROPERTY HANDLING
+   =========================================================== */
+function handleProperty(team,space){
+  const prop=PROPERTIES[space.propertyKey],owner=state.propertyOwners[space.propertyKey];
+  if(!owner)showPropertyBuyModal(team,prop);
+  else if(owner.teamIndex===team.index){if(owner.level<3)showPropertyUpgradeModal(team,prop,owner);else{addLog(teamSpan(team)+' landed on own '+prop.name+' (Max)');finishResolution()}}
+  else{
+    const{rent,bonuses}=calculateRent(space.propertyKey,owner.teamIndex);
+    const ownerTeam=state.teams[owner.teamIndex];team.cash-=rent;ownerTeam.cash+=rent;
+    let bStr=bonuses.length>0?' <span class="log-bonus">('+bonuses.join(', ')+')</span>':'';
+    addLog('💸 '+teamSpan(team)+' paid '+teamSpan(ownerTeam)+' '+moneySpan(-rent)+' for '+prop.name+bStr);
+    showToast(team.name+' pays '+ownerTeam.name+' '+fmt(rent),'negative');
+    showMoneySplash(team.index,-rent,team.name+' → '+ownerTeam.name);
+    showMoneyFloat(team.index,-rent);showMoneyFloat(ownerTeam.index,rent);
+    renderTeams();finishResolution();
+  }
+}
+function showPropertyBuyModal(team,prop){
+  const can=team.cash>=prop.cost,setInfo=PROPERTY_SETS[prop.set];
+  let rows='';const ln=['Owned (Base)','Basic Setup','Optimized','Market Leader'];
+  for(let i=0;i<4;i++){const cost=i===0?prop.cost:prop.upgradeCosts[i-1];rows+=`<tr${i===0?' class="current-row"':''}><td class="level-name">${ln[i]}</td><td class="level-cost">${i===0?fmt(prop.cost)+' (buy)':fmt(cost)}</td><td class="level-payout">${fmt(prop.payoutLevels[i])}/visit</td></tr>`}
+  showModal(`<h2>${prop.name}</h2><p class="modal-sub">Available! ${setInfo?'<span style="color:'+setInfo.color+'">'+setInfo.icon+' '+setInfo.name+' Set</span>':''}</p>
+    <div class="prop-cost">${fmt(prop.cost)}</div><div class="prop-payout">Base Payout: ${fmt(prop.payoutLevels[0])} per visit</div>
+    <table class="upgrade-table"><thead><tr><th>Level</th><th>Cost</th><th>Payout</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="modal-btns"><button class="btn btn-primary" ${can?`onclick="buyProperty('${prop.key}')"`:' disabled'}>${can?'Buy':"Can't Afford"}</button>
+    <button class="btn btn-secondary" onclick="passProperty()">Pass</button></div>`)
+}
+function buyProperty(key){
+  hideModal();const t=currentTeam(),p=PROPERTIES[key];t.cash-=p.cost;t.properties.push(key);
+  state.propertyOwners[key]={teamIndex:t.index,level:0};
+  addLog('📢 '+teamSpan(t)+' bought <span class="log-action">'+p.name+'</span> for '+moneySpan(-p.cost));
+  showMoneyFloat(t.index,-p.cost);
+  if(p.set&&hasCompleteSet(t.index,p.set)){const s=PROPERTY_SETS[p.set];
+    addLog('🏆 '+teamSpan(t)+' completed the <span class="log-bonus">'+s.icon+' '+s.name+' Set!</span> (+50% payout)');
+    showToast(s.name+' Set Complete!','positive');flashSetSpaces(p.set);
+  }else showToast('Purchased '+p.name+'!','positive');
+  renderTeams();finishResolution();
+}
+function passProperty(){hideModal();addLog(teamSpan(currentTeam())+' passed.');finishResolution()}
+function showPropertyUpgradeModal(team,prop,owner){
+  const nl=owner.level+1,cost=prop.upgradeCosts[nl-1],can=team.cash>=cost;
+  showModal(`<h2>${prop.name}</h2><p class="modal-sub">Your property — ${UPGRADE_NAMES[owner.level]}</p>
+    <div style="text-align:center;margin:10px 0"><div style="color:var(--muted);font-size:.8rem">Current Payout</div>
+    <div style="color:var(--green);font-size:1.2rem;font-weight:800">${fmt(prop.payoutLevels[owner.level])}/visit</div></div>
+    <div style="text-align:center;margin:10px 0;padding:14px;background:rgba(91,184,245,.08);border-radius:8px;border:1px solid var(--border)">
+    <div style="color:var(--sos-light);font-size:.75rem;text-transform:uppercase;letter-spacing:1px">Upgrade to ${UPGRADE_NAMES[nl]}</div>
+    <div style="color:var(--gold);font-size:1.5rem;font-weight:900;margin:4px 0">${fmt(cost)}</div>
+    <div style="color:var(--green);font-size:1rem;font-weight:700">New Payout: ${fmt(prop.payoutLevels[nl])}/visit</div></div>
+    <div class="modal-btns"><button class="btn btn-gold" ${can?`onclick="upgradeProperty('${prop.key}')"`:' disabled'}>${can?'Upgrade':"Can't Afford"}</button>
+    <button class="btn btn-secondary" onclick="skipUpgrade()">Skip</button></div>`)
+}
+function upgradeProperty(key){
+  hideModal();const t=currentTeam(),p=PROPERTIES[key],o=state.propertyOwners[key],nl=o.level+1,cost=p.upgradeCosts[nl-1];
+  t.cash-=cost;o.level=nl;
+  addLog('⬆️ '+teamSpan(t)+' upgraded <span class="log-action">'+p.name+'</span> to '+UPGRADE_NAMES[nl]+' for '+moneySpan(-cost));
+  showToast(p.name+' → '+UPGRADE_NAMES[nl]+'!','positive');showMoneyFloat(t.index,-cost);renderTeams();finishResolution();
+}
+function skipUpgrade(){hideModal();addLog(teamSpan(currentTeam())+' skipped upgrade.');finishResolution()}
+
+/* ===========================================================
+   EVENT CARDS
+   =========================================================== */
+function drawNextCard(){if(state.eventDeckIndex>=state.eventDeck.length){shuffleArray(state.eventDeck);state.eventDeckIndex=0}return state.eventDeck[state.eventDeckIndex++]}
+function handleEventCard(team){
+  const card=drawNextCard();addLog('📋 '+teamSpan(team)+' drew an Event Card');
+  // Show card-back drawing animation first
+  showModal(`<div class="card-draw-display">
+    <div class="card-back"><div class="card-back-icon">📋</div><div class="card-back-label">Event Card</div></div>
+    <div class="card-draw-text">Drawing card…</div></div>`);
+  const delay=state.fastMode?700:1400;
+  setTimeout(()=>showEventCardModal(team,card),delay);
+}
+function showEventCardModal(team,card){
+  let txt='',cls='neutral',icon='📋';
+  switch(card.type){
+    case 'gain':txt='+'+fmt(card.value);cls='positive';icon='🎉';break;case 'loss':txt='-'+fmt(card.value);cls='negative';icon='😬';break;
+    case 'move':txt=card.value>0?'Move forward '+card.value+' spaces':'Move back '+Math.abs(card.value)+' spaces';icon=card.value>0?'⏩':'⏪';break;
+    case 'goToSpace':txt=card.value?'Go to Start + '+fmt(card.value):'Go to Break Room';icon='🎯';break;
+    case 'skipTurn':txt='Skip next turn!';cls='negative';icon='🚫';break;
+    case 'collectFromOthers':txt='Collect '+fmt(card.value)+' from each team';cls='positive';icon='💪';break;
+    case 'payOthers':txt='Pay '+fmt(card.value)+' to each team';cls='negative';icon='😅';break;
+  }
+  showModal(`<div class="event-card-display"><div class="event-icon">${icon}</div>
+    <div style="color:var(--purple);font-size:.7rem;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;font-weight:700">Event Card</div>
+    <div class="event-title">${card.title}</div><div class="event-effect ${cls}">${txt}</div></div>
+    <div class="modal-btns"><button class="btn btn-primary" onclick="resolveEventCard()">Continue</button></div>`);
+  state._pendingCard=card;
+}
+function resolveEventCard(){
+  hideModal();const t=currentTeam(),card=state._pendingCard;if(!card){finishResolution();return}state._pendingCard=null;const s=spd();
+  switch(card.type){
+    case 'gain':t.cash+=card.value;t.eventCardGains+=card.value;addLog('🎉 '+teamSpan(t)+' — '+card.title+' '+moneySpan(card.value));showToast('+'+fmt(card.value),'positive');showMoneySplash(t.index,card.value,'Event Card');showMoneyFloat(t.index,card.value);renderTeams();finishResolution();break;
+    case 'loss':t.cash-=card.value;addLog('😬 '+teamSpan(t)+' — '+card.title+' '+moneySpan(-card.value));showToast('-'+fmt(card.value),'negative');showMoneySplash(t.index,-card.value,'Event Card');showMoneyFloat(t.index,-card.value);renderTeams();finishResolution();break;
+    case 'move':{let np=t.position+card.value,ps=false;if(np>=BOARD_SIZE){ps=true;np%=BOARD_SIZE}else if(np<0){np=BOARD_SIZE+np}t.position=np;
+      if(ps){const inc=calculateStartIncome(t);t.cash+=inc;addLog('🚀 '+teamSpan(t)+' passed New Client — '+moneySpan(inc));showMoneyFloat(t.index,inc)}
+      addLog('➡️ '+teamSpan(t)+' moved to '+BOARD_SPACES[np].name);renderBoard();renderTeams();highlightSpace(np);
+      showLandingSplash(np,()=>resolveSpace(t,np,true));break}
+    case 'goToSpace':{t.position=card.target;
+      if(card.value){t.cash+=card.value;addLog('🎯 '+teamSpan(t)+' jumped to '+BOARD_SPACES[card.target].name+' — '+moneySpan(card.value));showToast('+'+fmt(card.value),'positive');showMoneyFloat(t.index,card.value)}
+      else addLog('🎯 '+teamSpan(t)+' moved to '+BOARD_SPACES[card.target].name);
+      renderBoard();renderTeams();highlightSpace(card.target);showLandingSplash(card.target,()=>resolveSpace(t,card.target,true));break}
+    case 'skipTurn':t.skipNextTurn=true;t.wasSkipped=true;addLog('🚫 '+teamSpan(t)+' will skip next turn!');showToast('Skip next turn!','negative');renderTeams();finishResolution();break;
+    case 'collectFromOthers':state.teams.forEach(o=>{if(o.index!==t.index){o.cash-=card.value;t.cash+=card.value;showMoneyFloat(o.index,-card.value)}});t.eventCardGains+=card.value*(state.teamCount-1);
+      addLog('💪 '+teamSpan(t)+' collected '+fmt(card.value)+' from each team');showToast('Collected!','positive');showMoneyFloat(t.index,card.value*(state.teamCount-1));renderTeams();finishResolution();break;
+    case 'payOthers':state.teams.forEach(o=>{if(o.index!==t.index){o.cash+=card.value;t.cash-=card.value;showMoneyFloat(o.index,card.value)}});
+      addLog('😅 '+teamSpan(t)+' paid '+fmt(card.value)+' to each team');showToast('Paid all!','negative');showMoneyFloat(t.index,-card.value*(state.teamCount-1));renderTeams();finishResolution();break;
+    default:finishResolution();
+  }
+}
+
+/* ===========================================================
+   TURN MANAGEMENT
+   =========================================================== */
+function nextTurn(){
+  if(state.phase!=='turnEnd')return;
+  state.currentTeamIndex++;
+  if(state.currentTeamIndex>=state.teams.length){state.currentTeamIndex=0;state.round++;
+    if(state.round>MAX_ROUNDS){endGame();return}
+    addLog('<span class="log-action">— Round '+state.round+' —</span>');
+    if(state.round===SURGE_START)addLog('🔥 <span class="log-bonus">Market Surge activated! All rents +25%</span>')}
+  const team=currentTeam();
+  if(team.skipNextTurn){team.skipNextTurn=false;addLog('⏭ '+teamSpan(team)+' skips this turn!');renderTeams();renderBoard();state.phase='turnEnd';updateTurnUI();return}
+  state.phase='waitRoll';
+  const d1=document.getElementById('die1'),d2=document.getElementById('die2'),dt=document.getElementById('dieTotal'),db=document.getElementById('doublesBadge');
+  if(d1){d1.textContent='?';d1.className='die'}if(d2){d2.textContent='?';d2.className='die'}if(dt){dt.textContent='?';dt.className='die-total'}if(db)db.style.display='none';
+  renderBoard();renderTeams();updateTurnUI();addLog('🎲 '+teamSpan(team)+"'s turn — Roll the dice!");
+}
+
+/* ===========================================================
+   GAME END
+   =========================================================== */
+function endGame(){
+  state.phase='gameOver';
+  state.teams.forEach(t=>{if(t.objective&&t.objective.check(t)){t.cash+=500;t.objectiveCompleted=true;addLog('🏆 '+teamSpan(t)+' completed objective "'+t.objective.name+'" — <span class="log-money-pos">+$500</span>')}});
+  renderTeams();updateTurnUI();
+  const sorted=[...state.teams].sort((a,b)=>b.cash-a.cash),winner=sorted[0];
+  addLog('🎮 <span class="log-action">GAME OVER!</span> '+teamSpan(winner)+' wins with '+fmt(winner.cash)+'!');
+  let sHTML='';
+  sorted.forEach((t,i)=>{const medal=i===0?'🏆':i===1?'🥈':i===2?'🥉':'#'+(i+1);
+    const objTxt=t.objective?(t.objectiveCompleted?'✅ '+t.objective.name+' (+$500)':'❌ '+t.objective.name):'';
+    sHTML+=`<div class="standing-row"><div class="standing-rank">${medal}</div><div class="standing-color" style="background:${TEAM_HEX[t.index]}"></div>
+      <div class="standing-name">${t.name}</div><div class="standing-cash" style="color:${i===0?'var(--gold)':'var(--sos-light)'}">${fmt(t.cash)}</div>
+      ${objTxt?`<div class="standing-obj ${t.objectiveCompleted?'done':'miss'}">${objTxt}</div>`:''}</div>`});
+  showModal(`<div class="winner-display"><div class="winner-trophy">🏆</div>
+    <div style="color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:2px">Game Over — Winner</div>
+    <div class="winner-name" style="color:${TEAM_HEX[winner.index]}">${winner.name}</div>
+    <div class="winner-cash">${fmt(winner.cash)}</div></div>
+    <div class="final-standings"><h3 style="color:var(--muted);font-size:.7rem;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px">Final Standings</h3>${sHTML}</div>
+    <div class="modal-btns"><button class="btn btn-primary" onclick="hideModal();resetToStart()">New Game</button>
+    <button class="btn btn-secondary" onclick="hideModal()">View Board</button></div>`);
+  launchConfetti();
+}
+
+/* ===========================================================
+   SPACE INFO / MODALS / TOAST / CONFETTI / HOW TO PLAY
+   =========================================================== */
+/* ===========================================================
+   TEAM DETAIL MODAL (click team card)
+   =========================================================== */
+function showTeamDetail(i){
+  const t=state.teams[i];if(!t)return;
+  // Properties grouped by set
+  let propsHTML='';
+  if(t.properties.length===0) propsHTML='<div class="td-empty">No properties owned yet</div>';
+  else{
+    t.properties.forEach(pk=>{
+      const p=PROPERTIES[pk],o=state.propertyOwners[pk],setInfo=PROPERTY_SETS[p.set];
+      const {rent,bonuses}=calculateRent(pk,i);
+      const lvl=o?o.level:0;
+      propsHTML+=`<div class="td-prop-row">
+        <div class="td-prop-color" style="background:${setInfo?setInfo.color:'var(--sos-light)'}"></div>
+        <div class="td-prop-info"><div class="td-prop-name">${p.name}</div>
+        <div class="td-prop-level">${UPGRADE_NAMES[lvl]}${lvl<3?' — Next upgrade: '+fmt(p.upgradeCosts[lvl]):' (MAX)'}</div></div>
+        <div class="td-prop-payout">${fmt(rent)}/visit${bonuses.length>0?'<div style="font-size:.55rem;color:var(--orange)">'+bonuses.join(', ')+'</div>':''}</div></div>`;
+    });
+  }
+  // Set progress
+  let setsHTML='';
+  Object.entries(PROPERTY_SETS).forEach(([sk,s])=>{
+    const owned=s.keys.filter(k=>t.properties.includes(k)).length;
+    const total=s.keys.length;
+    const complete=owned===total;
+    setsHTML+=`<div class="td-set-row ${complete?'complete':'incomplete'}">
+      <div class="td-set-icon">${s.icon}</div>
+      <div class="td-set-name">${s.name}${complete?' — +50% Rent!':''}</div>
+      <div class="td-set-count ${complete?'done':'partial'}">${owned}/${total}</div></div>`;
+  });
+  // Objective
+  let objHTML='';
+  if(t.objective){
+    const prog=getObjProgress(t);
+    const done=t.objectiveCompleted;
+    objHTML=`<div class="td-obj ${done?'done':'active'}">${done?'✅':'🎯'} <strong>${t.objective.name}:</strong> ${t.objective.desc}<br><span style="font-size:.7rem;margin-top:2px;display:inline-block">${done?'Completed! +$500':'Progress: '+prog}</span></div>`;
+  }
+  showModal(`
+    <div class="team-detail-header">
+      <div class="td-icon" style="background:${TEAM_HEX[i]}">${TEAM_ICONS[i]}</div>
+      <div class="td-info"><div class="td-name">${t.name}</div><div class="td-sub">${t.properties.length} Properties · Position ${t.position+1}</div></div>
+      <div class="td-cash" style="color:${t.cash<0?'var(--sos-red)':'var(--sos-light)'}">${fmt(t.cash)}</div>
+    </div>
+    <div class="td-section"><h4>Properties (${t.properties.length})</h4>${propsHTML}</div>
+    <div class="td-section"><h4>Set Progress</h4>${setsHTML}</div>
+    ${objHTML?'<div class="td-section"><h4>Secret Objective</h4>'+objHTML+'</div>':''}
+    <div class="modal-btns"><button class="btn btn-secondary" onclick="hideModal()">Close</button></div>`);
+}
+
+function showSpaceInfo(idx){
+  if(state.phase==='setup')return;const space=BOARD_SPACES[idx];
+  if(space.type==='property'){
+    const prop=PROPERTIES[space.propertyKey],owner=state.propertyOwners[space.propertyKey],setInfo=PROPERTY_SETS[prop.set];
+    const ln=['Owned (Base)','Basic Setup','Optimized','Market Leader'];
+    let oi='<div style="color:var(--muted);margin-bottom:6px">Unowned</div>';
+    if(owner){const t=state.teams[owner.teamIndex];const{rent,bonuses}=calculateRent(space.propertyKey,owner.teamIndex);
+      oi=`<div style="margin-bottom:6px"><span style="color:${TEAM_HEX[t.index]};font-weight:700">${t.name}</span> <span style="color:var(--muted)">— ${UPGRADE_NAMES[owner.level]}</span> <span style="color:var(--green);font-weight:700">(${fmt(rent)}/visit${bonuses.length?' +'+bonuses.join('+'):''})</span></div>`}
+    let rows='';for(let i=0;i<4;i++){const cost=i===0?prop.cost:prop.upgradeCosts[i-1];const cur=owner&&owner.level===i;
+      rows+=`<tr${cur?' class="current-row"':''}><td class="level-name">${ln[i]}</td><td class="level-cost">${i===0?fmt(prop.cost)+' (buy)':fmt(cost)}</td><td class="level-payout">${fmt(prop.payoutLevels[i])}/visit</td></tr>`}
+    showModal(`<h2>${prop.name}</h2><p class="modal-sub">${space.icon} Property ${setInfo?'— <span style="color:'+setInfo.color+'">'+setInfo.icon+' '+setInfo.name+' Set</span>':''}</p>${oi}
+      <table class="upgrade-table"><thead><tr><th>Level</th><th>Cost</th><th>Payout</th></tr></thead><tbody>${rows}</tbody></table>
+      <div class="modal-btns"><button class="btn btn-secondary" onclick="hideModal()">Close</button></div>`)
+  }else{
+    showModal(`<h2>${space.name}</h2><p class="modal-sub">${space.icon} ${space.type.charAt(0).toUpperCase()+space.type.slice(1)} Space</p>
+      <p style="text-align:center;color:var(--muted);margin:14px 0">${space.description||'Draw an event card when you land here.'}</p>
+      <div class="modal-btns"><button class="btn btn-secondary" onclick="hideModal()">Close</button></div>`)
+  }
+}
+function showModal(h){document.getElementById('modalContent').innerHTML=h;document.getElementById('modalOverlay').style.display='flex'}
+function hideModal(){document.getElementById('modalOverlay').style.display='none'}
+let toastTO;
+function showToast(m,t){const el=document.getElementById('toast');el.textContent=m;el.className='toast '+t+' show';clearTimeout(toastTO);toastTO=setTimeout(()=>{el.className='toast'},2000)}
+function launchConfetti(){const c=document.getElementById('confettiContainer'),cols=['#2a6db5','#d43a3a','#f5c842','#5bb8f5','#43a047','#9b59b6','#e67e22','#26a69a','#fff'];
+  for(let i=0;i<80;i++){const p=document.createElement('div');p.className='confetti-piece';p.style.left=Math.random()*100+'%';
+    p.style.background=cols[Math.floor(Math.random()*cols.length)];p.style.width=(6+Math.random()*8)+'px';p.style.height=(6+Math.random()*8)+'px';
+    p.style.borderRadius=Math.random()>.5?'50%':'2px';p.style.animationDelay=Math.random()*1.5+'s';p.style.animationDuration=(2+Math.random()*2)+'s';c.appendChild(p)}
+  setTimeout(()=>{c.innerHTML=''},5000)}
+function showHowToPlay(){showModal(`
+  <h2>How to <span class="hl">Play</span></h2>
+  <div class="htp-section"><h3>Goal</h3><p>Build the most valuable digital marketing agency in 15 rounds. Highest cash wins.</p></div>
+  <div class="htp-section"><h3>Turn Flow</h3><ul><li>Roll two dice to move clockwise</li><li>Resolve the space you land on</li><li>Click "Next Turn" to advance</li></ul></div>
+  <div class="htp-section"><h3>Properties & Sets</h3><ul>
+    <li>Land on unowned property → buy or pass</li><li>Others pay rent when landing on your property</li><li>Land on your own → upgrade (up to 3 levels)</li>
+    <li><strong>Property Sets:</strong> Own all properties in a set for <strong>+50% rent</strong></li>
+    <li>Sets: Paid Media (3), Organic (3), Conversion (3), Operations (4)</li></ul></div>
+  <div class="htp-section"><h3>Special Spaces</h3><ul>
+    <li><strong>New Client (Start):</strong> $250 + $25 per owned property</li>
+    <li><strong>Event Card:</strong> Random card — good or bad!</li>
+    <li><strong>Penalties:</strong> Scope Creep, Overhead, Algorithm Update, Budget Cut</li>
+    <li><strong>Break Room:</strong> Safe space</li>
+    <li><strong>Ghosted / Crisis:</strong> Skip next turn</li>
+    <li><strong>Training / Big Referral:</strong> Collect bonus cash</li></ul></div>
+  <div class="htp-section"><h3>Endgame</h3><ul>
+    <li><strong>Market Surge (Rounds 13-15):</strong> All rents +25%</li>
+    <li><strong>Secret Objective:</strong> Each team has a bonus objective worth $500</li>
+    <li>Objectives are evaluated after round 15</li></ul></div>
+  <div class="htp-section"><h3>Tips</h3><ul><li>Each team starts with $3,000</li><li>Click any space for details</li><li>Use Fast Mode to speed up animations</li></ul></div>
+  <div class="modal-btns"><button class="btn btn-primary" onclick="hideModal()">Got It</button></div>`)}
+document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this&&(state.phase==='turnEnd'||state.phase==='waitRoll'||state.phase==='gameOver'||state.phase==='setup'))hideModal()});
+</script>
+</body>
+</html>

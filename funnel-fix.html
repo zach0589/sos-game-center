@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>Funnel Fix — SOS Game Center</title>
 <style>
 /* ========== DESIGN SYSTEM ========== */
@@ -230,7 +231,13 @@ body::before {
   font-size: .9rem; font-weight: 700; cursor: pointer;
 }
 .team-name:hover { text-decoration: underline; }
-.team-score { font-size: 2rem; font-weight: 800; }
+.team-score { font-size: 2rem; font-weight: 800; transition: transform .3s; }
+.team-score.pop { transform: scale(1.4); }
+.score-flash {
+  position: absolute; top: -8px; right: 10px; font-size: 1rem; font-weight: 700;
+  color: var(--gold); animation: scoreUp 1.5s ease forwards; pointer-events: none;
+}
+@keyframes scoreUp { 0%{opacity:1;transform:translateY(0)} 100%{opacity:0;transform:translateY(-30px)} }
 .team-phase-scores { display: flex; gap: 6px; margin-top: 4px; }
 .phase-score-pip {
   font-size: .65rem; background: var(--border); padding: 2px 6px;
@@ -1312,6 +1319,7 @@ function adjustPoints(team, pts) {
 function loadScenario() {
   const s = currentScenario();
   state.currentPhase = 0;
+  state.activeTeam = 0;
   state.mappedCards = {awareness:[],consideration:[],conversion:[],retention:[]};
   state.selectedGaps = [];
   state.rebuildCards = [];
@@ -1854,12 +1862,27 @@ function calcPhasePoints() {
 /* Auto-score current phase silently (called on phase/scenario advance) */
 function silentAutoScore() {
   const pts = calcPhasePoints();
-  if (pts > 0) {
-    state.teams[state.activeTeam].score += pts;
-    state.phaseScored[state.currentPhase] = true;
-    buildScoreboard();
-    showToast(`${state.teams[state.activeTeam].name}: +${pts} pts`, 2000);
-  }
+  state.teams[state.activeTeam].score += pts;
+  state.phaseScored[state.currentPhase] = true;
+  buildScoreboard();
+  animateScore(state.activeTeam, pts);
+  showToast(`${state.teams[state.activeTeam].name}: +${pts} pts`, 2000);
+}
+
+function animateScore(teamIdx, pts) {
+  const card = document.getElementById('teamCard' + teamIdx);
+  const scoreEl = document.getElementById('teamScore' + teamIdx);
+  if (!card || !scoreEl) return;
+  // Pop the score number
+  scoreEl.classList.add('pop');
+  setTimeout(() => scoreEl.classList.remove('pop'), 400);
+  // Float +pts indicator
+  const flash = document.createElement('div');
+  flash.className = 'score-flash';
+  flash.textContent = '+' + pts;
+  card.style.position = 'relative';
+  card.appendChild(flash);
+  setTimeout(() => flash.remove(), 1500);
 }
 
 /* Host-triggered score button — scores and shows confetti */
@@ -1877,6 +1900,7 @@ function autoScore() {
   state.phaseScored[state.currentPhase] = true;
   buildScoreboard();
   buildTeamSelectRow();
+  animateScore(state.activeTeam, pts);
   launchConfetti();
   showToast(`${state.teams[state.activeTeam].name}: +${pts} pts`);
 }

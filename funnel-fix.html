@@ -111,11 +111,11 @@ body::before {
 .phase-instructions strong { color: var(--sos-light); }
 
 /* Center Panel — Game Board */
-.game-board { display: flex; flex-direction: column; max-height: calc(100vh - 80px); overflow: hidden; }
+.game-board { display: flex; flex-direction: column; max-height: calc(100vh - 80px); overflow-y: auto; }
 
 /* Funnel Columns */
 .funnel-container {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; flex: 1; min-height: 0;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; min-height: 180px;
 }
 .funnel-col {
   background: rgba(15,31,56,.6); border: 2px dashed var(--border);
@@ -165,7 +165,7 @@ body::before {
 /* Card Tray */
 .card-tray {
   border-top: 2px solid var(--border); padding-top: 10px; margin-top: 10px;
-  max-height: 200px; overflow-y: auto;
+  max-height: 280px; overflow-y: auto;
 }
 .card-tray h3 { font-size: .8rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
 .tray-cards {
@@ -1793,7 +1793,8 @@ function nextPhase() {
     stopTimer();
     renderPhase();
   } else {
-    showToast('Last phase — advance to next scenario');
+    // On last phase, advance to next scenario
+    nextScenario();
   }
 }
 

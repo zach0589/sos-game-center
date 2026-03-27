@@ -1798,13 +1798,11 @@ function scoreRebuild() {
   showToast(`Rebuild: Strategy ${strategyPts}/15 + Budget ${budgetPts}/5 = ${totalPts}/20 pts`);
 }
 
-function autoScore() {
+/* Calculate points for the current phase — returns the number */
+function calcPhasePoints() {
   const s = currentScenario();
-  const team = state.activeTeam;
-  let pts = 0;
 
   if (state.currentPhase === 1) {
-    // Map scoring
     let correct = 0, acceptable = 0;
     const total = s.currentTactics.length;
     STAGE_NAMES.forEach(stage => {
@@ -1813,16 +1811,12 @@ function autoScore() {
         else if ((s.acceptableAlts || {})[cardId] === stage) acceptable++;
       });
     });
-    pts = Math.round(((correct + acceptable * 0.5) / total) * 10);
-    showToast(`${state.teams[team].name}: +${pts} pts (Mapping)`);
+    return Math.round(((correct + acceptable * 0.5) / total) * 10);
   } else if (state.currentPhase === 2) {
-    // Gap scoring — top 3 + 2 acceptable alternates all count
     const allAcceptable = [...s.topGaps, ...(s.alsoAcceptGaps || [])];
     let hits = state.selectedGaps.filter(g => allAcceptable.includes(g)).length;
-    pts = Math.round((hits / 3) * 10);
-    showToast(`${state.teams[team].name}: +${pts} pts (Gaps)`);
+    return Math.round((hits / 3) * 10);
   } else if (state.currentPhase === 3) {
-    // Rebuild scoring — uses same logic as scoreRebuild()
     const allocated = state.rebuildCards.reduce((sum, c) => sum + (c.budget || 0), 0);
     let strategyPts = 0;
     const stages = {awareness:0, consideration:0, conversion:0, retention:0};
@@ -1852,43 +1846,39 @@ function autoScore() {
     if (allocated <= s.budget && allocated >= s.budget * 0.8) budgetPts = 5;
     else if (allocated <= s.budget && allocated >= s.budget * 0.6) budgetPts = 3;
     else if (allocated > s.budget && allocated <= s.budget * 1.1) budgetPts = 2;
-    pts = strategyPts + budgetPts;
-    showToast(`${state.teams[team].name}: +${pts} pts (Rebuild)`);
-  } else {
-    showToast('No scoring for this phase');
+    return strategyPts + budgetPts;
+  }
+  return 0;
+}
+
+/* Auto-score current phase silently (called on phase/scenario advance) */
+function silentAutoScore() {
+  const pts = calcPhasePoints();
+  if (pts > 0) {
+    state.teams[state.activeTeam].score += pts;
+    state.phaseScored[state.currentPhase] = true;
+    buildScoreboard();
+    showToast(`${state.teams[state.activeTeam].name}: +${pts} pts`, 2000);
+  }
+}
+
+/* Host-triggered score button — scores and shows confetti */
+function autoScore() {
+  if (state.phaseScored[state.currentPhase]) {
+    showToast('Already scored this phase');
     return;
   }
-
-  state.teams[team].score += pts;
+  if (state.currentPhase === 0) {
+    showToast('No scoring on Reveal phase');
+    return;
+  }
+  const pts = calcPhasePoints();
+  state.teams[state.activeTeam].score += pts;
   state.phaseScored[state.currentPhase] = true;
   buildScoreboard();
   buildTeamSelectRow();
   launchConfetti();
-
-  // Auto-advance: move to next team, or next phase, or next scenario
-  setTimeout(() => {
-    const nextTeam = (team + 1) % state.teams.length;
-    if (nextTeam !== 0) {
-      // More teams to score on this phase
-      state.activeTeam = nextTeam;
-      buildScoreboard();
-      buildTeamSelectRow();
-      showToast(`Score ${state.teams[nextTeam].name} next`, 2000);
-    } else if (state.currentPhase < 3) {
-      // All teams scored this phase — advance to next phase
-      state.activeTeam = 0;
-      buildScoreboard();
-      buildTeamSelectRow();
-      nextPhase();
-    } else {
-      // All teams scored final phase — advance to next scenario
-      state.activeTeam = 0;
-      buildScoreboard();
-      buildTeamSelectRow();
-      showToast('Round complete! Loading next client...', 2000);
-      setTimeout(() => nextScenario(), 2000);
-    }
-  }, 1500);
+  showToast(`${state.teams[state.activeTeam].name}: +${pts} pts`);
 }
 
 /* ================================================================
@@ -1956,9 +1946,12 @@ function hideAnswers() {
    NAVIGATION
    ================================================================ */
 function nextPhase() {
+  // Auto-score current phase before advancing
+  if (state.currentPhase >= 1 && state.currentPhase <= 3 && !state.phaseScored[state.currentPhase]) {
+    silentAutoScore();
+  }
   if (state.currentPhase < 3) {
     state.currentPhase++;
-    state.activeTeam = 0;
     stopTimer();
     buildScoreboard();
     buildTeamSelectRow();
@@ -1977,6 +1970,10 @@ function prevPhase() {
 }
 
 function nextScenario() {
+  // Auto-score current phase if not scored yet
+  if (state.currentPhase >= 1 && state.currentPhase <= 3 && !state.phaseScored[state.currentPhase]) {
+    silentAutoScore();
+  }
   if (state.currentScenario < state.scenarioOrder.length - 1) {
     state.currentScenario++;
     loadScenario();

@@ -618,7 +618,7 @@ const TACTIC_LIBRARY = [
   {id:'flyers',name:'Flyers',cat:'Traditional'},
   {id:'yard-signs',name:'Yard Signs',cat:'Traditional'},
   {id:'events',name:'Community Event Sponsorships',cat:'Traditional'},
-  {id:'truck-wraps',name:'Truck Wraps',cat:'Traditional'},
+  {id:'truck-wraps',name:'Truck Wraps (one-time)',cat:'Traditional',oneTime:true},
   {id:'print-ads',name:'Local Print Ads',cat:'Traditional'},
   // SALES / OPS
   {id:'call-handling',name:'Call Handling Improvement',cat:'Sales/Ops'},
@@ -637,7 +637,7 @@ const TACTIC_LIBRARY = [
   {id:'seasonal',name:'Seasonal Reactivation Campaigns',cat:'Retention/Brand'},
   {id:'social-content',name:'Social Content',cat:'Retention/Brand'},
   {id:'testimonial-video',name:'Customer Testimonial Videos',cat:'Retention/Brand'},
-  {id:'brand-video',name:'Brand Video',cat:'Retention/Brand'},
+  {id:'brand-video',name:'Brand Video (one-time)',cat:'Retention/Brand',oneTime:true},
   {id:'review-gen',name:'Review Generation',cat:'Retention/Brand'},
   {id:'community-partner',name:'Community Partnerships',cat:'Retention/Brand'},
   {id:'influencer',name:'Influencer / Ambassador Partnerships',cat:'Retention/Brand'},
@@ -723,14 +723,12 @@ const SCENARIOS = [
     acceptableAlts: {'seo-service':'awareness','radio':'consideration'},
     topGaps: ['weak-retention','no-awareness','budget-thin'],
     idealStrategy: [
-      {id:'gads', stage:'conversion', budget:6000},
-      {id:'seo-service', stage:'consideration', budget:3000},
-      {id:'seo-blogs', stage:'awareness', budget:2000},
-      {id:'community-partner', stage:'awareness', budget:2500},
-      {id:'crm', stage:'retention', budget:2000},
-      {id:'seasonal', stage:'retention', budget:2000},
-      {id:'gbp', stage:'awareness', budget:1500},
-      {id:'review-gen', stage:'retention', budget:1500},
+      {id:'gads', stage:'conversion', budget:8000},
+      {id:'seo-service', stage:'consideration', budget:4000},
+      {id:'community-partner', stage:'awareness', budget:3000},
+      {id:'crm', stage:'retention', budget:3000},
+      {id:'seasonal', stage:'retention', budget:3000},
+      {id:'gbp', stage:'awareness', budget:2000},
     ],
   },
   // 3. Plumbing — Feast or Famine
@@ -786,14 +784,14 @@ const SCENARIOS = [
     acceptableAlts: {'meta-ads':'consideration','door-knock':'consideration'},
     topGaps: ['sales-bottleneck','low-quality-leads','weak-conversion'],
     idealStrategy: [
-      {id:'gads', stage:'conversion', budget:4000},
+      {id:'gads', stage:'conversion', budget:5000},
       {id:'meta-ads', stage:'awareness', budget:3000},
       {id:'door-knock', stage:'conversion', budget:2000},
-      {id:'sales-training', stage:'conversion', budget:2000},
-      {id:'quote-followup', stage:'conversion', budget:1500},
-      {id:'remarketing', stage:'consideration', budget:2000},
-      {id:'yard-signs', stage:'awareness', budget:500},
+      {id:'sales-training', stage:'conversion', budget:2500},
+      {id:'quote-followup', stage:'conversion', budget:2000},
+      {id:'remarketing', stage:'consideration', budget:2500},
       {id:'review-gen', stage:'retention', budget:1500},
+      {id:'crm', stage:'retention', budget:1500},
     ],
   },
   // 5. Cleaning — Startup Mode
@@ -941,14 +939,14 @@ const SCENARIOS = [
     acceptableAlts: {'billboards':'consideration'},
     topGaps: ['msg-confusion','budget-thin','weak-conversion'],
     idealStrategy: [
-      {id:'gads', stage:'conversion', budget:5000},
-      {id:'lsa', stage:'conversion', budget:3000},
+      {id:'gads', stage:'conversion', budget:6000},
+      {id:'lsa', stage:'conversion', budget:3500},
       {id:'seo-service', stage:'consideration', budget:3000},
-      {id:'landing', stage:'conversion', budget:2000},
-      {id:'brand-video', stage:'awareness', budget:2000},
-      {id:'call-handling', stage:'conversion', budget:1500},
+      {id:'landing', stage:'conversion', budget:2500},
+      {id:'call-handling', stage:'conversion', budget:2000},
+      {id:'gbp', stage:'awareness', budget:2000},
+      {id:'seasonal', stage:'retention', budget:2000},
       {id:'intake-script', stage:'conversion', budget:1000},
-      {id:'seasonal', stage:'retention', budget:1500},
     ],
   },
   // 10. Carpet Cleaning — Race to the Bottom
@@ -1531,6 +1529,7 @@ function renderPhaseRebuild(board, s) {
   const usedIds = state.rebuildCards.map(c => c.id);
   TACTIC_LIBRARY.forEach(t => {
     if (usedIds.includes(t.id)) return;
+    if (t.oneTime) return; // skip one-time costs — not monthly budget items
     html += buildDraggableCard(t.id, t.name, t.cat, 'rebuild-tray');
   });
   html += '</div></div>';

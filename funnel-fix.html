@@ -1,0 +1,1965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Funnel Fix — SOS Game Center</title>
+<style>
+/* ========== DESIGN SYSTEM ========== */
+:root {
+  --bg: #0a1628;
+  --surface: #0f1f38;
+  --border: #1e3a5f;
+  --sos-blue: #2a6db5;
+  --sos-light: #5bb8f5;
+  --sos-red: #d43a3a;
+  --text: #eef;
+  --muted: #7a9bc0;
+  --radius: 12px;
+  --green: #43a047;
+  --gold: #f5c842;
+  --orange: #e67e22;
+  --purple: #9b59b6;
+  --team1: #3a8fd4;
+  --team2: #e74c3c;
+  --team3: #f5a623;
+  --team4: #9b59b6;
+  --awareness: #5bb8f5;
+  --consideration: #f5c842;
+  --conversion: #43a047;
+  --retention: #e67e22;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(42,109,181,.12) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(212,58,58,.08) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(91,184,245,.05) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ========== LAYOUT ========== */
+.app { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+/* Top Bar */
+.top-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 20px; background: var(--surface); border-bottom: 2px solid var(--border);
+  flex-shrink: 0; gap: 12px; flex-wrap: wrap;
+}
+.top-bar .back-link { color: var(--sos-light); text-decoration: none; font-size: .9rem; white-space: nowrap; }
+.top-bar .back-link:hover { text-decoration: underline; }
+.top-bar .game-title { font-size: 1.3rem; font-weight: 700; letter-spacing: 2px; white-space: nowrap; }
+.top-bar .game-title .hl { color: var(--sos-light); }
+.top-bar .progress-info { display: flex; gap: 16px; align-items: center; font-size: .85rem; color: var(--muted); }
+.top-bar .phase-badge {
+  background: var(--sos-blue); color: #fff; padding: 4px 12px;
+  border-radius: 20px; font-size: .8rem; font-weight: 600;
+}
+.top-bar .timer-display {
+  font-size: 1.1rem; font-weight: 700; color: var(--gold);
+  min-width: 60px; text-align: center;
+}
+.top-bar .timer-display.warning { color: var(--sos-red); animation: pulse-text 1s infinite; }
+
+/* Main Area */
+.main-area {
+  display: grid; grid-template-columns: 300px 1fr 280px;
+  gap: 12px; padding: 12px; flex: 1; overflow: hidden;
+}
+
+/* Panels */
+.panel {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: var(--radius); padding: 16px; overflow-y: auto;
+}
+.panel h2 { font-size: 1rem; color: var(--sos-light); margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase; }
+.panel h3 { font-size: .9rem; color: var(--gold); margin: 10px 0 6px; }
+
+/* Left Panel — Scenario */
+.scenario-panel { max-height: calc(100vh - 80px); }
+.scenario-name { font-size: 1.4rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.scenario-subtitle { font-size: .85rem; color: var(--muted); margin-bottom: 12px; font-style: italic; }
+.scenario-detail { font-size: .85rem; color: var(--text); margin-bottom: 6px; }
+.scenario-detail strong { color: var(--sos-light); }
+.scenario-notes {
+  background: rgba(212,58,58,.1); border: 1px solid rgba(212,58,58,.3);
+  border-radius: 8px; padding: 10px; margin-top: 10px; font-size: .82rem;
+}
+.scenario-notes strong { color: var(--sos-red); }
+.current-tactics-list { list-style: none; margin-top: 6px; }
+.current-tactics-list li { font-size: .82rem; padding: 3px 0; color: var(--text); }
+.current-tactics-list li::before { content: '▸ '; color: var(--sos-light); }
+
+/* Phase Instructions */
+.phase-instructions {
+  background: rgba(42,109,181,.1); border: 1px solid rgba(42,109,181,.3);
+  border-radius: 8px; padding: 10px; margin-top: 12px; font-size: .82rem; color: var(--muted);
+}
+.phase-instructions strong { color: var(--sos-light); }
+
+/* Center Panel — Game Board */
+.game-board { display: flex; flex-direction: column; max-height: calc(100vh - 80px); overflow: hidden; }
+
+/* Funnel Columns */
+.funnel-container {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; flex: 1; min-height: 0;
+}
+.funnel-col {
+  background: rgba(15,31,56,.6); border: 2px dashed var(--border);
+  border-radius: var(--radius); padding: 10px; display: flex; flex-direction: column;
+  min-height: 200px; transition: border-color .2s, background .2s;
+}
+.funnel-col.drag-over { border-color: var(--sos-light); background: rgba(42,109,181,.1); }
+.funnel-col-header {
+  text-align: center; font-size: .85rem; font-weight: 700; padding: 6px;
+  border-radius: 8px; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase;
+}
+.funnel-col[data-stage="awareness"] .funnel-col-header { background: rgba(91,184,245,.2); color: var(--awareness); }
+.funnel-col[data-stage="consideration"] .funnel-col-header { background: rgba(245,200,66,.2); color: var(--consideration); }
+.funnel-col[data-stage="conversion"] .funnel-col-header { background: rgba(67,160,71,.2); color: var(--conversion); }
+.funnel-col[data-stage="retention"] .funnel-col-header { background: rgba(230,126,34,.2); color: var(--retention); }
+.funnel-col .cards-area { flex: 1; display: flex; flex-direction: column; gap: 6px; min-height: 60px; }
+
+/* Tactic Cards */
+.tactic-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 10px; font-size: .78rem; cursor: grab;
+  transition: transform .15s, box-shadow .15s, opacity .15s;
+  user-select: none; position: relative;
+}
+.tactic-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.3); }
+.tactic-card.dragging { opacity: .4; }
+.tactic-card .card-name { font-weight: 600; color: #fff; }
+.tactic-card .card-category {
+  font-size: .65rem; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-top: 2px;
+}
+.tactic-card.correct { border-color: var(--green); background: rgba(67,160,71,.15); }
+.tactic-card.incorrect { border-color: var(--sos-red); background: rgba(212,58,58,.15); }
+.tactic-card.acceptable { border-color: var(--orange); background: rgba(230,126,34,.15); }
+
+/* Budget display on rebuild cards */
+.tactic-card .budget-input {
+  width: 80px; background: rgba(0,0,0,.3); border: 1px solid var(--border);
+  border-radius: 4px; color: var(--gold); font-size: .75rem; padding: 2px 6px;
+  margin-top: 4px; text-align: right;
+}
+.tactic-card .remove-btn {
+  position: absolute; top: 4px; right: 6px; background: none; border: none;
+  color: var(--sos-red); cursor: pointer; font-size: .9rem; line-height: 1; opacity: .6;
+}
+.tactic-card .remove-btn:hover { opacity: 1; }
+
+/* Card Tray */
+.card-tray {
+  border-top: 2px solid var(--border); padding-top: 10px; margin-top: 10px;
+  max-height: 200px; overflow-y: auto;
+}
+.card-tray h3 { font-size: .8rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+.tray-cards {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.tray-cards .tactic-card { flex: 0 0 auto; max-width: 180px; }
+
+/* Category filter tabs */
+.category-tabs {
+  display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap;
+}
+.category-tab {
+  background: var(--border); color: var(--muted); border: none;
+  padding: 4px 10px; border-radius: 12px; font-size: .7rem; cursor: pointer;
+  font-weight: 600; text-transform: uppercase; letter-spacing: .5px;
+  transition: all .15s;
+}
+.category-tab:hover, .category-tab.active { background: var(--sos-blue); color: #fff; }
+
+/* Gap Analysis */
+.gap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.gap-card {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: 8px; padding: 10px; font-size: .8rem; cursor: pointer;
+  text-align: center; transition: all .2s; user-select: none;
+}
+.gap-card:hover { border-color: var(--sos-light); }
+.gap-card.selected { border-color: var(--gold); background: rgba(245,200,66,.1); color: var(--gold); }
+.gap-card.correct-gap { border-color: var(--green); background: rgba(67,160,71,.15); }
+.gap-card.wrong-gap { border-color: var(--sos-red); background: rgba(212,58,58,.1); }
+.gap-limit-msg { font-size: .75rem; color: var(--muted); margin-top: 8px; text-align: center; }
+
+/* Budget Bar */
+.budget-bar {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: var(--radius); padding: 12px 16px; margin-top: 10px;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.budget-bar .budget-label { font-size: .8rem; color: var(--muted); }
+.budget-bar .budget-value { font-size: 1.1rem; font-weight: 700; }
+.budget-bar .budget-value.over { color: var(--sos-red); }
+.budget-bar .budget-value.ok { color: var(--green); }
+.budget-bar .budget-value.warning { color: var(--orange); }
+.budget-progress {
+  flex: 1; min-width: 120px; height: 10px; background: rgba(0,0,0,.3);
+  border-radius: 5px; overflow: hidden;
+}
+.budget-fill { height: 100%; border-radius: 5px; transition: width .3s, background .3s; }
+.tactic-count { font-size: .8rem; color: var(--muted); }
+.tactic-count strong { color: var(--text); }
+
+/* Right Panel — Scoreboard + Host Controls */
+.right-panel { display: flex; flex-direction: column; gap: 12px; max-height: calc(100vh - 80px); overflow-y: auto; }
+.scoreboard { }
+.team-score-card {
+  background: rgba(15,31,56,.6); border: 2px solid var(--border);
+  border-radius: 8px; padding: 10px; margin-bottom: 8px; transition: border-color .2s;
+}
+.team-score-card.active-team { border-color: var(--sos-light); }
+.team-name-row { display: flex; align-items: center; justify-content: space-between; }
+.team-name {
+  font-size: .9rem; font-weight: 700; cursor: pointer;
+}
+.team-name:hover { text-decoration: underline; }
+.team-score { font-size: 1.6rem; font-weight: 800; }
+.team-phase-scores { display: flex; gap: 6px; margin-top: 4px; }
+.phase-score-pip {
+  font-size: .65rem; background: var(--border); padding: 2px 6px;
+  border-radius: 4px; color: var(--muted);
+}
+.phase-score-pip.earned { background: rgba(67,160,71,.2); color: var(--green); }
+.team-bonus-controls { display: flex; gap: 4px; margin-top: 6px; }
+.team-bonus-controls button {
+  background: var(--border); border: none; color: var(--text);
+  width: 26px; height: 26px; border-radius: 4px; cursor: pointer;
+  font-size: .8rem; font-weight: 700; transition: background .15s;
+}
+.team-bonus-controls button:hover { background: var(--sos-blue); }
+
+/* Host Controls */
+.host-controls { }
+.host-controls .hc-group { margin-bottom: 10px; }
+.host-controls .hc-group h3 { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.host-controls .hc-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* Buttons */
+.btn {
+  padding: 8px 14px; border: none; border-radius: 6px;
+  font-size: .8rem; font-weight: 600; cursor: pointer;
+  transition: filter .15s, transform .1s; display: inline-flex;
+  align-items: center; gap: 6px; white-space: nowrap;
+}
+.btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+.btn-blue { background: var(--sos-blue); color: #fff; }
+.btn-red { background: var(--sos-red); color: #fff; }
+.btn-green { background: var(--green); color: #fff; }
+.btn-gold { background: var(--gold); color: #000; }
+.btn-purple { background: #7e57c2; color: #fff; }
+.btn-secondary { background: var(--border); color: var(--text); }
+.btn-sm { padding: 5px 10px; font-size: .72rem; }
+.btn-block { width: 100%; justify-content: center; }
+
+/* Reveal Panel */
+.reveal-panel {
+  background: rgba(67,160,71,.08); border: 2px solid rgba(67,160,71,.3);
+  border-radius: var(--radius); padding: 14px; margin-top: 10px;
+  display: none;
+}
+.reveal-panel.visible { display: block; animation: slideIn .3s ease; }
+.reveal-panel h3 { color: var(--green); font-size: .9rem; margin-bottom: 8px; }
+.reveal-item { font-size: .8rem; margin-bottom: 4px; color: var(--text); }
+.reveal-item::before { content: '✓ '; color: var(--green); }
+
+/* Scoring Summary Modal */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.7);
+  display: none; align-items: center; justify-content: center; z-index: 100;
+}
+.modal-overlay.visible { display: flex; }
+.modal {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: var(--radius); padding: 24px; max-width: 500px; width: 90%;
+  animation: slideIn .3s ease;
+}
+.modal h2 { color: var(--gold); margin-bottom: 16px; text-align: center; }
+.modal .close-modal {
+  position: absolute; top: 12px; right: 16px; background: none;
+  border: none; color: var(--muted); font-size: 1.2rem; cursor: pointer;
+}
+
+/* Setup Screen */
+.setup-screen {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 100vh; padding: 40px; text-align: center;
+}
+.setup-screen .logo-area { margin-bottom: 24px; }
+.setup-screen h1 {
+  font-size: 2.4rem; letter-spacing: 3px; margin-bottom: 8px;
+  text-shadow: 0 0 30px rgba(58,143,212,.3);
+}
+.setup-screen h1 .hl { color: var(--sos-light); }
+.setup-screen .sub { color: var(--muted); font-size: 1rem; letter-spacing: 1px; margin-bottom: 30px; }
+.setup-card {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: var(--radius); padding: 24px; max-width: 500px; width: 100%;
+  text-align: left;
+}
+.setup-card h2 { color: var(--sos-light); font-size: 1.1rem; margin-bottom: 16px; }
+.team-input-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+}
+.team-input-row label { font-size: .85rem; color: var(--muted); min-width: 70px; }
+.team-input-row input {
+  flex: 1; background: rgba(0,0,0,.3); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text); padding: 8px 12px; font-size: .9rem;
+}
+.team-input-row input:focus { outline: none; border-color: var(--sos-light); }
+.team-color-dot {
+  width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
+}
+
+/* Scenario Reveal Splash */
+.scenario-splash {
+  display: none; flex-direction: column; align-items: center;
+  justify-content: center; text-align: center; padding: 40px;
+}
+.scenario-splash.visible { display: flex; }
+.scenario-splash .round-label {
+  font-size: 1rem; color: var(--muted); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 8px;
+}
+.scenario-splash .client-name { font-size: 2rem; font-weight: 700; margin-bottom: 4px; }
+.scenario-splash .client-subtitle { font-size: 1.1rem; color: var(--gold); font-style: italic; margin-bottom: 20px; }
+.scenario-splash .splash-details {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: var(--radius); padding: 24px; max-width: 600px; width: 100%;
+  text-align: left;
+}
+.splash-detail-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(30,58,95,.5); font-size: .9rem; }
+.splash-detail-row:last-child { border-bottom: none; }
+.splash-detail-row .label { color: var(--muted); }
+.splash-detail-row .value { color: #fff; font-weight: 600; }
+
+/* Progress Dots */
+.progress-dots { display: flex; gap: 4px; align-items: center; }
+.progress-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: all .2s;
+}
+.progress-dot.active { background: var(--sos-light); transform: scale(1.3); }
+.progress-dot.completed { background: var(--green); }
+
+/* Phase Steps */
+.phase-steps { display: flex; gap: 4px; align-items: center; }
+.phase-step {
+  padding: 3px 8px; border-radius: 4px; font-size: .7rem; font-weight: 600;
+  background: var(--border); color: var(--muted); transition: all .2s;
+}
+.phase-step.active { background: var(--sos-blue); color: #fff; }
+.phase-step.completed { background: rgba(67,160,71,.3); color: var(--green); }
+
+/* Toast */
+#toast {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--surface); border: 2px solid var(--sos-light);
+  border-radius: var(--radius); padding: 12px 24px; font-size: .9rem;
+  font-weight: 600; z-index: 200; transition: transform .3s ease;
+  pointer-events: none;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* Confetti */
+#confettiContainer {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 150; overflow: hidden;
+}
+.confetti-piece {
+  position: absolute; top: -20px;
+  animation: confetti-fall 3s ease-out forwards;
+}
+
+/* Animations */
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+@keyframes slideIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+@keyframes confetti-fall { 0%{opacity:1;transform:translateY(0) rotate(0deg)} 80%{opacity:1} 100%{opacity:0;transform:translateY(105vh) rotate(720deg) scale(.4)} }
+@keyframes pulse-text { 0%,100%{opacity:1} 50%{opacity:.5} }
+@keyframes popIn { 0%{transform:scale(.8);opacity:0} 100%{transform:scale(1);opacity:1} }
+
+/* Footer */
+.footer {
+  text-align: center; padding: 12px; border-top: 1px solid var(--border);
+  font-size: .75rem; color: var(--muted);
+}
+.footer a { color: var(--sos-light); text-decoration: none; }
+
+/* Confirm Dialog */
+.confirm-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.7);
+  display: none; align-items: center; justify-content: center; z-index: 200;
+}
+.confirm-overlay.visible { display: flex; }
+.confirm-box {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: var(--radius); padding: 24px; max-width: 400px; text-align: center;
+}
+.confirm-box p { margin-bottom: 16px; font-size: .95rem; }
+.confirm-box .btn-row { display: flex; gap: 10px; justify-content: center; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--sos-blue); }
+
+/* Hidden */
+.hidden { display: none !important; }
+
+/* Timer controls inline */
+.timer-controls { display: flex; gap: 4px; align-items: center; }
+.timer-controls .btn { padding: 4px 8px; font-size: .7rem; }
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .main-area { grid-template-columns: 260px 1fr 240px; }
+}
+@media (max-width: 900px) {
+  .main-area { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
+  .scenario-panel, .right-panel { max-height: none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ========== SETUP SCREEN ========== -->
+  <div id="setupScreen" class="setup-screen">
+    <div class="logo-area">
+      <svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" width="200">
+        <text x="28" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5">S</text>
+        <g transform="translate(160,68)">
+          <circle cx="0" cy="0" r="48" fill="none" stroke="#fff" stroke-width="18"/>
+          <circle cx="0" cy="0" r="48" fill="none" stroke="#d43a3a" stroke-width="18" stroke-dasharray="25 50.7" stroke-dashoffset="0"/>
+        </g>
+        <text x="222" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5">S</text>
+        <text x="160" y="150" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="#5bb8f5" text-anchor="middle" letter-spacing="4">SPOTONSOLUTIONS</text>
+      </svg>
+    </div>
+    <h1>Funnel <span class="hl">Fix</span></h1>
+    <div class="sub">SOS Game Center &middot; Strategy Team Game</div>
+    <div class="setup-card">
+      <h2>Team Setup</h2>
+      <div class="team-input-row">
+        <div class="team-color-dot" style="background:var(--team1)"></div>
+        <label>Team 1</label>
+        <input type="text" id="team1Name" value="Team 1" maxlength="20">
+      </div>
+      <div class="team-input-row">
+        <div class="team-color-dot" style="background:var(--team2)"></div>
+        <label>Team 2</label>
+        <input type="text" id="team2Name" value="Team 2" maxlength="20">
+      </div>
+      <div class="team-input-row">
+        <div class="team-color-dot" style="background:var(--team3)"></div>
+        <label>Team 3</label>
+        <input type="text" id="team3Name" value="Team 3" maxlength="20">
+      </div>
+      <div class="team-input-row">
+        <div class="team-color-dot" style="background:var(--team4)"></div>
+        <label>Team 4</label>
+        <input type="text" id="team4Name" value="Team 4" maxlength="20">
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px;align-items:center;">
+        <label style="font-size:.85rem;color:var(--muted)">Number of Teams:</label>
+        <select id="teamCount" style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:6px 10px;font-size:.9rem;">
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4" selected>4</option>
+        </select>
+      </div>
+      <button class="btn btn-green btn-block" style="margin-top:20px;padding:12px;" onclick="startGame()">Start Game</button>
+    </div>
+  </div>
+
+  <!-- ========== GAME SCREEN ========== -->
+  <div id="gameScreen" class="hidden">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <a href="index.html" class="back-link">&larr; Game Center</a>
+      <div class="game-title">Funnel <span class="hl">Fix</span></div>
+      <div class="progress-info">
+        <span id="scenarioLabel">Scenario 1 / 15</span>
+        <div class="phase-steps" id="phaseSteps">
+          <div class="phase-step active" data-p="0">Reveal</div>
+          <div class="phase-step" data-p="1">Map</div>
+          <div class="phase-step" data-p="2">Gaps</div>
+          <div class="phase-step" data-p="3">Rebuild</div>
+        </div>
+        <div class="progress-dots" id="progressDots"></div>
+      </div>
+      <div class="timer-display" id="timerDisplay">—</div>
+      <div class="timer-controls">
+        <button class="btn btn-secondary btn-sm" onclick="toggleTimer()" id="timerToggleBtn">▶</button>
+        <button class="btn btn-secondary btn-sm" onclick="resetTimer()">↺</button>
+      </div>
+    </div>
+
+    <div class="main-area">
+      <!-- Left: Scenario Panel -->
+      <div class="panel scenario-panel" id="scenarioPanel"></div>
+
+      <!-- Center: Game Board -->
+      <div class="panel game-board" id="gameBoard"></div>
+
+      <!-- Right: Scoreboard + Host Controls -->
+      <div class="right-panel">
+        <div class="panel scoreboard" id="scoreboard"></div>
+        <div class="panel host-controls" id="hostControls">
+          <h2>Host Controls</h2>
+          <div class="hc-group">
+            <h3>Phase</h3>
+            <div class="hc-row">
+              <button class="btn btn-secondary btn-sm" onclick="prevPhase()">◀ Prev</button>
+              <button class="btn btn-blue btn-sm" onclick="nextPhase()">Next ▶</button>
+            </div>
+          </div>
+          <div class="hc-group">
+            <h3>Answers</h3>
+            <div class="hc-row">
+              <button class="btn btn-green btn-sm" onclick="revealAnswers()">Reveal</button>
+              <button class="btn btn-secondary btn-sm" onclick="hideAnswers()">Hide</button>
+              <button class="btn btn-gold btn-sm" onclick="autoScore()">Score</button>
+            </div>
+          </div>
+          <div class="hc-group">
+            <h3>Scenario</h3>
+            <div class="hc-row">
+              <button class="btn btn-secondary btn-sm" onclick="prevScenario()">◀ Prev</button>
+              <button class="btn btn-blue btn-sm" onclick="nextScenario()">Next ▶</button>
+              <button class="btn btn-red btn-sm" onclick="confirmReset()">Reset</button>
+            </div>
+          </div>
+          <div class="hc-group">
+            <h3>Timer</h3>
+            <div class="hc-row">
+              <button class="btn btn-secondary btn-sm" onclick="setTimerPreset(120)">2m</button>
+              <button class="btn btn-secondary btn-sm" onclick="setTimerPreset(180)">3m</button>
+              <button class="btn btn-secondary btn-sm" onclick="setTimerPreset(240)">4m</button>
+              <button class="btn btn-secondary btn-sm" onclick="setTimerPreset(300)">5m</button>
+              <button class="btn btn-secondary btn-sm" onclick="toggleTimerEnabled()" id="timerEnabledBtn">Timer: ON</button>
+            </div>
+          </div>
+          <div class="hc-group">
+            <h3>Active Team</h3>
+            <div class="hc-row" id="teamSelectRow"></div>
+          </div>
+          <div class="hc-group" style="margin-top:10px;">
+            <button class="btn btn-red btn-sm btn-block" onclick="confirmNewGame()">New Game</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>SpotOn Solutions Game Center &middot; Built for Elevation &middot; <a href="https://spotonsolutions.com">spotonsolutions.com</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+<!-- Confetti -->
+<div id="confettiContainer"></div>
+<!-- Confirm Dialog -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <p id="confirmMsg">Are you sure?</p>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-red" id="confirmBtn" onclick="closeConfirm()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   DATA: MARKETING TACTIC LIBRARY
+   ================================================================ */
+const TACTIC_LIBRARY = [
+  // DIGITAL
+  {id:'gads',name:'Google Ads Search',cat:'Digital'},
+  {id:'lsa',name:'Local Service Ads',cat:'Digital'},
+  {id:'seo-service',name:'SEO Service Pages',cat:'Digital'},
+  {id:'seo-blogs',name:'SEO Blogs',cat:'Digital'},
+  {id:'gbp',name:'Google Business Profile Optimization',cat:'Digital'},
+  {id:'meta-ads',name:'Meta Ads',cat:'Digital'},
+  {id:'display',name:'Google Display',cat:'Digital'},
+  {id:'youtube',name:'YouTube Ads',cat:'Digital'},
+  {id:'remarketing',name:'Remarketing',cat:'Digital'},
+  {id:'email',name:'Email Marketing',cat:'Digital'},
+  {id:'sms',name:'SMS Campaigns',cat:'Digital'},
+  {id:'landing',name:'Landing Page Optimization',cat:'Digital'},
+  {id:'cro',name:'Conversion Rate Optimization',cat:'Digital'},
+  {id:'shopping',name:'Google Shopping',cat:'Digital'},
+  {id:'paid-social-leads',name:'Paid Social Lead Forms',cat:'Digital'},
+  // TRADITIONAL
+  {id:'direct-mail',name:'Direct Mail',cat:'Traditional'},
+  {id:'billboards',name:'Billboards',cat:'Traditional'},
+  {id:'radio',name:'Radio',cat:'Traditional'},
+  {id:'tv',name:'TV',cat:'Traditional'},
+  {id:'door-knock',name:'Door Knocking',cat:'Traditional'},
+  {id:'flyers',name:'Flyers',cat:'Traditional'},
+  {id:'yard-signs',name:'Yard Signs',cat:'Traditional'},
+  {id:'events',name:'Community Event Sponsorships',cat:'Traditional'},
+  {id:'truck-wraps',name:'Truck Wraps',cat:'Traditional'},
+  {id:'print-ads',name:'Local Print Ads',cat:'Traditional'},
+  // SALES / OPS
+  {id:'call-handling',name:'Call Handling Improvement',cat:'Sales/Ops'},
+  {id:'after-hours',name:'After-Hours Answering',cat:'Sales/Ops'},
+  {id:'crm',name:'CRM Follow-Up Automation',cat:'Sales/Ops'},
+  {id:'speed-lead',name:'Speed-to-Lead Improvement',cat:'Sales/Ops'},
+  {id:'sales-training',name:'Sales Training',cat:'Sales/Ops'},
+  {id:'quote-followup',name:'Quote Follow-Up Process',cat:'Sales/Ops'},
+  {id:'lead-routing',name:'Lead Routing Fixes',cat:'Sales/Ops'},
+  {id:'intake-script',name:'Intake Script Improvement',cat:'Sales/Ops'},
+  {id:'review-process',name:'Reputation / Review Request Process',cat:'Sales/Ops'},
+  // RETENTION / BRAND
+  {id:'loyalty',name:'Loyalty Program',cat:'Retention/Brand'},
+  {id:'referral',name:'Referral Program',cat:'Retention/Brand'},
+  {id:'email-nurture',name:'Email Nurture',cat:'Retention/Brand'},
+  {id:'seasonal',name:'Seasonal Reactivation Campaigns',cat:'Retention/Brand'},
+  {id:'social-content',name:'Social Content',cat:'Retention/Brand'},
+  {id:'testimonial-video',name:'Customer Testimonial Videos',cat:'Retention/Brand'},
+  {id:'brand-video',name:'Brand Video',cat:'Retention/Brand'},
+  {id:'review-gen',name:'Review Generation',cat:'Retention/Brand'},
+  {id:'community-partner',name:'Community Partnerships',cat:'Retention/Brand'},
+  {id:'influencer',name:'Influencer / Ambassador Partnerships',cat:'Retention/Brand'},
+];
+const TACTIC_MAP = {};
+TACTIC_LIBRARY.forEach(t => TACTIC_MAP[t.id] = t);
+
+/* ================================================================
+   DATA: GAP / PROBLEM OPTIONS
+   ================================================================ */
+const GAP_OPTIONS = [
+  {id:'bofu-heavy', label:'Too BOFU Heavy'},
+  {id:'no-awareness', label:'No Awareness Generation'},
+  {id:'weak-conversion', label:'Weak Conversion Path'},
+  {id:'poor-followup', label:'Poor Follow-Up'},
+  {id:'weak-retention', label:'Weak Retention'},
+  {id:'low-quality-leads', label:'Too Many Low-Quality Leads'},
+  {id:'low-brand', label:'Brand Awareness Too Low'},
+  {id:'msg-confusion', label:'Messaging Confusion'},
+  {id:'sales-bottleneck', label:'Sales Process Bottleneck'},
+  {id:'budget-thin', label:'Budget Spread Too Thin'},
+  {id:'offline-digital-gap', label:'Offline & Digital Not Connected'},
+  {id:'wrong-audience', label:'Wrong Audience Mix'},
+];
+
+/* ================================================================
+   DATA: 15 SCENARIOS
+   ================================================================ */
+const SCENARIOS = [
+  // 1. HVAC — Need Calls NOW
+  {
+    id: 1,
+    name: 'QuickHeat HVAC',
+    subtitle: 'Need Calls NOW',
+    industry: 'HVAC',
+    budget: 6000,
+    goal: 'Immediate service calls',
+    currentTactics: [
+      {id:'gads', stage:'conversion'},
+      {id:'lsa', stage:'conversion'},
+      {id:'website', stage:'consideration', custom:true, name:'Website'},
+      {id:'truck-wraps', stage:'awareness'},
+    ],
+    notes: 'Phones not always answered after hours.',
+    suggestedMapping: {
+      'gads':'conversion','lsa':'conversion','website':'consideration','truck-wraps':'awareness'
+    },
+    acceptableAlts: {'gads':'consideration','website':'conversion'},
+    topGaps: ['poor-followup','weak-retention','bofu-heavy'],
+    idealStrategy: [
+      {id:'lsa', stage:'conversion', budget:1500},
+      {id:'gads', stage:'conversion', budget:1500},
+      {id:'after-hours', stage:'conversion', budget:500},
+      {id:'gbp', stage:'awareness', budget:500},
+      {id:'review-process', stage:'retention', budget:300},
+      {id:'crm', stage:'retention', budget:400},
+    ],
+  },
+  // 2. Restoration — Storm Dominator
+  {
+    id: 2,
+    name: 'StormShield Restoration',
+    subtitle: 'Storm Dominator',
+    industry: 'Restoration',
+    budget: 25000,
+    goal: 'Dominate storm response in region',
+    currentTactics: [
+      {id:'gads', stage:'conversion'},
+      {id:'seo-service', stage:'consideration'},
+      {id:'tpa', stage:'conversion', custom:true, name:'TPA Relationships'},
+      {id:'fleet', stage:'awareness', custom:true, name:'Fleet Branding'},
+      {id:'radio', stage:'awareness'},
+    ],
+    notes: 'Huge spikes then drop-offs.',
+    suggestedMapping: {
+      'gads':'conversion','seo-service':'consideration','tpa':'conversion','fleet':'awareness','radio':'awareness'
+    },
+    acceptableAlts: {'seo-service':'awareness','radio':'consideration'},
+    topGaps: ['weak-retention','no-awareness','budget-thin'],
+    idealStrategy: [
+      {id:'gads', stage:'conversion', budget:6000},
+      {id:'seo-service', stage:'consideration', budget:3000},
+      {id:'seo-blogs', stage:'awareness', budget:2000},
+      {id:'remarketing', stage:'consideration', budget:2000},
+      {id:'crm', stage:'retention', budget:1500},
+      {id:'seasonal', stage:'retention', budget:1500},
+    ],
+  },
+  // 3. Plumbing — Feast or Famine
+  {
+    id: 3,
+    name: 'PipePro Plumbing',
+    subtitle: 'Feast or Famine',
+    industry: 'Plumbing',
+    budget: 4000,
+    goal: 'Consistent lead flow',
+    currentTactics: [
+      {id:'lsa', stage:'conversion'},
+      {id:'gads', stage:'conversion'},
+      {id:'yard-signs', stage:'awareness'},
+    ],
+    notes: 'No follow-up system.',
+    suggestedMapping: {
+      'lsa':'conversion','gads':'conversion','yard-signs':'awareness'
+    },
+    acceptableAlts: {'yard-signs':'consideration'},
+    topGaps: ['poor-followup','weak-retention','no-awareness'],
+    idealStrategy: [
+      {id:'lsa', stage:'conversion', budget:1200},
+      {id:'gads', stage:'conversion', budget:1000},
+      {id:'gbp', stage:'awareness', budget:400},
+      {id:'crm', stage:'retention', budget:300},
+      {id:'seo-service', stage:'consideration', budget:600},
+      {id:'review-process', stage:'retention', budget:200},
+    ],
+  },
+  // 4. Roofing — Scale the Machine
+  {
+    id: 4,
+    name: 'ApexRoof Co',
+    subtitle: 'Scale the Machine',
+    industry: 'Roofing',
+    budget: 20000,
+    goal: 'Scale high-ticket insurance jobs',
+    currentTactics: [
+      {id:'meta-ads', stage:'awareness'},
+      {id:'door-knock', stage:'conversion'},
+      {id:'website', stage:'consideration', custom:true, name:'Website'},
+      {id:'yard-signs', stage:'awareness'},
+      {id:'gads', stage:'conversion'},
+    ],
+    notes: 'Lead volume is high but close rate is inconsistent.',
+    suggestedMapping: {
+      'meta-ads':'awareness','door-knock':'conversion','website':'consideration','yard-signs':'awareness','gads':'conversion'
+    },
+    acceptableAlts: {'meta-ads':'consideration','door-knock':'consideration'},
+    topGaps: ['sales-bottleneck','low-quality-leads','weak-conversion'],
+    idealStrategy: [
+      {id:'gads', stage:'conversion', budget:5000},
+      {id:'meta-ads', stage:'awareness', budget:4000},
+      {id:'sales-training', stage:'conversion', budget:2000},
+      {id:'crm', stage:'retention', budget:1500},
+      {id:'landing', stage:'conversion', budget:1500},
+      {id:'remarketing', stage:'consideration', budget:2000},
+    ],
+  },
+  // 5. Cleaning — Startup Mode
+  {
+    id: 5,
+    name: 'SparkleClean Co',
+    subtitle: 'Startup Mode',
+    industry: 'Cleaning',
+    budget: 2500,
+    goal: 'Get first 20 recurring customers',
+    currentTactics: [
+      {id:'gbp', stage:'awareness'},
+      {id:'flyers', stage:'awareness'},
+      {id:'fb-posts', stage:'awareness', custom:true, name:'Facebook Posts'},
+    ],
+    notes: 'No brand recognition yet.',
+    suggestedMapping: {
+      'gbp':'awareness','flyers':'awareness','fb-posts':'awareness'
+    },
+    acceptableAlts: {'gbp':'consideration'},
+    topGaps: ['no-awareness','weak-conversion','low-brand'],
+    idealStrategy: [
+      {id:'lsa', stage:'conversion', budget:600},
+      {id:'gbp', stage:'awareness', budget:200},
+      {id:'meta-ads', stage:'awareness', budget:600},
+      {id:'referral', stage:'retention', budget:200},
+      {id:'review-process', stage:'retention', budget:150},
+      {id:'flyers', stage:'awareness', budget:300},
+    ],
+  },
+  // 6. Pest Control — Stuck at the Ceiling
+  {
+    id: 6,
+    name: 'BugShield Pest Control',
+    subtitle: 'Stuck at the Ceiling',
+    industry: 'Pest Control',
+    budget: 15000,
+    goal: 'Break growth plateau',
+    currentTactics: [
+      {id:'gads', stage:'conversion'},
+      {id:'seo-blogs', stage:'awareness'},
+      {id:'seo-service', stage:'consideration'},
+      {id:'direct-mail', stage:'awareness'},
+      {id:'call-center', stage:'conversion', custom:true, name:'Call Center Handling Leads'},
+    ],
+    notes: 'CPL has been rising.',
+    suggestedMapping: {
+      'gads':'conversion','seo-blogs':'awareness','seo-service':'consideration','direct-mail':'awareness','call-center':'conversion'
+    },
+    acceptableAlts: {'seo-blogs':'consideration','direct-mail':'consideration'},
+    topGaps: ['budget-thin','weak-retention','low-quality-leads'],
+    idealStrategy: [
+      {id:'gads', stage:'conversion', budget:4000},
+      {id:'seo-service', stage:'consideration', budget:2500},
+      {id:'remarketing', stage:'consideration', budget:1500},
+      {id:'loyalty', stage:'retention', budget:1000},
+      {id:'landing', stage:'conversion', budget:1500},
+      {id:'seasonal', stage:'retention', budget:1000},
+    ],
+  },
+  // 7. Landscaping — Own the Market
+  {
+    id: 7,
+    name: 'GreenScape Landscaping',
+    subtitle: 'Own the Market',
+    industry: 'Landscaping',
+    budget: 18000,
+    goal: 'Become number one in market',
+    currentTactics: [
+      {id:'fb-ig-ads', stage:'awareness', custom:true, name:'Facebook & Instagram Ads'},
+      {id:'seo-general', stage:'consideration', custom:true, name:'SEO'},
+      {id:'yard-signs', stage:'awareness'},
+      {id:'events', stage:'awareness'},
+    ],
+    notes: 'Strong awareness but inconsistent lead quality.',
+    suggestedMapping: {
+      'fb-ig-ads':'awareness','seo-general':'consideration','yard-signs':'awareness','events':'awareness'
+    },
+    acceptableAlts: {'events':'consideration','fb-ig-ads':'consideration'},
+    topGaps: ['low-quality-leads','weak-conversion','poor-followup'],
+    idealStrategy: [
+      {id:'gads', stage:'conversion', budget:5000},
+      {id:'meta-ads', stage:'awareness', budget:3000},
+      {id:'seo-service', stage:'consideration', budget:2500},
+      {id:'landing', stage:'conversion', budget:1500},
+      {id:'crm', stage:'retention', budget:1000},
+      {id:'review-gen', stage:'retention', budget:800},
+    ],
+  },
+  // 8. Garage Door — Low Volume Market
+  {
+    id: 8,
+    name: 'LiftRight Garage Doors',
+    subtitle: 'Low Volume Market',
+    industry: 'Garage Door',
+    budget: 2000,
+    goal: 'Increase total jobs',
+    currentTactics: [
+      {id:'gads', stage:'conversion'},
+      {id:'ll-sponsor', stage:'awareness', custom:true, name:'Local Sponsorship (Little League)'},
+    ],
+    notes: 'Low search volume market.',
+    suggestedMapping: {
+      'gads':'conversion','ll-sponsor':'awareness'
+    },
+    acceptableAlts: {'ll-sponsor':'consideration'},
+    topGaps: ['no-awareness','weak-retention','offline-digital-gap'],
+    idealStrategy: [
+      {id:'lsa', stage:'conversion', budget:400},
+      {id:'gbp', stage:'awareness', budget:200},
+      {id:'direct-mail', stage:'awareness', budget:400},
+      {id:'referral', stage:'retention', budget:200},
+      {id:'review-process', stage:'retention', budget:150},
+      {id:'social-content', stage:'awareness', budget:300},
+    ],
+  },
+  // 9. HVAC + Plumbing — Brand Confusion
+  {
+    id: 9,
+    name: 'ComfortPro HVAC & Plumbing',
+    subtitle: 'Brand Confusion',
+    industry: 'HVAC + Plumbing',
+    budget: 22000,
+    goal: 'Grow both divisions',
+    currentTactics: [
+      {id:'gads-mixed', stage:'conversion', custom:true, name:'Google Ads Mixed Campaigns'},
+      {id:'seo-general', stage:'consideration', custom:true, name:'SEO'},
+      {id:'billboards', stage:'awareness'},
+      {id:'radio', stage:'awareness'},
+    ],
+    notes: 'Messaging unclear and budget split inefficiently.',
+    suggestedMapping: {
+      'gads-mixed':'conversion','seo-general':'consideration','billboards':'awareness','radio':'awareness'
+    },
+    acceptableAlts: {'billboards':'consideration'},
+    topGaps: ['msg-confusion','budget-thin','weak-conversion'],
+    idealStrategy: [
+      {id:'gads', stage:'conversion', budget:6000},
+      {id:'seo-service', stage:'consideration', budget:3000},
+      {id:'landing', stage:'conversion', budget:2000},
+      {id:'brand-video', stage:'awareness', budget:2500},
+      {id:'remarketing', stage:'consideration', budget:2000},
+      {id:'call-handling', stage:'conversion', budget:1500},
+    ],
+  },
+  // 10. Carpet Cleaning — Race to the Bottom
+  {
+    id: 10,
+    name: 'FreshStart Carpet Cleaning',
+    subtitle: 'Race to the Bottom',
+    industry: 'Carpet Cleaning',
+    budget: 3000,
+    goal: 'Lower CPL without attracting junk leads',
+    currentTactics: [
+      {id:'gads', stage:'conversion'},
+      {id:'coupon-mail', stage:'awareness', custom:true, name:'Coupon Mailers'},
+      {id:'groupon', stage:'conversion', custom:true, name:'Groupon-Style Deals'},
+    ],
+    notes: 'Low-quality customers dominate.',
+    suggestedMapping: {
+      'gads':'conversion','coupon-mail':'awareness','groupon':'conversion'
+    },
+    acceptableAlts: {'coupon-mail':'consideration','groupon':'awareness'},
+    topGaps: ['low-quality-leads','wrong-audience','weak-retention'],
+    idealStrategy: [
+      {id:'lsa', stage:'conversion', budget:600},
+      {id:'gbp', stage:'awareness', budget:300},
+      {id:'seo-service', stage:'consideration', budget:500},
+      {id:'review-gen', stage:'retention', budget:300},
+      {id:'referral', stage:'retention', budget:250},
+      {id:'email-nurture', stage:'retention', budget:250},
+    ],
+  },
+  // 11. Water Damage — Premium Jobs Only
+  {
+    id: 11,
+    name: 'AquaGuard Restoration',
+    subtitle: 'Premium Jobs Only',
+    industry: 'Water Damage',
+    budget: 17000,
+    goal: 'More insurance work',
+    currentTactics: [
+      {id:'gads', stage:'conversion'},
+      {id:'seo-service', stage:'consideration'},
+      {id:'networking', stage:'consideration', custom:true, name:'Networking with Plumbers & Agents'},
+      {id:'branded-vehicles', stage:'awareness', custom:true, name:'Branded Vehicles'},
+    ],
+    notes: 'Getting lead volume but wrong job type.',
+    suggestedMapping: {
+      'gads':'conversion','seo-service':'consideration','networking':'consideration','branded-vehicles':'awareness'
+    },
+    acceptableAlts: {'networking':'conversion','seo-service':'awareness'},
+    topGaps: ['wrong-audience','weak-conversion','poor-followup'],
+    idealStrategy: [
+      {id:'gads', stage:'conversion', budget:5000},
+      {id:'seo-service', stage:'consideration', budget:2500},
+      {id:'landing', stage:'conversion', budget:1500},
+      {id:'remarketing', stage:'consideration', budget:1500},
+      {id:'crm', stage:'retention', budget:1000},
+      {id:'community-partner', stage:'awareness', budget:1500},
+    ],
+  },
+  // 12. Electrical — Modernizing
+  {
+    id: 12,
+    name: 'VoltEdge Electric',
+    subtitle: 'Modernizing',
+    industry: 'Electrical',
+    budget: 8000,
+    goal: 'Grow while transitioning from referrals',
+    currentTactics: [
+      {id:'referrals', stage:'retention', custom:true, name:'Referrals'},
+      {id:'truck-wraps', stage:'awareness'},
+      {id:'gads', stage:'conversion'},
+    ],
+    notes: 'Owner is cautious about scaling.',
+    suggestedMapping: {
+      'referrals':'retention','truck-wraps':'awareness','gads':'conversion'
+    },
+    acceptableAlts: {'referrals':'conversion'},
+    topGaps: ['no-awareness','weak-conversion','poor-followup'],
+    idealStrategy: [
+      {id:'gads', stage:'conversion', budget:2000},
+      {id:'lsa', stage:'conversion', budget:1500},
+      {id:'gbp', stage:'awareness', budget:500},
+      {id:'seo-service', stage:'consideration', budget:1500},
+      {id:'referral', stage:'retention', budget:500},
+      {id:'crm', stage:'retention', budget:500},
+    ],
+  },
+  // 13. Burger Chain — Fill Weekdays
+  {
+    id: 13,
+    name: 'FlameStack Burgers',
+    subtitle: 'Fill Weekdays',
+    industry: 'Restaurant (Regional Chain)',
+    budget: 30000,
+    goal: 'Increase weekday traffic across 5 locations',
+    currentTactics: [
+      {id:'social-general', stage:'awareness', custom:true, name:'Social Media'},
+      {id:'gbp', stage:'awareness'},
+      {id:'radio', stage:'awareness'},
+      {id:'in-store', stage:'retention', custom:true, name:'In-Store Promos'},
+    ],
+    notes: 'Strong brand, inconsistent weekday traffic.',
+    suggestedMapping: {
+      'social-general':'awareness','gbp':'awareness','radio':'awareness','in-store':'retention'
+    },
+    acceptableAlts: {'gbp':'consideration','social-general':'consideration'},
+    topGaps: ['weak-conversion','offline-digital-gap','bofu-heavy'],
+    idealStrategy: [
+      {id:'meta-ads', stage:'awareness', budget:8000},
+      {id:'sms', stage:'conversion', budget:2000},
+      {id:'email', stage:'retention', budget:2000},
+      {id:'loyalty', stage:'retention', budget:3000},
+      {id:'remarketing', stage:'consideration', budget:3000},
+      {id:'social-content', stage:'awareness', budget:4000},
+    ],
+  },
+  // 14. Gym — Retention Crisis
+  {
+    id: 14,
+    name: 'IronPulse Fitness',
+    subtitle: 'Retention Crisis',
+    industry: 'Gym Franchise',
+    budget: 18000,
+    goal: 'Reduce churn and grow memberships',
+    currentTactics: [
+      {id:'paid-social', stage:'awareness', custom:true, name:'Paid Social'},
+      {id:'gads', stage:'conversion'},
+      {id:'free-trial', stage:'conversion', custom:true, name:'Free Trial Offers'},
+      {id:'email', stage:'retention'},
+    ],
+    notes: 'High signups, high drop-off after joining.',
+    suggestedMapping: {
+      'paid-social':'awareness','gads':'conversion','free-trial':'conversion','email':'retention'
+    },
+    acceptableAlts: {'paid-social':'consideration','email':'consideration'},
+    topGaps: ['weak-retention','poor-followup','sales-bottleneck'],
+    idealStrategy: [
+      {id:'meta-ads', stage:'awareness', budget:3500},
+      {id:'email-nurture', stage:'retention', budget:2000},
+      {id:'loyalty', stage:'retention', budget:2500},
+      {id:'social-content', stage:'awareness', budget:2000},
+      {id:'sms', stage:'retention', budget:1500},
+      {id:'community-partner', stage:'awareness', budget:1500},
+    ],
+  },
+  // 15. E-commerce — Scale Profitably
+  {
+    id: 15,
+    name: 'TrailForge Outdoors',
+    subtitle: 'Scale Profitably',
+    industry: 'E-commerce (Outdoor Brand)',
+    budget: 35000,
+    goal: 'Improve ROAS while scaling',
+    currentTactics: [
+      {id:'shopping', stage:'conversion'},
+      {id:'meta-ads', stage:'awareness'},
+      {id:'email-sms', stage:'retention', custom:true, name:'Email & SMS'},
+      {id:'influencer', stage:'awareness'},
+    ],
+    notes: 'High traffic but margin pressure.',
+    suggestedMapping: {
+      'shopping':'conversion','meta-ads':'awareness','email-sms':'retention','influencer':'awareness'
+    },
+    acceptableAlts: {'meta-ads':'consideration','influencer':'consideration','shopping':'consideration'},
+    topGaps: ['budget-thin','weak-conversion','wrong-audience'],
+    idealStrategy: [
+      {id:'shopping', stage:'conversion', budget:8000},
+      {id:'meta-ads', stage:'awareness', budget:7000},
+      {id:'remarketing', stage:'consideration', budget:4000},
+      {id:'email', stage:'retention', budget:3000},
+      {id:'cro', stage:'conversion', budget:3000},
+      {id:'seo-blogs', stage:'awareness', budget:3000},
+    ],
+  },
+];
+
+/* ================================================================
+   GAME STATE
+   ================================================================ */
+let state = {
+  teams: [],
+  teamCount: 4,
+  currentScenario: 0,
+  currentPhase: 0, // 0=reveal, 1=map, 2=gaps, 3=rebuild
+  activeTeam: 0,
+  timerEnabled: true,
+  timerSeconds: 0,
+  timerMax: 0,
+  timerRunning: false,
+  timerInterval: null,
+  // Per-scenario state
+  mappedCards: {awareness:[],consideration:[],conversion:[],retention:[]},
+  selectedGaps: [],
+  rebuildCards: [], // {id, stage, budget}
+  answersRevealed: false,
+  phaseScored: [false,false,false,false],
+  scenarioScores: [], // track which scenarios have been played
+};
+
+const PHASE_NAMES = ['Reveal','Map','Gaps','Rebuild'];
+const STAGE_NAMES = ['awareness','consideration','conversion','retention'];
+const PHASE_TIMERS = [0, 180, 120, 240];
+const TEAM_COLORS = ['var(--team1)','var(--team2)','var(--team3)','var(--team4)'];
+
+/* ================================================================
+   INIT & SETUP
+   ================================================================ */
+function startGame() {
+  state.teamCount = parseInt(document.getElementById('teamCount').value);
+  state.teams = [];
+  for (let i = 0; i < state.teamCount; i++) {
+    state.teams.push({
+      name: document.getElementById(`team${i+1}Name`).value || `Team ${i+1}`,
+      score: 0,
+      phaseScores: [], // [{p1,p2,p3,p4,bonus}] per scenario
+      color: TEAM_COLORS[i],
+    });
+  }
+  state.currentScenario = 0;
+  state.currentPhase = 0;
+  state.activeTeam = 0;
+  document.getElementById('setupScreen').classList.add('hidden');
+  document.getElementById('gameScreen').classList.remove('hidden');
+  buildProgressDots();
+  buildScoreboard();
+  buildTeamSelectRow();
+  loadScenario();
+}
+
+function buildProgressDots() {
+  const c = document.getElementById('progressDots');
+  c.innerHTML = '';
+  for (let i = 0; i < SCENARIOS.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'progress-dot' + (i === state.currentScenario ? ' active' : '');
+    c.appendChild(d);
+  }
+}
+
+function updateProgressDots() {
+  const dots = document.querySelectorAll('.progress-dot');
+  dots.forEach((d, i) => {
+    d.className = 'progress-dot';
+    if (i < state.currentScenario) d.classList.add('completed');
+    if (i === state.currentScenario) d.classList.add('active');
+  });
+}
+
+function buildScoreboard() {
+  const c = document.getElementById('scoreboard');
+  let html = '<h2>Scoreboard</h2>';
+  state.teams.forEach((t, i) => {
+    html += `<div class="team-score-card${i===state.activeTeam?' active-team':''}" id="teamCard${i}">
+      <div class="team-name-row">
+        <span class="team-name" style="color:${t.color}" onclick="renameTeam(${i})">${esc(t.name)}</span>
+        <span class="team-score" style="color:${t.color}" id="teamScore${i}">${t.score}</span>
+      </div>
+      <div class="team-bonus-controls">
+        <button onclick="adjustPoints(${i},-1)" title="−1 point">−1</button>
+        <button onclick="adjustPoints(${i},1)" title="+1 point">+1</button>
+        <button onclick="adjustPoints(${i},5)" title="+5 bonus">+5</button>
+      </div>
+    </div>`;
+  });
+  c.innerHTML = html;
+}
+
+function buildTeamSelectRow() {
+  const c = document.getElementById('teamSelectRow');
+  let html = '';
+  state.teams.forEach((t, i) => {
+    html += `<button class="btn btn-sm ${i===state.activeTeam?'btn-blue':'btn-secondary'}" onclick="setActiveTeam(${i})">${esc(t.name)}</button>`;
+  });
+  c.innerHTML = html;
+}
+
+function setActiveTeam(i) {
+  state.activeTeam = i;
+  buildScoreboard();
+  buildTeamSelectRow();
+}
+
+function renameTeam(i) {
+  const name = prompt('Enter new team name:', state.teams[i].name);
+  if (name && name.trim()) {
+    state.teams[i].name = name.trim();
+    buildScoreboard();
+    buildTeamSelectRow();
+  }
+}
+
+function adjustPoints(team, pts) {
+  state.teams[team].score += pts;
+  document.getElementById(`teamScore${team}`).textContent = state.teams[team].score;
+  showToast(`${state.teams[team].name}: ${pts > 0 ? '+' : ''}${pts}`);
+}
+
+/* ================================================================
+   SCENARIO LOADING
+   ================================================================ */
+function loadScenario() {
+  const s = SCENARIOS[state.currentScenario];
+  state.currentPhase = 0;
+  state.mappedCards = {awareness:[],consideration:[],conversion:[],retention:[]};
+  state.selectedGaps = [];
+  state.rebuildCards = [];
+  state.answersRevealed = false;
+  state.phaseScored = [false,false,false,false];
+  stopTimer();
+  document.getElementById('scenarioLabel').textContent = `Scenario ${state.currentScenario+1} / ${SCENARIOS.length}`;
+  updateProgressDots();
+  updatePhaseSteps();
+  renderPhase();
+}
+
+function updatePhaseSteps() {
+  document.querySelectorAll('.phase-step').forEach((el, i) => {
+    el.className = 'phase-step';
+    if (i < state.currentPhase) el.classList.add('completed');
+    if (i === state.currentPhase) el.classList.add('active');
+  });
+}
+
+/* ================================================================
+   PHASE RENDERING
+   ================================================================ */
+function renderPhase() {
+  updatePhaseSteps();
+  state.answersRevealed = false;
+  const s = SCENARIOS[state.currentScenario];
+
+  // Scenario Panel (left)
+  renderScenarioPanel(s);
+
+  // Game Board (center)
+  const board = document.getElementById('gameBoard');
+  switch(state.currentPhase) {
+    case 0: renderPhaseReveal(board, s); break;
+    case 1: renderPhaseMap(board, s); break;
+    case 2: renderPhaseGaps(board, s); break;
+    case 3: renderPhaseRebuild(board, s); break;
+  }
+
+  // Start timer if applicable
+  if (state.timerEnabled && PHASE_TIMERS[state.currentPhase] > 0) {
+    setTimerPreset(PHASE_TIMERS[state.currentPhase]);
+  } else {
+    document.getElementById('timerDisplay').textContent = '—';
+  }
+}
+
+function renderScenarioPanel(s) {
+  const p = document.getElementById('scenarioPanel');
+  const tacticsList = s.currentTactics.map(t => {
+    const lib = TACTIC_MAP[t.id];
+    return t.custom ? t.name : (lib ? lib.name : t.id);
+  });
+
+  let html = `<h2>Scenario ${s.id}</h2>
+    <div class="scenario-name">${esc(s.name)}</div>
+    <div class="scenario-subtitle">"${esc(s.subtitle)}"</div>
+    <div class="scenario-detail"><strong>Industry:</strong> ${esc(s.industry)}</div>
+    <div class="scenario-detail"><strong>Budget:</strong> $${s.budget.toLocaleString()}/mo</div>
+    <div class="scenario-detail"><strong>Goal:</strong> ${esc(s.goal)}</div>
+    <div class="scenario-detail"><strong>Current Marketing:</strong></div>
+    <ul class="current-tactics-list">
+      ${tacticsList.map(t => `<li>${esc(t)}</li>`).join('')}
+    </ul>
+    <div class="scenario-notes"><strong>⚠ Notes:</strong> ${esc(s.notes)}</div>`;
+
+  // Phase-specific instructions
+  const instructions = [
+    '<strong>Phase 1 — Scenario Reveal:</strong> Review the client scenario. Discuss as a team. When ready, the host advances to Phase 2.',
+    '<strong>Phase 2 — Current Funnel Mapping:</strong> Drag each of the client\'s current tactics into the funnel stage where you think it belongs. Some may fit multiple stages — choose the best one.',
+    '<strong>Phase 3 — Gap Analysis:</strong> Based on the current funnel, identify the top 3 problems or gaps in this client\'s marketing strategy.',
+    '<strong>Phase 4 — Rebuild the Funnel:</strong> Build a new strategy from the tactic menu. Pick up to 6 tactics, assign each to a funnel stage, and allocate budget. Stay within budget!',
+  ];
+  html += `<div class="phase-instructions">${instructions[state.currentPhase]}</div>`;
+  p.innerHTML = html;
+}
+
+/* Phase 0 — Reveal */
+function renderPhaseReveal(board, s) {
+  const tacticsList = s.currentTactics.map(t => {
+    const lib = TACTIC_MAP[t.id];
+    return t.custom ? t.name : (lib ? lib.name : t.id);
+  });
+  board.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;padding:40px;">
+      <div style="font-size:.9rem;color:var(--muted);text-transform:uppercase;letter-spacing:3px;margin-bottom:8px;">Round ${s.id} of ${SCENARIOS.length}</div>
+      <div style="font-size:2.2rem;font-weight:700;margin-bottom:4px;">${esc(s.name)}</div>
+      <div style="font-size:1.2rem;color:var(--gold);font-style:italic;margin-bottom:24px;">"${esc(s.subtitle)}"</div>
+      <div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:24px;max-width:550px;width:100%;text-align:left;">
+        <div class="splash-detail-row"><span class="label">Industry</span><span class="value">${esc(s.industry)}</span></div>
+        <div class="splash-detail-row"><span class="label">Monthly Budget</span><span class="value">$${s.budget.toLocaleString()}</span></div>
+        <div class="splash-detail-row"><span class="label">Goal</span><span class="value">${esc(s.goal)}</span></div>
+        <div class="splash-detail-row"><span class="label">Current Tactics</span><span class="value">${tacticsList.join(', ')}</span></div>
+        <div class="splash-detail-row"><span class="label">Notes</span><span class="value" style="color:var(--sos-red)">${esc(s.notes)}</span></div>
+      </div>
+      <button class="btn btn-green" style="margin-top:24px;padding:14px 32px;font-size:1rem;" onclick="nextPhase()">Start Round ▶</button>
+    </div>`;
+}
+
+/* Phase 1 — Map Current Tactics */
+function renderPhaseMap(board, s) {
+  let html = '<div class="funnel-container">';
+  STAGE_NAMES.forEach(stage => {
+    html += `<div class="funnel-col" data-stage="${stage}" ondragover="onDragOver(event)" ondrop="onDropMap(event,'${stage}')" ondragleave="onDragLeave(event)">
+      <div class="funnel-col-header">${stage}</div>
+      <div class="cards-area" id="map-${stage}">`;
+    // Render cards already placed
+    state.mappedCards[stage].forEach(cardId => {
+      const ct = s.currentTactics.find(t => t.id === cardId);
+      if (!ct) return;
+      const name = ct.custom ? ct.name : (TACTIC_MAP[ct.id] ? TACTIC_MAP[ct.id].name : ct.id);
+      html += buildDraggableCard(cardId, name, '', 'map');
+    });
+    html += '</div></div>';
+  });
+  html += '</div>';
+
+  // Unplaced cards tray
+  const placed = Object.values(state.mappedCards).flat();
+  const unplaced = s.currentTactics.filter(t => !placed.includes(t.id));
+  if (unplaced.length > 0) {
+    html += '<div class="card-tray"><h3>Current Tactics — Drag to Funnel</h3><div class="tray-cards">';
+    unplaced.forEach(t => {
+      const name = t.custom ? t.name : (TACTIC_MAP[t.id] ? TACTIC_MAP[t.id].name : t.id);
+      html += buildDraggableCard(t.id, name, '', 'map');
+    });
+    html += '</div></div>';
+  }
+
+  // Action buttons
+  html += `<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+    <button class="btn btn-gold btn-sm" onclick="checkMapPlacement()">Check Placement</button>
+    <button class="btn btn-green btn-sm" onclick="revealAnswers()">Show Suggested Answer</button>
+    <button class="btn btn-secondary btn-sm" onclick="hideAnswers()">Hide Answer</button>
+  </div>`;
+  html += '<div class="reveal-panel" id="revealPanel"></div>';
+
+  board.innerHTML = html;
+}
+
+/* Phase 2 — Gap Analysis */
+function renderPhaseGaps(board, s) {
+  let html = '<h2 style="margin-bottom:12px;">Identify the Top 3 Gaps</h2>';
+  html += '<div class="gap-grid">';
+  GAP_OPTIONS.forEach(g => {
+    const sel = state.selectedGaps.includes(g.id);
+    html += `<div class="gap-card${sel?' selected':''}" data-gap="${g.id}" onclick="toggleGap('${g.id}')">${esc(g.label)}</div>`;
+  });
+  html += '</div>';
+  html += `<div class="gap-limit-msg">${state.selectedGaps.length}/3 selected</div>`;
+  html += `<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+    <button class="btn btn-gold btn-sm" onclick="scoreGaps()">Check Gaps</button>
+    <button class="btn btn-green btn-sm" onclick="revealAnswers()">Show Suggested Answer</button>
+    <button class="btn btn-secondary btn-sm" onclick="hideAnswers()">Hide Answer</button>
+  </div>`;
+  html += '<div class="reveal-panel" id="revealPanel"></div>';
+  board.innerHTML = html;
+}
+
+function toggleGap(gapId) {
+  const idx = state.selectedGaps.indexOf(gapId);
+  if (idx >= 0) {
+    state.selectedGaps.splice(idx, 1);
+  } else if (state.selectedGaps.length < 3) {
+    state.selectedGaps.push(gapId);
+  } else {
+    showToast('Max 3 gaps — deselect one first');
+    return;
+  }
+  // Update UI
+  document.querySelectorAll('.gap-card').forEach(el => {
+    el.classList.toggle('selected', state.selectedGaps.includes(el.dataset.gap));
+  });
+  document.querySelector('.gap-limit-msg').textContent = `${state.selectedGaps.length}/3 selected`;
+}
+
+/* Phase 3 — Rebuild the Funnel */
+function renderPhaseRebuild(board, s) {
+  let html = '';
+
+  // Budget bar
+  const allocated = state.rebuildCards.reduce((sum, c) => sum + (c.budget || 0), 0);
+  const remaining = s.budget - allocated;
+  const pct = Math.min(100, (allocated / s.budget) * 100);
+  const budgetClass = allocated > s.budget ? 'over' : (allocated >= s.budget * 0.8 ? 'ok' : 'warning');
+  const fillColor = allocated > s.budget ? 'var(--sos-red)' : (allocated >= s.budget * 0.8 ? 'var(--green)' : 'var(--orange)');
+
+  html += `<div class="budget-bar">
+    <div><div class="budget-label">Total Budget</div><div class="budget-value">$${s.budget.toLocaleString()}</div></div>
+    <div class="budget-progress"><div class="budget-fill" style="width:${pct}%;background:${fillColor}"></div></div>
+    <div><div class="budget-label">Allocated</div><div class="budget-value ${budgetClass}">$${allocated.toLocaleString()}</div></div>
+    <div><div class="budget-label">Remaining</div><div class="budget-value" style="color:${remaining<0?'var(--sos-red)':'var(--text)'}">$${remaining.toLocaleString()}</div></div>
+    <div class="tactic-count"><strong>${state.rebuildCards.length}</strong>/6 tactics</div>
+  </div>`;
+
+  // Funnel columns for rebuild
+  html += '<div class="funnel-container" style="margin-top:10px;">';
+  STAGE_NAMES.forEach(stage => {
+    html += `<div class="funnel-col" data-stage="${stage}" ondragover="onDragOver(event)" ondrop="onDropRebuild(event,'${stage}')" ondragleave="onDragLeave(event)">
+      <div class="funnel-col-header">${stage}</div>
+      <div class="cards-area" id="rebuild-${stage}">`;
+    state.rebuildCards.filter(c => c.stage === stage).forEach(c => {
+      const lib = TACTIC_MAP[c.id];
+      const name = lib ? lib.name : c.id;
+      const cat = lib ? lib.cat : '';
+      html += `<div class="tactic-card" draggable="true" data-id="${c.id}" data-mode="rebuild"
+        ondragstart="onDragStart(event)">
+        <button class="remove-btn" onclick="removeRebuildCard('${c.id}')" title="Remove">×</button>
+        <div class="card-name">${esc(name)}</div>
+        <div class="card-category">${esc(cat)}</div>
+        <input type="number" class="budget-input" value="${c.budget||0}" min="0" step="50"
+          placeholder="$" onchange="updateRebuildBudget('${c.id}',this.value)"
+          onclick="event.stopPropagation()">
+      </div>`;
+    });
+    html += '</div></div>';
+  });
+  html += '</div>';
+
+  // Tactic library tray
+  html += '<div class="card-tray"><h3>Marketing Menu — Drag to Funnel (max 6)</h3>';
+  html += '<div class="category-tabs">';
+  const cats = ['All','Digital','Traditional','Sales/Ops','Retention/Brand'];
+  cats.forEach(c => {
+    html += `<button class="category-tab${c==='All'?' active':''}" onclick="filterTray('${c}',this)">${c}</button>`;
+  });
+  html += '</div>';
+  html += '<div class="tray-cards" id="rebuildTray">';
+  const usedIds = state.rebuildCards.map(c => c.id);
+  TACTIC_LIBRARY.forEach(t => {
+    if (usedIds.includes(t.id)) return;
+    html += buildDraggableCard(t.id, t.name, t.cat, 'rebuild-tray');
+  });
+  html += '</div></div>';
+
+  // Actions
+  html += `<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+    <button class="btn btn-gold btn-sm" onclick="scoreRebuild()">Score Rebuild</button>
+    <button class="btn btn-green btn-sm" onclick="revealAnswers()">Show Ideal Strategy</button>
+    <button class="btn btn-secondary btn-sm" onclick="hideAnswers()">Hide</button>
+  </div>`;
+  html += '<div class="reveal-panel" id="revealPanel"></div>';
+
+  board.innerHTML = html;
+}
+
+/* ================================================================
+   DRAG AND DROP
+   ================================================================ */
+let dragData = null;
+
+function buildDraggableCard(id, name, cat, mode) {
+  return `<div class="tactic-card" draggable="true" data-id="${id}" data-mode="${mode}"
+    ondragstart="onDragStart(event)">
+    <div class="card-name">${esc(name)}</div>
+    ${cat ? `<div class="card-category">${esc(cat)}</div>` : ''}
+  </div>`;
+}
+
+function onDragStart(e) {
+  dragData = {
+    id: e.target.dataset.id,
+    mode: e.target.dataset.mode,
+    sourceStage: e.target.closest('.funnel-col') ? e.target.closest('.funnel-col').dataset.stage : null
+  };
+  e.target.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', dragData.id);
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+}
+
+function onDragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+
+function onDropMap(e, stage) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if (!dragData) return;
+  const cardId = dragData.id;
+
+  // Remove from any current stage
+  STAGE_NAMES.forEach(st => {
+    state.mappedCards[st] = state.mappedCards[st].filter(id => id !== cardId);
+  });
+  // Add to new stage
+  state.mappedCards[stage].push(cardId);
+  dragData = null;
+
+  // Re-render
+  const s = SCENARIOS[state.currentScenario];
+  renderPhaseMap(document.getElementById('gameBoard'), s);
+}
+
+function onDropRebuild(e, stage) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if (!dragData) return;
+  const cardId = dragData.id;
+  const s = SCENARIOS[state.currentScenario];
+
+  // Check if already in rebuild
+  const existing = state.rebuildCards.find(c => c.id === cardId);
+  if (existing) {
+    // Just move stages
+    existing.stage = stage;
+  } else {
+    // Adding new
+    if (state.rebuildCards.length >= 6) {
+      showToast('Max 6 tactics — remove one first');
+      dragData = null;
+      return;
+    }
+    state.rebuildCards.push({id: cardId, stage: stage, budget: 0});
+  }
+  dragData = null;
+  renderPhaseRebuild(document.getElementById('gameBoard'), s);
+}
+
+function removeRebuildCard(id) {
+  state.rebuildCards = state.rebuildCards.filter(c => c.id !== id);
+  renderPhaseRebuild(document.getElementById('gameBoard'), SCENARIOS[state.currentScenario]);
+}
+
+function updateRebuildBudget(id, val) {
+  const card = state.rebuildCards.find(c => c.id === id);
+  if (card) card.budget = Math.max(0, parseInt(val) || 0);
+  // Update budget bar without full re-render
+  const s = SCENARIOS[state.currentScenario];
+  const allocated = state.rebuildCards.reduce((sum, c) => sum + (c.budget || 0), 0);
+  const remaining = s.budget - allocated;
+  const pct = Math.min(100, (allocated / s.budget) * 100);
+  const budgetClass = allocated > s.budget ? 'over' : (allocated >= s.budget * 0.8 ? 'ok' : 'warning');
+  const fillColor = allocated > s.budget ? 'var(--sos-red)' : (allocated >= s.budget * 0.8 ? 'var(--green)' : 'var(--orange)');
+
+  const bar = document.querySelector('.budget-bar');
+  if (bar) {
+    const vals = bar.querySelectorAll('.budget-value');
+    if (vals[1]) { vals[1].textContent = '$' + allocated.toLocaleString(); vals[1].className = 'budget-value ' + budgetClass; }
+    if (vals[2]) { vals[2].textContent = '$' + remaining.toLocaleString(); vals[2].style.color = remaining < 0 ? 'var(--sos-red)' : 'var(--text)'; }
+    const fill = bar.querySelector('.budget-fill');
+    if (fill) { fill.style.width = pct + '%'; fill.style.background = fillColor; }
+  }
+  if (allocated > s.budget) showToast('Over budget!');
+}
+
+function filterTray(cat, btn) {
+  document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const tray = document.getElementById('rebuildTray');
+  if (!tray) return;
+  tray.querySelectorAll('.tactic-card').forEach(card => {
+    const lib = TACTIC_MAP[card.dataset.id];
+    if (!lib) return;
+    if (cat === 'All' || lib.cat === cat) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+/* ================================================================
+   SCORING
+   ================================================================ */
+function checkMapPlacement() {
+  const s = SCENARIOS[state.currentScenario];
+  let correct = 0;
+  let acceptable = 0;
+  const total = s.currentTactics.length;
+
+  document.querySelectorAll('.funnel-col .tactic-card').forEach(el => {
+    el.classList.remove('correct','incorrect','acceptable');
+  });
+
+  STAGE_NAMES.forEach(stage => {
+    state.mappedCards[stage].forEach(cardId => {
+      const suggested = s.suggestedMapping[cardId];
+      const alts = s.acceptableAlts || {};
+      const el = document.querySelector(`.funnel-col[data-stage="${stage}"] .tactic-card[data-id="${cardId}"]`);
+      if (!el) return;
+      if (suggested === stage) {
+        el.classList.add('correct');
+        correct++;
+      } else if (alts[cardId] === stage) {
+        el.classList.add('acceptable');
+        acceptable++;
+      } else {
+        el.classList.add('incorrect');
+      }
+    });
+  });
+
+  const points = Math.round(((correct * 1 + acceptable * 0.5) / total) * 10);
+  showToast(`Mapping: ${correct} correct, ${acceptable} acceptable — ${points}/10 pts`);
+}
+
+function scoreGaps() {
+  const s = SCENARIOS[state.currentScenario];
+  let hits = 0;
+  document.querySelectorAll('.gap-card').forEach(el => {
+    el.classList.remove('correct-gap','wrong-gap');
+    const gid = el.dataset.gap;
+    if (state.selectedGaps.includes(gid)) {
+      if (s.topGaps.includes(gid)) {
+        el.classList.add('correct-gap');
+        hits++;
+      } else {
+        el.classList.add('wrong-gap');
+      }
+    }
+  });
+  const points = Math.round((hits / 3) * 10);
+  showToast(`Gap Analysis: ${hits}/3 correct — ${points}/10 pts`);
+}
+
+function scoreRebuild() {
+  const s = SCENARIOS[state.currentScenario];
+  const allocated = state.rebuildCards.reduce((sum, c) => sum + (c.budget || 0), 0);
+
+  // Strategy score (up to 15)
+  let strategyPts = 0;
+  // Check funnel balance
+  const stages = {awareness:0, consideration:0, conversion:0, retention:0};
+  state.rebuildCards.forEach(c => { if (stages[c.stage] !== undefined) stages[c.stage]++; });
+  const filledStages = Object.values(stages).filter(v => v > 0).length;
+  strategyPts += filledStages * 2; // up to 8 for covering all 4 stages
+
+  // Check overlap with ideal
+  const idealIds = s.idealStrategy.map(t => t.id);
+  const matchCount = state.rebuildCards.filter(c => idealIds.includes(c.id)).length;
+  strategyPts += Math.min(7, matchCount * 2); // up to 7 for matching ideal tactics (capped)
+
+  strategyPts = Math.min(15, strategyPts);
+
+  // Budget compliance (up to 5)
+  let budgetPts = 0;
+  if (allocated <= s.budget && allocated >= s.budget * 0.8) {
+    budgetPts = 5;
+  } else if (allocated <= s.budget && allocated >= s.budget * 0.6) {
+    budgetPts = 3;
+  } else if (allocated > s.budget && allocated <= s.budget * 1.1) {
+    budgetPts = 2;
+  }
+
+  const totalPts = strategyPts + budgetPts;
+  showToast(`Rebuild: Strategy ${strategyPts}/15 + Budget ${budgetPts}/5 = ${totalPts}/20 pts`);
+}
+
+function autoScore() {
+  const s = SCENARIOS[state.currentScenario];
+  const team = state.activeTeam;
+  let pts = 0;
+
+  if (state.currentPhase === 1) {
+    // Map scoring
+    let correct = 0, acceptable = 0;
+    const total = s.currentTactics.length;
+    STAGE_NAMES.forEach(stage => {
+      state.mappedCards[stage].forEach(cardId => {
+        if (s.suggestedMapping[cardId] === stage) correct++;
+        else if ((s.acceptableAlts || {})[cardId] === stage) acceptable++;
+      });
+    });
+    pts = Math.round(((correct + acceptable * 0.5) / total) * 10);
+    showToast(`${state.teams[team].name}: +${pts} pts (Mapping)`);
+  } else if (state.currentPhase === 2) {
+    // Gap scoring
+    let hits = state.selectedGaps.filter(g => s.topGaps.includes(g)).length;
+    pts = Math.round((hits / 3) * 10);
+    showToast(`${state.teams[team].name}: +${pts} pts (Gaps)`);
+  } else if (state.currentPhase === 3) {
+    // Rebuild scoring
+    const allocated = state.rebuildCards.reduce((sum, c) => sum + (c.budget || 0), 0);
+    let strategyPts = 0;
+    const stages = {awareness:0, consideration:0, conversion:0, retention:0};
+    state.rebuildCards.forEach(c => { if (stages[c.stage] !== undefined) stages[c.stage]++; });
+    strategyPts += Object.values(stages).filter(v => v > 0).length * 2;
+    const idealIds = s.idealStrategy.map(t => t.id);
+    strategyPts += Math.min(7, state.rebuildCards.filter(c => idealIds.includes(c.id)).length * 2);
+    strategyPts = Math.min(15, strategyPts);
+    let budgetPts = 0;
+    if (allocated <= s.budget && allocated >= s.budget * 0.8) budgetPts = 5;
+    else if (allocated <= s.budget && allocated >= s.budget * 0.6) budgetPts = 3;
+    else if (allocated > s.budget && allocated <= s.budget * 1.1) budgetPts = 2;
+    pts = strategyPts + budgetPts;
+    showToast(`${state.teams[team].name}: +${pts} pts (Rebuild)`);
+  } else {
+    showToast('No scoring for this phase');
+    return;
+  }
+
+  state.teams[team].score += pts;
+  state.phaseScored[state.currentPhase] = true;
+  document.getElementById(`teamScore${team}`).textContent = state.teams[team].score;
+  launchConfetti();
+}
+
+/* ================================================================
+   REVEAL ANSWERS
+   ================================================================ */
+function revealAnswers() {
+  const s = SCENARIOS[state.currentScenario];
+  const panel = document.getElementById('revealPanel');
+  if (!panel) return;
+  state.answersRevealed = true;
+  let html = '';
+
+  if (state.currentPhase === 1) {
+    html = '<h3>Suggested Funnel Mapping</h3>';
+    s.currentTactics.forEach(t => {
+      const name = t.custom ? t.name : (TACTIC_MAP[t.id] ? TACTIC_MAP[t.id].name : t.id);
+      const stage = s.suggestedMapping[t.id] || '?';
+      html += `<div class="reveal-item">${esc(name)} → <strong>${stage}</strong></div>`;
+    });
+    checkMapPlacement();
+  } else if (state.currentPhase === 2) {
+    html = '<h3>Top 3 Recommended Issues</h3>';
+    s.topGaps.forEach(gid => {
+      const g = GAP_OPTIONS.find(o => o.id === gid);
+      html += `<div class="reveal-item">${g ? esc(g.label) : gid}</div>`;
+    });
+    // Highlight correct/wrong
+    document.querySelectorAll('.gap-card').forEach(el => {
+      el.classList.remove('correct-gap','wrong-gap');
+      const gid = el.dataset.gap;
+      if (s.topGaps.includes(gid)) el.classList.add('correct-gap');
+      if (state.selectedGaps.includes(gid) && !s.topGaps.includes(gid)) el.classList.add('wrong-gap');
+    });
+  } else if (state.currentPhase === 3) {
+    html = '<h3>Ideal Strategy</h3>';
+    s.idealStrategy.forEach(t => {
+      const lib = TACTIC_MAP[t.id];
+      const name = lib ? lib.name : t.id;
+      html += `<div class="reveal-item">${esc(name)} → ${t.stage} — $${t.budget.toLocaleString()}</div>`;
+    });
+  }
+
+  panel.innerHTML = html;
+  panel.classList.add('visible');
+}
+
+function hideAnswers() {
+  const panel = document.getElementById('revealPanel');
+  if (panel) panel.classList.remove('visible');
+  state.answersRevealed = false;
+  // Remove highlight classes
+  document.querySelectorAll('.tactic-card').forEach(el => el.classList.remove('correct','incorrect','acceptable'));
+  document.querySelectorAll('.gap-card').forEach(el => el.classList.remove('correct-gap','wrong-gap'));
+}
+
+/* ================================================================
+   NAVIGATION
+   ================================================================ */
+function nextPhase() {
+  if (state.currentPhase < 3) {
+    state.currentPhase++;
+    stopTimer();
+    renderPhase();
+  } else {
+    showToast('Last phase — advance to next scenario');
+  }
+}
+
+function prevPhase() {
+  if (state.currentPhase > 0) {
+    state.currentPhase--;
+    stopTimer();
+    renderPhase();
+  }
+}
+
+function nextScenario() {
+  if (state.currentScenario < SCENARIOS.length - 1) {
+    state.currentScenario++;
+    loadScenario();
+  } else {
+    showToast('That was the last scenario!');
+    launchConfetti();
+  }
+}
+
+function prevScenario() {
+  if (state.currentScenario > 0) {
+    state.currentScenario--;
+    loadScenario();
+  }
+}
+
+function confirmReset() {
+  showConfirm('Reset this scenario? All progress for this round will be lost.', () => {
+    loadScenario();
+  });
+}
+
+function confirmNewGame() {
+  showConfirm('Start a completely new game? All scores will be reset.', () => {
+    document.getElementById('gameScreen').classList.add('hidden');
+    document.getElementById('setupScreen').classList.remove('hidden');
+    stopTimer();
+  });
+}
+
+/* ================================================================
+   TIMER
+   ================================================================ */
+function setTimerPreset(seconds) {
+  stopTimer();
+  state.timerMax = seconds;
+  state.timerSeconds = seconds;
+  updateTimerDisplay();
+}
+
+function toggleTimer() {
+  if (state.timerRunning) {
+    pauseTimer();
+  } else {
+    startTimer();
+  }
+}
+
+function startTimer() {
+  if (state.timerSeconds <= 0) return;
+  state.timerRunning = true;
+  document.getElementById('timerToggleBtn').textContent = '⏸';
+  state.timerInterval = setInterval(() => {
+    state.timerSeconds--;
+    updateTimerDisplay();
+    if (state.timerSeconds <= 0) {
+      stopTimer();
+      showToast('Time\'s up!');
+      document.getElementById('timerDisplay').classList.add('warning');
+    }
+  }, 1000);
+}
+
+function pauseTimer() {
+  state.timerRunning = false;
+  document.getElementById('timerToggleBtn').textContent = '▶';
+  if (state.timerInterval) clearInterval(state.timerInterval);
+}
+
+function stopTimer() {
+  pauseTimer();
+  state.timerInterval = null;
+}
+
+function resetTimer() {
+  stopTimer();
+  state.timerSeconds = state.timerMax || PHASE_TIMERS[state.currentPhase] || 180;
+  updateTimerDisplay();
+  document.getElementById('timerDisplay').classList.remove('warning');
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(state.timerSeconds / 60);
+  const s = state.timerSeconds % 60;
+  const display = document.getElementById('timerDisplay');
+  display.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  display.classList.toggle('warning', state.timerSeconds <= 15 && state.timerSeconds > 0);
+}
+
+function toggleTimerEnabled() {
+  state.timerEnabled = !state.timerEnabled;
+  document.getElementById('timerEnabledBtn').textContent = state.timerEnabled ? 'Timer: ON' : 'Timer: OFF';
+  if (!state.timerEnabled) {
+    stopTimer();
+    document.getElementById('timerDisplay').textContent = '—';
+  }
+}
+
+/* ================================================================
+   UTILITIES
+   ================================================================ */
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function showToast(msg, dur) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur || 2500);
+}
+
+function launchConfetti() {
+  const c = document.getElementById('confettiContainer');
+  c.innerHTML = '';
+  const colors = ['#2a6db5','#d43a3a','#5bb8f5','#f5c842','#43a047','#e67e22','#9b59b6','#1abc9c'];
+  for (let i = 0; i < 60; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    p.style.width = (6 + Math.random() * 8) + 'px';
+    p.style.height = (6 + Math.random() * 8) + 'px';
+    p.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
+    p.style.animationDelay = (Math.random() * .5) + 's';
+    p.style.animationDuration = (2 + Math.random() * 1.2) + 's';
+    c.appendChild(p);
+  }
+  setTimeout(() => c.innerHTML = '', 3500);
+}
+
+let confirmCallback = null;
+function showConfirm(msg, cb) {
+  document.getElementById('confirmMsg').textContent = msg;
+  confirmCallback = cb;
+  document.getElementById('confirmOverlay').classList.add('visible');
+  document.getElementById('confirmBtn').onclick = () => {
+    closeConfirm();
+    if (confirmCallback) confirmCallback();
+    confirmCallback = null;
+  };
+}
+function closeConfirm() {
+  document.getElementById('confirmOverlay').classList.remove('visible');
+}
+
+// Handle dragend to clean up
+document.addEventListener('dragend', (e) => {
+  document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
+  document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+  dragData = null;
+});
+</script>
+</body>
+</html>

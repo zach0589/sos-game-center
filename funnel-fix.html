@@ -484,12 +484,6 @@ body::before {
           <option value="4" selected>4</option>
         </select>
       </div>
-      <div style="margin-top:12px;display:flex;gap:10px;align-items:center;">
-        <label style="font-size:.85rem;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:8px;">
-          <input type="checkbox" id="shuffleScenarios" checked style="width:18px;height:18px;accent-color:var(--sos-blue);cursor:pointer;">
-          Randomize scenario order
-        </label>
-      </div>
       <button class="btn btn-green btn-block" style="margin-top:20px;padding:12px;" onclick="startGame()">Start Game</button>
     </div>
   </div>
@@ -1150,13 +1144,11 @@ function startGame() {
       color: TEAM_COLORS[i],
     });
   }
-  // Build scenario order — shuffled or sequential
+  // Shuffle scenario order each game
   state.scenarioOrder = Array.from({length: SCENARIOS.length}, (_, i) => i);
-  if (document.getElementById('shuffleScenarios').checked) {
-    for (let i = state.scenarioOrder.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [state.scenarioOrder[i], state.scenarioOrder[j]] = [state.scenarioOrder[j], state.scenarioOrder[i]];
-    }
+  for (let i = state.scenarioOrder.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [state.scenarioOrder[i], state.scenarioOrder[j]] = [state.scenarioOrder[j], state.scenarioOrder[i]];
   }
   state.currentScenario = 0;
   state.currentPhase = 0;

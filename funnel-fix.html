@@ -748,11 +748,10 @@ const SCENARIOS = [
     acceptableAlts: {'yard-signs':'consideration'},
     topGaps: ['poor-followup','weak-retention','no-awareness'],
     idealStrategy: [
-      {id:'lsa', stage:'conversion', budget:1400},
-      {id:'gads', stage:'conversion', budget:1200},
-      {id:'gbp', stage:'awareness', budget:500},
-      {id:'crm', stage:'retention', budget:500},
-      {id:'review-process', stage:'retention', budget:400},
+      {id:'lsa', stage:'conversion', budget:1500},
+      {id:'gads', stage:'conversion', budget:1300},
+      {id:'gbp', stage:'awareness', budget:600},
+      {id:'crm', stage:'retention', budget:600},
     ],
   },
   // 4. Roofing — Scale the Machine
@@ -807,11 +806,10 @@ const SCENARIOS = [
     acceptableAlts: {'gbp':'consideration'},
     topGaps: ['no-awareness','weak-conversion','low-brand'],
     idealStrategy: [
-      {id:'lsa', stage:'conversion', budget:800},
-      {id:'gbp', stage:'awareness', budget:300},
-      {id:'meta-ads', stage:'awareness', budget:700},
-      {id:'referral', stage:'retention', budget:300},
-      {id:'flyers', stage:'awareness', budget:400},
+      {id:'lsa', stage:'conversion', budget:900},
+      {id:'gbp', stage:'awareness', budget:400},
+      {id:'meta-ads', stage:'awareness', budget:800},
+      {id:'referral', stage:'retention', budget:400},
     ],
   },
   // 6. Pest Control — Stuck at the Ceiling
@@ -892,11 +890,10 @@ const SCENARIOS = [
     acceptableAlts: {'ll-sponsor':'consideration'},
     topGaps: ['no-awareness','weak-retention','offline-digital-gap'],
     idealStrategy: [
-      {id:'lsa', stage:'conversion', budget:500},
-      {id:'gbp', stage:'awareness', budget:300},
+      {id:'lsa', stage:'conversion', budget:600},
+      {id:'gbp', stage:'awareness', budget:400},
       {id:'direct-mail', stage:'awareness', budget:500},
-      {id:'referral', stage:'retention', budget:350},
-      {id:'social-content', stage:'awareness', budget:350},
+      {id:'referral', stage:'retention', budget:500},
     ],
   },
   // 9. HVAC + Plumbing — Brand Confusion
@@ -950,11 +947,10 @@ const SCENARIOS = [
     acceptableAlts: {'coupon-mail':'consideration','groupon':'awareness'},
     topGaps: ['low-quality-leads','wrong-audience','weak-retention'],
     idealStrategy: [
-      {id:'lsa', stage:'conversion', budget:800},
-      {id:'gbp', stage:'awareness', budget:400},
-      {id:'seo-service', stage:'consideration', budget:600},
-      {id:'review-gen', stage:'retention', budget:400},
-      {id:'referral', stage:'retention', budget:400},
+      {id:'lsa', stage:'conversion', budget:1000},
+      {id:'gbp', stage:'awareness', budget:500},
+      {id:'seo-service', stage:'consideration', budget:800},
+      {id:'review-gen', stage:'retention', budget:700},
     ],
   },
   // 11. Water Damage — Premium Jobs Only
@@ -1142,7 +1138,7 @@ function currentScenario() {
 }
 
 function maxTactics(budget) {
-  if (budget <= 5000) return 5;
+  if (budget <= 5000) return 4;
   if (budget <= 10000) return 6;
   if (budget <= 20000) return 8;
   return 10;
@@ -1705,7 +1701,7 @@ function scoreRebuild() {
     else if (filledStages === 4) strategyPts += 3; // slightly penalized
     // Bonus for concentration: avg budget per tactic should be meaningful
     const avgPerTactic = state.rebuildCards.length > 0 ? allocated / state.rebuildCards.length : 0;
-    if (avgPerTactic >= 300) strategyPts += 2; // not spreading too thin
+    if (avgPerTactic >= 500) strategyPts += 2; // not spreading too thin
   } else if (s.budget < 15000) {
     // Medium budget: 3 stages ideal, 4 is fine
     if (filledStages >= 3) strategyPts += 5;
@@ -1777,7 +1773,7 @@ function autoScore() {
       else if (filledStages === 1) strategyPts += 2;
       else if (filledStages === 4) strategyPts += 3;
       const avgPerTactic = state.rebuildCards.length > 0 ? allocated / state.rebuildCards.length : 0;
-      if (avgPerTactic >= 300) strategyPts += 2;
+      if (avgPerTactic >= 500) strategyPts += 2;
     } else if (s.budget < 15000) {
       if (filledStages >= 3) strategyPts += 5;
       else if (filledStages === 2) strategyPts += 3;

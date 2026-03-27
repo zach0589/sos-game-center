@@ -606,7 +606,6 @@ const TACTIC_LIBRARY = [
   {id:'email',name:'Email Marketing',cat:'Digital'},
   {id:'sms',name:'SMS Campaigns',cat:'Digital'},
   {id:'landing',name:'Landing Page Optimization',cat:'Digital'},
-  {id:'cro',name:'Conversion Rate Optimization',cat:'Digital'},
   {id:'shopping',name:'Google Shopping',cat:'Digital'},
   {id:'paid-social-leads',name:'Paid Social Lead Forms',cat:'Digital'},
   // TRADITIONAL
@@ -1153,16 +1152,15 @@ const SCENARIOS = [
     topGaps: ['budget-thin','weak-conversion','wrong-audience'],
     alsoAcceptGaps: ['weak-retention','low-quality-leads'],
     idealStrategy: [
-      {id:'shopping', stage:'conversion', budget:8000},
+      {id:'shopping', stage:'conversion', budget:9000},
       {id:'meta-ads', stage:'awareness', budget:5000},
       {id:'remarketing', stage:'consideration', budget:3500},
       {id:'email', stage:'retention', budget:3000},
-      {id:'cro', stage:'conversion', budget:3000},
       {id:'seo-blogs', stage:'awareness', budget:3000},
       {id:'sms', stage:'retention', budget:2500},
+      {id:'landing', stage:'conversion', budget:3000},
       {id:'influencer', stage:'awareness', budget:2000},
       {id:'youtube', stage:'awareness', budget:2500},
-      {id:'landing', stage:'conversion', budget:2000},
     ],
   },
 ];

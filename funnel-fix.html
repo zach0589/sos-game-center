@@ -689,6 +689,7 @@ const SCENARIOS = [
     },
     acceptableAlts: {'gads':'consideration','website':'conversion'},
     topGaps: ['poor-followup','weak-retention','bofu-heavy'],
+    alsoAcceptGaps: ['no-awareness','sales-bottleneck'],
     idealStrategy: [
       {id:'lsa', stage:'conversion', budget:1800},
       {id:'gads', stage:'conversion', budget:1500},
@@ -722,6 +723,7 @@ const SCENARIOS = [
     },
     acceptableAlts: {'seo-service':'awareness','radio':'consideration'},
     topGaps: ['weak-retention','no-awareness','budget-thin'],
+    alsoAcceptGaps: ['poor-followup','offline-digital-gap'],
     idealStrategy: [
       {id:'gads', stage:'conversion', budget:8000},
       {id:'seo-service', stage:'consideration', budget:4000},
@@ -752,6 +754,7 @@ const SCENARIOS = [
     },
     acceptableAlts: {'yard-signs':'consideration'},
     topGaps: ['poor-followup','weak-retention','no-awareness'],
+    alsoAcceptGaps: ['bofu-heavy','sales-bottleneck'],
     idealStrategy: [
       {id:'lsa', stage:'conversion', budget:1500},
       {id:'gads', stage:'conversion', budget:1200},
@@ -783,6 +786,7 @@ const SCENARIOS = [
     },
     acceptableAlts: {'meta-ads':'consideration','door-knock':'consideration'},
     topGaps: ['sales-bottleneck','low-quality-leads','weak-conversion'],
+    alsoAcceptGaps: ['poor-followup','wrong-audience'],
     idealStrategy: [
       {id:'gads', stage:'conversion', budget:5000},
       {id:'meta-ads', stage:'awareness', budget:3000},
@@ -815,6 +819,7 @@ const SCENARIOS = [
     },
     acceptableAlts: {'gbp':'consideration'},
     topGaps: ['no-awareness','weak-conversion','low-brand'],
+    alsoAcceptGaps: ['weak-retention','bofu-heavy'],
     idealStrategy: [
       {id:'lsa', stage:'conversion', budget:800},
       {id:'gbp', stage:'awareness', budget:500},
@@ -846,6 +851,7 @@ const SCENARIOS = [
     },
     acceptableAlts: {'seo-blogs':'consideration','direct-mail':'consideration'},
     topGaps: ['weak-retention','budget-thin','low-quality-leads'],
+    alsoAcceptGaps: ['poor-followup','no-awareness'],
     idealStrategy: [
       {id:'gads', stage:'conversion', budget:3500},
       {id:'seo-service', stage:'consideration', budget:2500},
@@ -878,6 +884,7 @@ const SCENARIOS = [
     },
     acceptableAlts: {'events':'consideration','fb-ig-ads':'consideration'},
     topGaps: ['low-quality-leads','weak-conversion','poor-followup'],
+    alsoAcceptGaps: ['weak-retention','wrong-audience'],
     idealStrategy: [
       {id:'gads', stage:'conversion', budget:4000},
       {id:'meta-ads', stage:'awareness', budget:2500},
@@ -909,6 +916,7 @@ const SCENARIOS = [
     },
     acceptableAlts: {'ll-sponsor':'consideration'},
     topGaps: ['no-awareness','weak-retention','offline-digital-gap'],
+    alsoAcceptGaps: ['low-brand','poor-followup'],
     idealStrategy: [
       {id:'lsa', stage:'conversion', budget:500},
       {id:'gbp', stage:'awareness', budget:400},
@@ -938,6 +946,7 @@ const SCENARIOS = [
     },
     acceptableAlts: {'billboards':'consideration'},
     topGaps: ['msg-confusion','budget-thin','weak-conversion'],
+    alsoAcceptGaps: ['low-brand','sales-bottleneck'],
     idealStrategy: [
       {id:'gads', stage:'conversion', budget:6000},
       {id:'lsa', stage:'conversion', budget:3500},
@@ -971,6 +980,7 @@ const SCENARIOS = [
     },
     acceptableAlts: {'coupon-mail':'consideration','groupon':'awareness'},
     topGaps: ['low-quality-leads','wrong-audience','weak-retention'],
+    alsoAcceptGaps: ['low-brand','poor-followup'],
     idealStrategy: [
       {id:'lsa', stage:'conversion', budget:800},
       {id:'gbp', stage:'awareness', budget:500},
@@ -1002,6 +1012,7 @@ const SCENARIOS = [
     },
     acceptableAlts: {'networking':'conversion','seo-service':'awareness'},
     topGaps: ['wrong-audience','sales-bottleneck','poor-followup'],
+    alsoAcceptGaps: ['weak-conversion','low-quality-leads'],
     idealStrategy: [
       {id:'gads', stage:'conversion', budget:4000},
       {id:'seo-service', stage:'consideration', budget:2500},
@@ -1035,6 +1046,7 @@ const SCENARIOS = [
     },
     acceptableAlts: {'referrals':'conversion'},
     topGaps: ['no-awareness','weak-conversion','poor-followup'],
+    alsoAcceptGaps: ['low-brand','weak-retention'],
     idealStrategy: [
       {id:'lsa', stage:'conversion', budget:2000},
       {id:'gads', stage:'conversion', budget:1500},
@@ -1067,6 +1079,7 @@ const SCENARIOS = [
     },
     acceptableAlts: {'gbp':'consideration','social-general':'consideration'},
     topGaps: ['weak-conversion','offline-digital-gap','bofu-heavy'],
+    alsoAcceptGaps: ['no-awareness','weak-retention'],
     idealStrategy: [
       {id:'social-content', stage:'awareness', budget:4000},
       {id:'meta-ads', stage:'awareness', budget:5000},
@@ -1103,6 +1116,7 @@ const SCENARIOS = [
     },
     acceptableAlts: {'paid-social':'consideration','email':'consideration'},
     topGaps: ['weak-retention','poor-followup','sales-bottleneck'],
+    alsoAcceptGaps: ['weak-conversion','low-quality-leads'],
     idealStrategy: [
       {id:'email-nurture', stage:'retention', budget:3000},
       {id:'sms', stage:'retention', budget:2000},
@@ -1137,6 +1151,7 @@ const SCENARIOS = [
     },
     acceptableAlts: {'meta-ads':'consideration','influencer':'consideration','shopping':'consideration'},
     topGaps: ['budget-thin','weak-conversion','wrong-audience'],
+    alsoAcceptGaps: ['weak-retention','low-quality-leads'],
     idealStrategy: [
       {id:'shopping', stage:'conversion', budget:8000},
       {id:'meta-ads', stage:'awareness', budget:5000},
@@ -1703,12 +1718,13 @@ function checkMapPlacement() {
 
 function scoreGaps() {
   const s = currentScenario();
+  const allAcceptable = [...s.topGaps, ...(s.alsoAcceptGaps || [])];
   let hits = 0;
   document.querySelectorAll('.gap-card').forEach(el => {
     el.classList.remove('correct-gap','wrong-gap');
     const gid = el.dataset.gap;
     if (state.selectedGaps.includes(gid)) {
-      if (s.topGaps.includes(gid)) {
+      if (allAcceptable.includes(gid)) {
         el.classList.add('correct-gap');
         hits++;
       } else {
@@ -1800,8 +1816,9 @@ function autoScore() {
     pts = Math.round(((correct + acceptable * 0.5) / total) * 10);
     showToast(`${state.teams[team].name}: +${pts} pts (Mapping)`);
   } else if (state.currentPhase === 2) {
-    // Gap scoring
-    let hits = state.selectedGaps.filter(g => s.topGaps.includes(g)).length;
+    // Gap scoring — top 3 + 2 acceptable alternates all count
+    const allAcceptable = [...s.topGaps, ...(s.alsoAcceptGaps || [])];
+    let hits = state.selectedGaps.filter(g => allAcceptable.includes(g)).length;
     pts = Math.round((hits / 3) * 10);
     showToast(`${state.teams[team].name}: +${pts} pts (Gaps)`);
   } else if (state.currentPhase === 3) {
@@ -1867,17 +1884,25 @@ function revealAnswers() {
     });
     checkMapPlacement();
   } else if (state.currentPhase === 2) {
-    html = '<h3>Top 3 Recommended Issues</h3>';
+    const allAcceptable = [...s.topGaps, ...(s.alsoAcceptGaps || [])];
+    html = '<h3>Best Answers</h3>';
     s.topGaps.forEach(gid => {
       const g = GAP_OPTIONS.find(o => o.id === gid);
       html += `<div class="reveal-item">${g ? esc(g.label) : gid}</div>`;
     });
+    if (s.alsoAcceptGaps && s.alsoAcceptGaps.length) {
+      html += '<h3 style="margin-top:8px;color:var(--orange);font-size:.85rem;">Also Acceptable</h3>';
+      s.alsoAcceptGaps.forEach(gid => {
+        const g = GAP_OPTIONS.find(o => o.id === gid);
+        html += `<div class="reveal-item" style="opacity:.8">${g ? esc(g.label) : gid}</div>`;
+      });
+    }
     // Highlight correct/wrong
     document.querySelectorAll('.gap-card').forEach(el => {
       el.classList.remove('correct-gap','wrong-gap');
       const gid = el.dataset.gap;
-      if (s.topGaps.includes(gid)) el.classList.add('correct-gap');
-      if (state.selectedGaps.includes(gid) && !s.topGaps.includes(gid)) el.classList.add('wrong-gap');
+      if (allAcceptable.includes(gid)) el.classList.add('correct-gap');
+      if (state.selectedGaps.includes(gid) && !allAcceptable.includes(gid)) el.classList.add('wrong-gap');
     });
   } else if (state.currentPhase === 3) {
     html = '<h3>Ideal Strategy</h3>';

@@ -746,12 +746,11 @@ const SCENARIOS = [
     acceptableAlts: {'yard-signs':'consideration'},
     topGaps: ['poor-followup','weak-retention','no-awareness'],
     idealStrategy: [
-      {id:'lsa', stage:'conversion', budget:1200},
-      {id:'gads', stage:'conversion', budget:1000},
-      {id:'gbp', stage:'awareness', budget:400},
-      {id:'crm', stage:'retention', budget:300},
-      {id:'seo-service', stage:'consideration', budget:600},
-      {id:'review-process', stage:'retention', budget:200},
+      {id:'lsa', stage:'conversion', budget:1400},
+      {id:'gads', stage:'conversion', budget:1200},
+      {id:'gbp', stage:'awareness', budget:500},
+      {id:'crm', stage:'retention', budget:500},
+      {id:'review-process', stage:'retention', budget:400},
     ],
   },
   // 4. Roofing — Scale the Machine
@@ -804,12 +803,11 @@ const SCENARIOS = [
     acceptableAlts: {'gbp':'consideration'},
     topGaps: ['no-awareness','weak-conversion','low-brand'],
     idealStrategy: [
-      {id:'lsa', stage:'conversion', budget:600},
-      {id:'gbp', stage:'awareness', budget:200},
-      {id:'meta-ads', stage:'awareness', budget:600},
-      {id:'referral', stage:'retention', budget:200},
-      {id:'review-process', stage:'retention', budget:150},
-      {id:'flyers', stage:'awareness', budget:300},
+      {id:'lsa', stage:'conversion', budget:800},
+      {id:'gbp', stage:'awareness', budget:300},
+      {id:'meta-ads', stage:'awareness', budget:700},
+      {id:'referral', stage:'retention', budget:300},
+      {id:'flyers', stage:'awareness', budget:400},
     ],
   },
   // 6. Pest Control — Stuck at the Ceiling
@@ -890,12 +888,11 @@ const SCENARIOS = [
     acceptableAlts: {'ll-sponsor':'consideration'},
     topGaps: ['no-awareness','weak-retention','offline-digital-gap'],
     idealStrategy: [
-      {id:'lsa', stage:'conversion', budget:400},
-      {id:'gbp', stage:'awareness', budget:200},
-      {id:'direct-mail', stage:'awareness', budget:400},
-      {id:'referral', stage:'retention', budget:200},
-      {id:'review-process', stage:'retention', budget:150},
-      {id:'social-content', stage:'awareness', budget:300},
+      {id:'lsa', stage:'conversion', budget:500},
+      {id:'gbp', stage:'awareness', budget:300},
+      {id:'direct-mail', stage:'awareness', budget:500},
+      {id:'referral', stage:'retention', budget:350},
+      {id:'social-content', stage:'awareness', budget:350},
     ],
   },
   // 9. HVAC + Plumbing — Brand Confusion
@@ -947,12 +944,11 @@ const SCENARIOS = [
     acceptableAlts: {'coupon-mail':'consideration','groupon':'awareness'},
     topGaps: ['low-quality-leads','wrong-audience','weak-retention'],
     idealStrategy: [
-      {id:'lsa', stage:'conversion', budget:600},
-      {id:'gbp', stage:'awareness', budget:300},
-      {id:'seo-service', stage:'consideration', budget:500},
-      {id:'review-gen', stage:'retention', budget:300},
-      {id:'referral', stage:'retention', budget:250},
-      {id:'email-nurture', stage:'retention', budget:250},
+      {id:'lsa', stage:'conversion', budget:800},
+      {id:'gbp', stage:'awareness', budget:400},
+      {id:'seo-service', stage:'consideration', budget:600},
+      {id:'review-gen', stage:'retention', budget:400},
+      {id:'referral', stage:'retention', budget:400},
     ],
   },
   // 11. Water Damage — Premium Jobs Only
@@ -1655,16 +1651,45 @@ function scoreRebuild() {
 
   // Strategy score (up to 15)
   let strategyPts = 0;
-  // Check funnel balance
+
+  // --- Funnel coverage: budget-aware ---
+  // Small budgets (<5k) should focus — reward 2-3 filled stages
+  // Medium budgets (5k-15k) — reward 3+ stages
+  // Large budgets (15k+) — reward 3-4 stages
   const stages = {awareness:0, consideration:0, conversion:0, retention:0};
   state.rebuildCards.forEach(c => { if (stages[c.stage] !== undefined) stages[c.stage]++; });
   const filledStages = Object.values(stages).filter(v => v > 0).length;
-  strategyPts += filledStages * 2; // up to 8 for covering all 4 stages
 
-  // Check overlap with ideal
+  // Check if any single tactic gets less than $100 — sign of spreading thin
+  const thinSpread = state.rebuildCards.some(c => c.budget > 0 && c.budget < 100);
+
+  if (s.budget < 5000) {
+    // Small budget: 2-3 stages is ideal, 4 is over-spread, 1 is too narrow
+    if (filledStages === 2 || filledStages === 3) strategyPts += 5;
+    else if (filledStages === 1) strategyPts += 2;
+    else if (filledStages === 4) strategyPts += 3; // slightly penalized
+    // Bonus for concentration: avg budget per tactic should be meaningful
+    const avgPerTactic = state.rebuildCards.length > 0 ? allocated / state.rebuildCards.length : 0;
+    if (avgPerTactic >= 300) strategyPts += 2; // not spreading too thin
+  } else if (s.budget < 15000) {
+    // Medium budget: 3 stages ideal, 4 is fine
+    if (filledStages >= 3) strategyPts += 5;
+    else if (filledStages === 2) strategyPts += 3;
+    else strategyPts += 1;
+  } else {
+    // Large budget: 3-4 stages expected
+    if (filledStages >= 3) strategyPts += 5;
+    else if (filledStages === 2) strategyPts += 2;
+    else strategyPts += 1;
+  }
+
+  // Penalty for spreading thin on any budget
+  if (thinSpread) strategyPts = Math.max(0, strategyPts - 1);
+
+  // --- Tactic quality: overlap with ideal strategy ---
   const idealIds = s.idealStrategy.map(t => t.id);
   const matchCount = state.rebuildCards.filter(c => idealIds.includes(c.id)).length;
-  strategyPts += Math.min(7, matchCount * 2); // up to 7 for matching ideal tactics (capped)
+  strategyPts += Math.min(8, matchCount * 2);
 
   strategyPts = Math.min(15, strategyPts);
 
@@ -1705,14 +1730,31 @@ function autoScore() {
     pts = Math.round((hits / 3) * 10);
     showToast(`${state.teams[team].name}: +${pts} pts (Gaps)`);
   } else if (state.currentPhase === 3) {
-    // Rebuild scoring
+    // Rebuild scoring — uses same logic as scoreRebuild()
     const allocated = state.rebuildCards.reduce((sum, c) => sum + (c.budget || 0), 0);
     let strategyPts = 0;
     const stages = {awareness:0, consideration:0, conversion:0, retention:0};
     state.rebuildCards.forEach(c => { if (stages[c.stage] !== undefined) stages[c.stage]++; });
-    strategyPts += Object.values(stages).filter(v => v > 0).length * 2;
+    const filledStages = Object.values(stages).filter(v => v > 0).length;
+    const thinSpread = state.rebuildCards.some(c => c.budget > 0 && c.budget < 100);
+    if (s.budget < 5000) {
+      if (filledStages === 2 || filledStages === 3) strategyPts += 5;
+      else if (filledStages === 1) strategyPts += 2;
+      else if (filledStages === 4) strategyPts += 3;
+      const avgPerTactic = state.rebuildCards.length > 0 ? allocated / state.rebuildCards.length : 0;
+      if (avgPerTactic >= 300) strategyPts += 2;
+    } else if (s.budget < 15000) {
+      if (filledStages >= 3) strategyPts += 5;
+      else if (filledStages === 2) strategyPts += 3;
+      else strategyPts += 1;
+    } else {
+      if (filledStages >= 3) strategyPts += 5;
+      else if (filledStages === 2) strategyPts += 2;
+      else strategyPts += 1;
+    }
+    if (thinSpread) strategyPts = Math.max(0, strategyPts - 1);
     const idealIds = s.idealStrategy.map(t => t.id);
-    strategyPts += Math.min(7, state.rebuildCards.filter(c => idealIds.includes(c.id)).length * 2);
+    strategyPts += Math.min(8, state.rebuildCards.filter(c => idealIds.includes(c.id)).length * 2);
     strategyPts = Math.min(15, strategyPts);
     let budgetPts = 0;
     if (allocated <= s.budget && allocated >= s.budget * 0.8) budgetPts = 5;

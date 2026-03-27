@@ -1970,18 +1970,41 @@ function hideAnswers() {
    NAVIGATION
    ================================================================ */
 function nextPhase() {
-  // Auto-score current phase before advancing
+  // Auto-score current phase for active team
   if (state.currentPhase >= 1 && state.currentPhase <= 3 && !state.phaseScored[state.currentPhase]) {
     silentAutoScore();
   }
-  if (state.currentPhase < 3) {
-    state.currentPhase++;
-    stopTimer();
+
+  // Rotate to next team
+  const nextTeam = state.activeTeam + 1;
+  if (nextTeam < state.teams.length) {
+    // More teams need to play this phase
+    state.activeTeam = nextTeam;
+    state.phaseScored[state.currentPhase] = false; // reset so next team can score
+    // Reset board for next team
+    if (state.currentPhase === 1) {
+      state.mappedCards = {awareness:[],consideration:[],conversion:[],retention:[]};
+    } else if (state.currentPhase === 2) {
+      state.selectedGaps = [];
+    } else if (state.currentPhase === 3) {
+      state.rebuildCards = [];
+    }
     buildScoreboard();
     buildTeamSelectRow();
     renderPhase();
+    showToast(`${state.teams[nextTeam].name}'s turn!`, 2000);
   } else {
-    nextScenario();
+    // All teams done with this phase — advance phase
+    state.activeTeam = 0;
+    if (state.currentPhase < 3) {
+      state.currentPhase++;
+      stopTimer();
+      buildScoreboard();
+      buildTeamSelectRow();
+      renderPhase();
+    } else {
+      nextScenario();
+    }
   }
 }
 

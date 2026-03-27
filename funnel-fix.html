@@ -1319,7 +1319,6 @@ function adjustPoints(team, pts) {
 function loadScenario() {
   const s = currentScenario();
   state.currentPhase = 0;
-  state.activeTeam = 0;
   state.mappedCards = {awareness:[],consideration:[],conversion:[],retention:[]};
   state.selectedGaps = [];
   state.rebuildCards = [];
@@ -1975,36 +1974,34 @@ function nextPhase() {
     silentAutoScore();
   }
 
-  // Rotate to next team
-  const nextTeam = state.activeTeam + 1;
-  if (nextTeam < state.teams.length) {
-    // More teams need to play this phase
-    state.activeTeam = nextTeam;
-    state.phaseScored[state.currentPhase] = false; // reset so next team can score
-    // Reset board for next team
-    if (state.currentPhase === 1) {
-      state.mappedCards = {awareness:[],consideration:[],conversion:[],retention:[]};
-    } else if (state.currentPhase === 2) {
-      state.selectedGaps = [];
-    } else if (state.currentPhase === 3) {
-      state.rebuildCards = [];
-    }
+  if (state.currentPhase < 3) {
+    // More phases — advance phase, same team
+    state.currentPhase++;
+    state.phaseScored[state.currentPhase] = false;
+    stopTimer();
     buildScoreboard();
     buildTeamSelectRow();
     renderPhase();
-    showToast(`${state.teams[nextTeam].name}'s turn!`, 2000);
   } else {
-    // All teams done with this phase — advance phase
-    state.activeTeam = 0;
-    if (state.currentPhase < 3) {
-      state.currentPhase++;
-      stopTimer();
-      buildScoreboard();
-      buildTeamSelectRow();
-      renderPhase();
-    } else {
-      nextScenario();
+    // All 4 phases done — rotate to next team with next client
+    const nextTeam = (state.activeTeam + 1) % state.teams.length;
+    const nextScenarioIdx = state.currentScenario + 1;
+
+    if (nextScenarioIdx >= state.scenarioOrder.length) {
+      showToast('That was the last scenario!');
+      launchConfetti();
+      return;
     }
+
+    // Move to next scenario and next team
+    state.currentScenario = nextScenarioIdx;
+    state.activeTeam = nextTeam;
+    loadScenario();
+    // Override the activeTeam reset in loadScenario
+    state.activeTeam = nextTeam;
+    buildScoreboard();
+    buildTeamSelectRow();
+    showToast(`${state.teams[nextTeam].name}'s turn! New client.`, 2500);
   }
 }
 
@@ -2022,8 +2019,14 @@ function nextScenario() {
     silentAutoScore();
   }
   if (state.currentScenario < state.scenarioOrder.length - 1) {
+    const nextTeam = (state.activeTeam + 1) % state.teams.length;
     state.currentScenario++;
+    state.activeTeam = nextTeam;
     loadScenario();
+    state.activeTeam = nextTeam; // override loadScenario reset
+    buildScoreboard();
+    buildTeamSelectRow();
+    showToast(`${state.teams[nextTeam].name}'s turn!`, 2500);
   } else {
     showToast('That was the last scenario!');
     launchConfetti();

@@ -230,7 +230,7 @@ body::before {
   font-size: .9rem; font-weight: 700; cursor: pointer;
 }
 .team-name:hover { text-decoration: underline; }
-.team-score { font-size: 1.6rem; font-weight: 800; }
+.team-score { font-size: 2rem; font-weight: 800; }
 .team-phase-scores { display: flex; gap: 6px; margin-top: 4px; }
 .phase-score-pip {
   font-size: .65rem; background: var(--border); padding: 2px 6px;
@@ -1862,34 +1862,33 @@ function autoScore() {
   state.teams[team].score += pts;
   state.phaseScored[state.currentPhase] = true;
   buildScoreboard();
+  buildTeamSelectRow();
   launchConfetti();
 
-  // Auto-advance to next team after a short delay
+  // Auto-advance: move to next team, or next phase, or next scenario
   setTimeout(() => {
     const nextTeam = (team + 1) % state.teams.length;
-    if (nextTeam === 0) {
-      // All teams have had a turn — prompt to move on
-      showToast('All teams scored! Advance to next phase when ready.', 3000);
+    if (nextTeam !== 0) {
+      // More teams to score on this phase
+      state.activeTeam = nextTeam;
+      buildScoreboard();
+      buildTeamSelectRow();
+      showToast(`Score ${state.teams[nextTeam].name} next`, 2000);
+    } else if (state.currentPhase < 3) {
+      // All teams scored this phase — advance to next phase
+      state.activeTeam = 0;
+      buildScoreboard();
+      buildTeamSelectRow();
+      nextPhase();
     } else {
-      advanceToNextTeam(nextTeam);
+      // All teams scored final phase — advance to next scenario
+      state.activeTeam = 0;
+      buildScoreboard();
+      buildTeamSelectRow();
+      showToast('Round complete! Loading next client...', 2000);
+      setTimeout(() => nextScenario(), 2000);
     }
   }, 1500);
-}
-
-function advanceToNextTeam(nextTeam) {
-  state.activeTeam = nextTeam;
-  // Reset board state for next team's turn
-  if (state.currentPhase === 1) {
-    state.mappedCards = {awareness:[],consideration:[],conversion:[],retention:[]};
-  } else if (state.currentPhase === 2) {
-    state.selectedGaps = [];
-  } else if (state.currentPhase === 3) {
-    state.rebuildCards = [];
-  }
-  buildScoreboard();
-  buildTeamSelectRow();
-  renderPhase();
-  showToast(`${state.teams[nextTeam].name}'s turn!`, 2000);
 }
 
 /* ================================================================
@@ -1959,10 +1958,12 @@ function hideAnswers() {
 function nextPhase() {
   if (state.currentPhase < 3) {
     state.currentPhase++;
+    state.activeTeam = 0;
     stopTimer();
+    buildScoreboard();
+    buildTeamSelectRow();
     renderPhase();
   } else {
-    // On last phase, advance to next scenario
     nextScenario();
   }
 }

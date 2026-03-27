@@ -1259,7 +1259,9 @@ function buildScoreboard() {
   const c = document.getElementById('scoreboard');
   let html = '<h2>Scoreboard</h2>';
   state.teams.forEach((t, i) => {
-    html += `<div class="team-score-card${i===state.activeTeam?' active-team':''}" id="teamCard${i}">
+    const isActive = i === state.activeTeam;
+    html += `<div class="team-score-card${isActive?' active-team':''}" id="teamCard${i}">
+      ${isActive ? '<div style="font-size:.65rem;text-transform:uppercase;letter-spacing:1px;color:var(--gold);margin-bottom:4px;">▶ Playing Now</div>' : ''}
       <div class="team-name-row">
         <span class="team-name" style="color:${t.color}" onclick="renameTeam(${i})">${esc(t.name)}</span>
         <span class="team-score" style="color:${t.color}" id="teamScore${i}">${t.score}</span>
@@ -1300,7 +1302,7 @@ function renameTeam(i) {
 
 function adjustPoints(team, pts) {
   state.teams[team].score += pts;
-  document.getElementById(`teamScore${team}`).textContent = state.teams[team].score;
+  buildScoreboard();
   showToast(`${state.teams[team].name}: ${pts > 0 ? '+' : ''}${pts}`);
 }
 
@@ -1859,8 +1861,35 @@ function autoScore() {
 
   state.teams[team].score += pts;
   state.phaseScored[state.currentPhase] = true;
-  document.getElementById(`teamScore${team}`).textContent = state.teams[team].score;
+  buildScoreboard();
   launchConfetti();
+
+  // Auto-advance to next team after a short delay
+  setTimeout(() => {
+    const nextTeam = (team + 1) % state.teams.length;
+    if (nextTeam === 0) {
+      // All teams have had a turn — prompt to move on
+      showToast('All teams scored! Advance to next phase when ready.', 3000);
+    } else {
+      advanceToNextTeam(nextTeam);
+    }
+  }, 1500);
+}
+
+function advanceToNextTeam(nextTeam) {
+  state.activeTeam = nextTeam;
+  // Reset board state for next team's turn
+  if (state.currentPhase === 1) {
+    state.mappedCards = {awareness:[],consideration:[],conversion:[],retention:[]};
+  } else if (state.currentPhase === 2) {
+    state.selectedGaps = [];
+  } else if (state.currentPhase === 3) {
+    state.rebuildCards = [];
+  }
+  buildScoreboard();
+  buildTeamSelectRow();
+  renderPhase();
+  showToast(`${state.teams[nextTeam].name}'s turn!`, 2000);
 }
 
 /* ================================================================

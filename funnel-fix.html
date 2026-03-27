@@ -668,6 +668,8 @@ const GAP_OPTIONS = [
    ================================================================ */
 const SCENARIOS = [
   // 1. HVAC — Need Calls NOW
+  // HVAC lives on LSAs and Google Ads — emergency-driven, phone-first.
+  // After-hours answering is critical. Seasonal maintenance plans drive retention.
   {
     id: 1,
     name: 'QuickHeat HVAC',
@@ -688,15 +690,18 @@ const SCENARIOS = [
     acceptableAlts: {'gads':'consideration','website':'conversion'},
     topGaps: ['poor-followup','weak-retention','bofu-heavy'],
     idealStrategy: [
-      {id:'lsa', stage:'conversion', budget:1500},
+      {id:'lsa', stage:'conversion', budget:1800},
       {id:'gads', stage:'conversion', budget:1500},
-      {id:'after-hours', stage:'conversion', budget:500},
+      {id:'after-hours', stage:'conversion', budget:600},
       {id:'gbp', stage:'awareness', budget:500},
-      {id:'review-process', stage:'retention', budget:300},
-      {id:'crm', stage:'retention', budget:400},
+      {id:'seasonal', stage:'retention', budget:800},
+      {id:'review-process', stage:'retention', budget:400},
     ],
   },
   // 2. Restoration — Storm Dominator
+  // Restoration = feast/famine by nature. Plumber/adjuster relationships are the #1 referral source.
+  // SEO for "water damage [city]" is high-intent. Seasonal storm prep content builds off-season pipeline.
+  // CRM is critical to stay top-of-mind with referral partners between storms.
   {
     id: 2,
     name: 'StormShield Restoration',
@@ -721,14 +726,16 @@ const SCENARIOS = [
       {id:'gads', stage:'conversion', budget:6000},
       {id:'seo-service', stage:'consideration', budget:3000},
       {id:'seo-blogs', stage:'awareness', budget:2000},
-      {id:'remarketing', stage:'consideration', budget:2000},
-      {id:'crm', stage:'retention', budget:1500},
-      {id:'seasonal', stage:'retention', budget:1500},
-      {id:'gbp', stage:'awareness', budget:1000},
-      {id:'review-gen', stage:'retention', budget:1000},
+      {id:'community-partner', stage:'awareness', budget:2500},
+      {id:'crm', stage:'retention', budget:2000},
+      {id:'seasonal', stage:'retention', budget:2000},
+      {id:'gbp', stage:'awareness', budget:1500},
+      {id:'review-gen', stage:'retention', budget:1500},
     ],
   },
   // 3. Plumbing — Feast or Famine
+  // Plumbing is emergency-driven like HVAC. LSAs dominate. CRM/follow-up is the #1 gap
+  // for small plumbers. Review gen and GBP are table stakes.
   {
     id: 3,
     name: 'PipePro Plumbing',
@@ -749,12 +756,15 @@ const SCENARIOS = [
     topGaps: ['poor-followup','weak-retention','no-awareness'],
     idealStrategy: [
       {id:'lsa', stage:'conversion', budget:1500},
-      {id:'gads', stage:'conversion', budget:1300},
-      {id:'gbp', stage:'awareness', budget:600},
-      {id:'crm', stage:'retention', budget:600},
+      {id:'gads', stage:'conversion', budget:1200},
+      {id:'gbp', stage:'awareness', budget:500},
+      {id:'crm', stage:'retention', budget:800},
     ],
   },
   // 4. Roofing — Scale the Machine
+  // Roofing is unique: door knocking + yard signs are industry staples, not just "traditional."
+  // Insurance jobs need sales training and quote follow-up — close rate is everything.
+  // Meta Ads for storm damage awareness, remarketing to nurture long sales cycles.
   {
     id: 4,
     name: 'ApexRoof Co',
@@ -776,17 +786,19 @@ const SCENARIOS = [
     acceptableAlts: {'meta-ads':'consideration','door-knock':'consideration'},
     topGaps: ['sales-bottleneck','low-quality-leads','weak-conversion'],
     idealStrategy: [
-      {id:'gads', stage:'conversion', budget:5000},
+      {id:'gads', stage:'conversion', budget:4000},
       {id:'meta-ads', stage:'awareness', budget:3000},
+      {id:'door-knock', stage:'conversion', budget:2000},
       {id:'sales-training', stage:'conversion', budget:2000},
-      {id:'crm', stage:'retention', budget:1500},
-      {id:'landing', stage:'conversion', budget:1500},
+      {id:'quote-followup', stage:'conversion', budget:1500},
       {id:'remarketing', stage:'consideration', budget:2000},
-      {id:'seo-service', stage:'consideration', budget:2000},
-      {id:'review-gen', stage:'retention', budget:1000},
+      {id:'yard-signs', stage:'awareness', budget:500},
+      {id:'review-gen', stage:'retention', budget:1500},
     ],
   },
   // 5. Cleaning — Startup Mode
+  // Startup cleaning = hyper-local. GBP and LSAs are lifeline. Reviews build trust fast.
+  // Referral program is how cleaning companies grow — happy recurring customers tell neighbors.
   {
     id: 5,
     name: 'SparkleClean Co',
@@ -806,13 +818,16 @@ const SCENARIOS = [
     acceptableAlts: {'gbp':'consideration'},
     topGaps: ['no-awareness','weak-conversion','low-brand'],
     idealStrategy: [
-      {id:'lsa', stage:'conversion', budget:900},
-      {id:'gbp', stage:'awareness', budget:400},
-      {id:'meta-ads', stage:'awareness', budget:800},
-      {id:'referral', stage:'retention', budget:400},
+      {id:'lsa', stage:'conversion', budget:800},
+      {id:'gbp', stage:'awareness', budget:500},
+      {id:'review-process', stage:'retention', budget:500},
+      {id:'referral', stage:'retention', budget:700},
     ],
   },
   // 6. Pest Control — Stuck at the Ceiling
+  // Pest control = seasonal + recurring revenue. Loyalty/maintenance plans are the business model.
+  // Direct mail still works (seasonal pest reminders). SEO for "[pest] removal [city]" is key.
+  // CPL rising = need to diversify beyond paid and focus on retention (recurring plans).
   {
     id: 6,
     name: 'BugShield Pest Control',
@@ -832,17 +847,20 @@ const SCENARIOS = [
       'gads':'conversion','seo-blogs':'awareness','seo-service':'consideration','direct-mail':'awareness','call-center':'conversion'
     },
     acceptableAlts: {'seo-blogs':'consideration','direct-mail':'consideration'},
-    topGaps: ['budget-thin','weak-retention','low-quality-leads'],
+    topGaps: ['weak-retention','budget-thin','low-quality-leads'],
     idealStrategy: [
-      {id:'gads', stage:'conversion', budget:4000},
+      {id:'gads', stage:'conversion', budget:3500},
       {id:'seo-service', stage:'consideration', budget:2500},
-      {id:'remarketing', stage:'consideration', budget:1500},
-      {id:'loyalty', stage:'retention', budget:1000},
-      {id:'landing', stage:'conversion', budget:1500},
-      {id:'seasonal', stage:'retention', budget:1000},
+      {id:'direct-mail', stage:'awareness', budget:1500},
+      {id:'loyalty', stage:'retention', budget:2000},
+      {id:'seasonal', stage:'retention', budget:2000},
+      {id:'email-nurture', stage:'retention', budget:1500},
     ],
   },
   // 7. Landscaping — Own the Market
+  // Landscaping = visual industry. Social content (before/after photos) is huge.
+  // Seasonal reactivation (spring cleanup, fall prep) drives repeat business.
+  // Yard signs at job sites are free awareness. Quote follow-up closes the gap.
   {
     id: 7,
     name: 'GreenScape Landscaping',
@@ -863,15 +881,19 @@ const SCENARIOS = [
     acceptableAlts: {'events':'consideration','fb-ig-ads':'consideration'},
     topGaps: ['low-quality-leads','weak-conversion','poor-followup'],
     idealStrategy: [
-      {id:'gads', stage:'conversion', budget:5000},
-      {id:'meta-ads', stage:'awareness', budget:3000},
-      {id:'seo-service', stage:'consideration', budget:2500},
-      {id:'landing', stage:'conversion', budget:1500},
-      {id:'crm', stage:'retention', budget:1000},
-      {id:'review-gen', stage:'retention', budget:800},
+      {id:'gads', stage:'conversion', budget:4000},
+      {id:'meta-ads', stage:'awareness', budget:2500},
+      {id:'social-content', stage:'awareness', budget:2000},
+      {id:'seo-service', stage:'consideration', budget:2000},
+      {id:'quote-followup', stage:'conversion', budget:1500},
+      {id:'seasonal', stage:'retention', budget:2000},
+      {id:'testimonial-video', stage:'consideration', budget:1500},
+      {id:'review-gen', stage:'retention', budget:1000},
     ],
   },
   // 8. Garage Door — Low Volume Market
+  // Low-volume market = can't rely on search alone. Direct mail and referrals
+  // fill the gap. GBP is essential. Every lead matters so speed-to-lead is critical.
   {
     id: 8,
     name: 'LiftRight Garage Doors',
@@ -890,13 +912,15 @@ const SCENARIOS = [
     acceptableAlts: {'ll-sponsor':'consideration'},
     topGaps: ['no-awareness','weak-retention','offline-digital-gap'],
     idealStrategy: [
-      {id:'lsa', stage:'conversion', budget:600},
+      {id:'lsa', stage:'conversion', budget:500},
       {id:'gbp', stage:'awareness', budget:400},
-      {id:'direct-mail', stage:'awareness', budget:500},
+      {id:'direct-mail', stage:'awareness', budget:600},
       {id:'referral', stage:'retention', budget:500},
     ],
   },
   // 9. HVAC + Plumbing — Brand Confusion
+  // Multi-trade = needs clear brand separation in campaigns. Separate landing pages per service.
+  // Call handling training so dispatchers route correctly. Brand video to unify identity.
   {
     id: 9,
     name: 'ComfortPro HVAC & Plumbing',
@@ -918,16 +942,19 @@ const SCENARIOS = [
     topGaps: ['msg-confusion','budget-thin','weak-conversion'],
     idealStrategy: [
       {id:'gads', stage:'conversion', budget:5000},
+      {id:'lsa', stage:'conversion', budget:3000},
       {id:'seo-service', stage:'consideration', budget:3000},
       {id:'landing', stage:'conversion', budget:2000},
-      {id:'brand-video', stage:'awareness', budget:2500},
-      {id:'remarketing', stage:'consideration', budget:2000},
+      {id:'brand-video', stage:'awareness', budget:2000},
       {id:'call-handling', stage:'conversion', budget:1500},
-      {id:'gbp', stage:'awareness', budget:1000},
-      {id:'seo-blogs', stage:'awareness', budget:1500},
+      {id:'intake-script', stage:'conversion', budget:1000},
+      {id:'seasonal', stage:'retention', budget:1500},
     ],
   },
   // 10. Carpet Cleaning — Race to the Bottom
+  // Carpet cleaning attracts coupon shoppers. Fix = position on quality, not price.
+  // Reviews and GBP separate quality operators from Groupon competitors.
+  // Recurring customer programs (annual cleanings) are the real business model.
   {
     id: 10,
     name: 'FreshStart Carpet Cleaning',
@@ -947,13 +974,17 @@ const SCENARIOS = [
     acceptableAlts: {'coupon-mail':'consideration','groupon':'awareness'},
     topGaps: ['low-quality-leads','wrong-audience','weak-retention'],
     idealStrategy: [
-      {id:'lsa', stage:'conversion', budget:1000},
+      {id:'lsa', stage:'conversion', budget:800},
       {id:'gbp', stage:'awareness', budget:500},
-      {id:'seo-service', stage:'consideration', budget:800},
-      {id:'review-gen', stage:'retention', budget:700},
+      {id:'review-gen', stage:'retention', budget:800},
+      {id:'email-nurture', stage:'retention', budget:900},
     ],
   },
   // 11. Water Damage — Premium Jobs Only
+  // Water damage insurance work = referral-driven from plumbers, adjusters, agents.
+  // Community partnerships (plumber lunches, adjuster networking) are THE channel.
+  // Intake script matters — qualifying insurance vs. cash jobs at first call.
+  // SEO targets "water damage restoration" not "water cleanup" (different intent).
   {
     id: 11,
     name: 'AquaGuard Restoration',
@@ -972,17 +1003,22 @@ const SCENARIOS = [
       'gads':'conversion','seo-service':'consideration','networking':'consideration','branded-vehicles':'awareness'
     },
     acceptableAlts: {'networking':'conversion','seo-service':'awareness'},
-    topGaps: ['wrong-audience','weak-conversion','poor-followup'],
+    topGaps: ['wrong-audience','sales-bottleneck','poor-followup'],
     idealStrategy: [
-      {id:'gads', stage:'conversion', budget:5000},
+      {id:'gads', stage:'conversion', budget:4000},
       {id:'seo-service', stage:'consideration', budget:2500},
+      {id:'community-partner', stage:'awareness', budget:2500},
+      {id:'intake-script', stage:'conversion', budget:1000},
+      {id:'lead-routing', stage:'conversion', budget:1000},
+      {id:'crm', stage:'retention', budget:1500},
       {id:'landing', stage:'conversion', budget:1500},
-      {id:'remarketing', stage:'consideration', budget:1500},
-      {id:'crm', stage:'retention', budget:1000},
-      {id:'community-partner', stage:'awareness', budget:1500},
+      {id:'review-gen', stage:'retention', budget:1000},
     ],
   },
   // 12. Electrical — Modernizing
+  // Electrical = traditionally referral-heavy. Transition means keeping referral engine
+  // alive while building digital presence. LSAs are gold for electricians.
+  // Cautious owner = prove ROI with trackable channels first.
   {
     id: 12,
     name: 'VoltEdge Electric',
@@ -1002,15 +1038,18 @@ const SCENARIOS = [
     acceptableAlts: {'referrals':'conversion'},
     topGaps: ['no-awareness','weak-conversion','poor-followup'],
     idealStrategy: [
-      {id:'gads', stage:'conversion', budget:2000},
-      {id:'lsa', stage:'conversion', budget:1500},
+      {id:'lsa', stage:'conversion', budget:2000},
+      {id:'gads', stage:'conversion', budget:1500},
       {id:'gbp', stage:'awareness', budget:500},
+      {id:'referral', stage:'retention', budget:1000},
       {id:'seo-service', stage:'consideration', budget:1500},
-      {id:'referral', stage:'retention', budget:500},
-      {id:'crm', stage:'retention', budget:500},
+      {id:'review-process', stage:'retention', budget:500},
     ],
   },
   // 13. Burger Chain — Fill Weekdays
+  // Restaurants = social-first, loyalty-driven, location-specific.
+  // SMS with weekday-only deals drives immediate traffic. GBP per location is critical.
+  // Loyalty program is the #1 retention play. Community partnerships (local sports, schools) build regulars.
   {
     id: 13,
     name: 'FlameStack Burgers',
@@ -1031,19 +1070,22 @@ const SCENARIOS = [
     acceptableAlts: {'gbp':'consideration','social-general':'consideration'},
     topGaps: ['weak-conversion','offline-digital-gap','bofu-heavy'],
     idealStrategy: [
-      {id:'meta-ads', stage:'awareness', budget:6000},
-      {id:'sms', stage:'conversion', budget:2000},
+      {id:'social-content', stage:'awareness', budget:4000},
+      {id:'meta-ads', stage:'awareness', budget:5000},
+      {id:'sms', stage:'conversion', budget:3000},
+      {id:'loyalty', stage:'retention', budget:4000},
+      {id:'gbp', stage:'awareness', budget:2000},
       {id:'email', stage:'retention', budget:2000},
-      {id:'loyalty', stage:'retention', budget:3000},
-      {id:'remarketing', stage:'consideration', budget:3000},
-      {id:'social-content', stage:'awareness', budget:3000},
-      {id:'gbp', stage:'awareness', budget:1500},
-      {id:'landing', stage:'conversion', budget:2000},
-      {id:'cro', stage:'conversion', budget:1500},
-      {id:'community-partner', stage:'awareness', budget:2000},
+      {id:'community-partner', stage:'awareness', budget:3000},
+      {id:'display', stage:'consideration', budget:2000},
+      {id:'remarketing', stage:'consideration', budget:2000},
+      {id:'influencer', stage:'awareness', budget:2000},
     ],
   },
   // 14. Gym — Retention Crisis
+  // Gyms live and die on retention. Onboarding automation (email/SMS in first 30 days) is everything.
+  // Loyalty and community are what keep members. Social content builds FOMO.
+  // Paid social for new members, but the real problem is back-end — not top of funnel.
   {
     id: 14,
     name: 'IronPulse Fitness',
@@ -1064,17 +1106,20 @@ const SCENARIOS = [
     acceptableAlts: {'paid-social':'consideration','email':'consideration'},
     topGaps: ['weak-retention','poor-followup','sales-bottleneck'],
     idealStrategy: [
-      {id:'meta-ads', stage:'awareness', budget:3000},
-      {id:'email-nurture', stage:'retention', budget:2000},
+      {id:'email-nurture', stage:'retention', budget:3000},
+      {id:'sms', stage:'retention', budget:2000},
       {id:'loyalty', stage:'retention', budget:2500},
       {id:'social-content', stage:'awareness', budget:2000},
-      {id:'sms', stage:'retention', budget:1500},
-      {id:'community-partner', stage:'awareness', budget:1500},
-      {id:'remarketing', stage:'consideration', budget:2000},
-      {id:'landing', stage:'conversion', budget:1500},
+      {id:'meta-ads', stage:'awareness', budget:2500},
+      {id:'community-partner', stage:'awareness', budget:2000},
+      {id:'referral', stage:'retention', budget:2000},
+      {id:'testimonial-video', stage:'consideration', budget:1500},
     ],
   },
   // 15. E-commerce — Scale Profitably
+  // E-commerce = Shopping + Meta is the core engine. CRO and landing pages protect margins.
+  // Email/SMS segmentation drives repeat purchases. SEO content builds organic long-term.
+  // Influencer is awareness, not conversion — common mistake. Remarketing closes the loop.
   {
     id: 15,
     name: 'TrailForge Outdoors',
@@ -1095,16 +1140,16 @@ const SCENARIOS = [
     acceptableAlts: {'meta-ads':'consideration','influencer':'consideration','shopping':'consideration'},
     topGaps: ['budget-thin','weak-conversion','wrong-audience'],
     idealStrategy: [
-      {id:'shopping', stage:'conversion', budget:7000},
-      {id:'meta-ads', stage:'awareness', budget:6000},
+      {id:'shopping', stage:'conversion', budget:8000},
+      {id:'meta-ads', stage:'awareness', budget:5000},
       {id:'remarketing', stage:'consideration', budget:3500},
       {id:'email', stage:'retention', budget:3000},
-      {id:'cro', stage:'conversion', budget:2500},
+      {id:'cro', stage:'conversion', budget:3000},
       {id:'seo-blogs', stage:'awareness', budget:3000},
-      {id:'sms', stage:'retention', budget:2000},
-      {id:'youtube', stage:'awareness', budget:3000},
-      {id:'landing', stage:'conversion', budget:2000},
+      {id:'sms', stage:'retention', budget:2500},
       {id:'influencer', stage:'awareness', budget:2000},
+      {id:'youtube', stage:'awareness', budget:2500},
+      {id:'landing', stage:'conversion', budget:2000},
     ],
   },
 ];

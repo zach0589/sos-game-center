@@ -724,6 +724,8 @@ const SCENARIOS = [
       {id:'remarketing', stage:'consideration', budget:2000},
       {id:'crm', stage:'retention', budget:1500},
       {id:'seasonal', stage:'retention', budget:1500},
+      {id:'gbp', stage:'awareness', budget:1000},
+      {id:'review-gen', stage:'retention', budget:1000},
     ],
   },
   // 3. Plumbing — Feast or Famine
@@ -776,11 +778,13 @@ const SCENARIOS = [
     topGaps: ['sales-bottleneck','low-quality-leads','weak-conversion'],
     idealStrategy: [
       {id:'gads', stage:'conversion', budget:5000},
-      {id:'meta-ads', stage:'awareness', budget:4000},
+      {id:'meta-ads', stage:'awareness', budget:3000},
       {id:'sales-training', stage:'conversion', budget:2000},
       {id:'crm', stage:'retention', budget:1500},
       {id:'landing', stage:'conversion', budget:1500},
       {id:'remarketing', stage:'consideration', budget:2000},
+      {id:'seo-service', stage:'consideration', budget:2000},
+      {id:'review-gen', stage:'retention', budget:1000},
     ],
   },
   // 5. Cleaning — Startup Mode
@@ -916,12 +920,14 @@ const SCENARIOS = [
     acceptableAlts: {'billboards':'consideration'},
     topGaps: ['msg-confusion','budget-thin','weak-conversion'],
     idealStrategy: [
-      {id:'gads', stage:'conversion', budget:6000},
+      {id:'gads', stage:'conversion', budget:5000},
       {id:'seo-service', stage:'consideration', budget:3000},
       {id:'landing', stage:'conversion', budget:2000},
       {id:'brand-video', stage:'awareness', budget:2500},
       {id:'remarketing', stage:'consideration', budget:2000},
       {id:'call-handling', stage:'conversion', budget:1500},
+      {id:'gbp', stage:'awareness', budget:1000},
+      {id:'seo-blogs', stage:'awareness', budget:1500},
     ],
   },
   // 10. Carpet Cleaning — Race to the Bottom
@@ -1029,12 +1035,16 @@ const SCENARIOS = [
     acceptableAlts: {'gbp':'consideration','social-general':'consideration'},
     topGaps: ['weak-conversion','offline-digital-gap','bofu-heavy'],
     idealStrategy: [
-      {id:'meta-ads', stage:'awareness', budget:8000},
+      {id:'meta-ads', stage:'awareness', budget:6000},
       {id:'sms', stage:'conversion', budget:2000},
       {id:'email', stage:'retention', budget:2000},
       {id:'loyalty', stage:'retention', budget:3000},
       {id:'remarketing', stage:'consideration', budget:3000},
-      {id:'social-content', stage:'awareness', budget:4000},
+      {id:'social-content', stage:'awareness', budget:3000},
+      {id:'gbp', stage:'awareness', budget:1500},
+      {id:'landing', stage:'conversion', budget:2000},
+      {id:'cro', stage:'conversion', budget:1500},
+      {id:'community-partner', stage:'awareness', budget:2000},
     ],
   },
   // 14. Gym — Retention Crisis
@@ -1058,12 +1068,14 @@ const SCENARIOS = [
     acceptableAlts: {'paid-social':'consideration','email':'consideration'},
     topGaps: ['weak-retention','poor-followup','sales-bottleneck'],
     idealStrategy: [
-      {id:'meta-ads', stage:'awareness', budget:3500},
+      {id:'meta-ads', stage:'awareness', budget:3000},
       {id:'email-nurture', stage:'retention', budget:2000},
       {id:'loyalty', stage:'retention', budget:2500},
       {id:'social-content', stage:'awareness', budget:2000},
       {id:'sms', stage:'retention', budget:1500},
       {id:'community-partner', stage:'awareness', budget:1500},
+      {id:'remarketing', stage:'consideration', budget:2000},
+      {id:'landing', stage:'conversion', budget:1500},
     ],
   },
   // 15. E-commerce — Scale Profitably
@@ -1087,12 +1099,16 @@ const SCENARIOS = [
     acceptableAlts: {'meta-ads':'consideration','influencer':'consideration','shopping':'consideration'},
     topGaps: ['budget-thin','weak-conversion','wrong-audience'],
     idealStrategy: [
-      {id:'shopping', stage:'conversion', budget:8000},
-      {id:'meta-ads', stage:'awareness', budget:7000},
-      {id:'remarketing', stage:'consideration', budget:4000},
+      {id:'shopping', stage:'conversion', budget:7000},
+      {id:'meta-ads', stage:'awareness', budget:6000},
+      {id:'remarketing', stage:'consideration', budget:3500},
       {id:'email', stage:'retention', budget:3000},
-      {id:'cro', stage:'conversion', budget:3000},
+      {id:'cro', stage:'conversion', budget:2500},
       {id:'seo-blogs', stage:'awareness', budget:3000},
+      {id:'sms', stage:'retention', budget:2000},
+      {id:'youtube', stage:'awareness', budget:3000},
+      {id:'landing', stage:'conversion', budget:2000},
+      {id:'influencer', stage:'awareness', budget:2000},
     ],
   },
 ];
@@ -1123,6 +1139,13 @@ let state = {
 
 function currentScenario() {
   return SCENARIOS[state.scenarioOrder[state.currentScenario]];
+}
+
+function maxTactics(budget) {
+  if (budget <= 5000) return 5;
+  if (budget <= 10000) return 6;
+  if (budget <= 20000) return 8;
+  return 10;
 }
 
 const PHASE_NAMES = ['Reveal','Map','Gaps','Rebuild'];
@@ -1307,7 +1330,7 @@ function renderScenarioPanel(s) {
     '<strong>Phase 1 — Scenario Reveal:</strong> Review the client scenario. Discuss as a team. When ready, the host advances to Phase 2.',
     '<strong>Phase 2 — Current Funnel Mapping:</strong> Drag each of the client\'s current tactics into the funnel stage where you think it belongs. Some may fit multiple stages — choose the best one.',
     '<strong>Phase 3 — Gap Analysis:</strong> Based on the current funnel, identify the top 3 problems or gaps in this client\'s marketing strategy.',
-    '<strong>Phase 4 — Rebuild the Funnel:</strong> Build a new strategy from the tactic menu. Pick up to 6 tactics, assign each to a funnel stage, and allocate budget. Stay within budget!',
+    `<strong>Phase 4 — Rebuild the Funnel:</strong> Build a new strategy from the tactic menu. Pick up to <strong>${maxTactics(s.budget)}</strong> tactics, assign each to a funnel stage, and allocate budget. Stay within budget!`,
   ];
   html += `<div class="phase-instructions">${instructions[state.currentPhase]}</div>`;
   p.innerHTML = html;
@@ -1428,7 +1451,7 @@ function renderPhaseRebuild(board, s) {
     <div class="budget-progress"><div class="budget-fill" style="width:${pct}%;background:${fillColor}"></div></div>
     <div><div class="budget-label">Allocated</div><div class="budget-value ${budgetClass}">$${allocated.toLocaleString()}</div></div>
     <div><div class="budget-label">Remaining</div><div class="budget-value" style="color:${remaining<0?'var(--sos-red)':'var(--text)'}">$${remaining.toLocaleString()}</div></div>
-    <div class="tactic-count"><strong>${state.rebuildCards.length}</strong>/6 tactics</div>
+    <div class="tactic-count"><strong>${state.rebuildCards.length}</strong>/${maxTactics(s.budget)} tactics</div>
   </div>`;
 
   // Funnel columns for rebuild
@@ -1456,7 +1479,7 @@ function renderPhaseRebuild(board, s) {
   html += '</div>';
 
   // Tactic library tray
-  html += '<div class="card-tray"><h3>Marketing Menu — Drag to Funnel (max 6)</h3>';
+  html += `<div class="card-tray"><h3>Marketing Menu — Drag to Funnel (max ${maxTactics(s.budget)})</h3>`;
   html += '<div class="category-tabs">';
   const cats = ['All','Digital','Traditional','Sales/Ops','Retention/Brand'];
   cats.forEach(c => {
@@ -1548,8 +1571,9 @@ function onDropRebuild(e, stage) {
     existing.stage = stage;
   } else {
     // Adding new
-    if (state.rebuildCards.length >= 6) {
-      showToast('Max 6 tactics — remove one first');
+    const limit = maxTactics(s.budget);
+    if (state.rebuildCards.length >= limit) {
+      showToast(`Max ${limit} tactics — remove one first`);
       dragData = null;
       return;
     }

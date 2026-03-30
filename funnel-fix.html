@@ -694,8 +694,8 @@ const SCENARIOS = [
       'gads':'conversion','lsa':'conversion','website':'consideration','truck-wraps':'awareness'
     },
     acceptableAlts: {'gads':'consideration','website':'conversion'},
-    topGaps: ['poor-followup','weak-retention','bofu-heavy'],
-    alsoAcceptGaps: ['no-awareness','sales-bottleneck'],
+    topGaps: ['sales-bottleneck','bofu-heavy','no-awareness'],
+    alsoAcceptGaps: ['poor-followup','weak-conversion'],
     idealStrategy: [
       {id:'lsa', stage:'conversion', budget:1800},
       {id:'gads', stage:'conversion', budget:1500},
@@ -728,8 +728,8 @@ const SCENARIOS = [
       'gads':'conversion','seo-service':'consideration','tpa':'conversion','fleet':'awareness','radio':'awareness'
     },
     acceptableAlts: {'seo-service':'awareness','radio':'consideration'},
-    topGaps: ['weak-retention','no-awareness','budget-thin'],
-    alsoAcceptGaps: ['poor-followup','offline-digital-gap'],
+    topGaps: ['no-awareness','budget-thin','weak-retention'],
+    alsoAcceptGaps: ['bofu-heavy','offline-digital-gap'],
     idealStrategy: [
       {id:'gads', stage:'conversion', budget:8000},
       {id:'seo-service', stage:'consideration', budget:4000},
@@ -858,8 +858,8 @@ const SCENARIOS = [
       'gads':'conversion','seo-blogs':'awareness','seo-service':'consideration','direct-mail':'awareness','call-center':'conversion'
     },
     acceptableAlts: {'seo-blogs':'consideration','direct-mail':'consideration'},
-    topGaps: ['weak-retention','budget-thin','low-quality-leads'],
-    alsoAcceptGaps: ['poor-followup','no-awareness'],
+    topGaps: ['budget-thin','low-quality-leads','weak-retention'],
+    alsoAcceptGaps: ['bofu-heavy','weak-conversion'],
     idealStrategy: [
       {id:'gads', stage:'conversion', budget:3500},
       {id:'seo-service', stage:'consideration', budget:2500},
@@ -891,8 +891,8 @@ const SCENARIOS = [
       'fb-ig-ads':'awareness','seo-general':'consideration','yard-signs':'awareness','events':'awareness'
     },
     acceptableAlts: {'events':'consideration','fb-ig-ads':'consideration'},
-    topGaps: ['low-quality-leads','weak-conversion','poor-followup'],
-    alsoAcceptGaps: ['weak-retention','wrong-audience'],
+    topGaps: ['low-quality-leads','weak-conversion','wrong-audience'],
+    alsoAcceptGaps: ['budget-thin','bofu-heavy'],
     idealStrategy: [
       {id:'gads', stage:'conversion', budget:4000},
       {id:'meta-ads', stage:'awareness', budget:2500},
@@ -923,8 +923,8 @@ const SCENARIOS = [
       'gads':'conversion','ll-sponsor':'awareness'
     },
     acceptableAlts: {'ll-sponsor':'consideration'},
-    topGaps: ['no-awareness','weak-retention','offline-digital-gap'],
-    alsoAcceptGaps: ['low-brand','poor-followup'],
+    topGaps: ['no-awareness','offline-digital-gap','low-brand'],
+    alsoAcceptGaps: ['weak-conversion','budget-thin'],
     idealStrategy: [
       {id:'lsa', stage:'conversion', budget:1200},
       {id:'gbp', stage:'awareness', budget:500},
@@ -1022,8 +1022,8 @@ const SCENARIOS = [
       'gads':'conversion','seo-service':'consideration','networking':'consideration','branded-vehicles':'awareness'
     },
     acceptableAlts: {'networking':'conversion','seo-service':'awareness'},
-    topGaps: ['wrong-audience','sales-bottleneck','poor-followup'],
-    alsoAcceptGaps: ['weak-conversion','low-quality-leads'],
+    topGaps: ['wrong-audience','weak-conversion','low-quality-leads'],
+    alsoAcceptGaps: ['no-awareness','budget-thin'],
     idealStrategy: [
       {id:'gads', stage:'conversion', budget:4000},
       {id:'seo-service', stage:'consideration', budget:2500},
@@ -1056,8 +1056,8 @@ const SCENARIOS = [
       'referrals':'retention','truck-wraps':'awareness','gads':'conversion'
     },
     acceptableAlts: {'referrals':'conversion'},
-    topGaps: ['no-awareness','weak-conversion','poor-followup'],
-    alsoAcceptGaps: ['low-brand','weak-retention'],
+    topGaps: ['no-awareness','low-brand','weak-conversion'],
+    alsoAcceptGaps: ['bofu-heavy','offline-digital-gap'],
     idealStrategy: [
       {id:'lsa', stage:'conversion', budget:2000},
       {id:'gads', stage:'conversion', budget:1500},
@@ -1126,8 +1126,8 @@ const SCENARIOS = [
       'paid-social':'awareness','gads':'conversion','free-trial':'conversion','email':'retention'
     },
     acceptableAlts: {'paid-social':'consideration','email':'consideration'},
-    topGaps: ['weak-retention','poor-followup','sales-bottleneck'],
-    alsoAcceptGaps: ['weak-conversion','low-quality-leads'],
+    topGaps: ['weak-retention','poor-followup','low-quality-leads'],
+    alsoAcceptGaps: ['wrong-audience','weak-conversion'],
     idealStrategy: [
       {id:'email-nurture', stage:'retention', budget:3000},
       {id:'sms', stage:'retention', budget:2000},

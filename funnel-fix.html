@@ -656,6 +656,7 @@ TACTIC_LIBRARY.forEach(t => TACTIC_MAP[t.id] = t);
    ================================================================ */
 const GAP_OPTIONS = [
   {id:'bofu-heavy', label:'Too BOFU Heavy'},
+  {id:'tofu-heavy', label:'Too TOFU Heavy'},
   {id:'no-awareness', label:'No Awareness Generation'},
   {id:'weak-conversion', label:'Weak Conversion Path'},
   {id:'poor-followup', label:'Poor Follow-Up'},
@@ -850,8 +851,8 @@ const SCENARIOS = [
       'gbp':'awareness','flyers':'awareness','fb-posts':'awareness'
     },
     acceptableAlts: {'gbp':'consideration'},
-    topGaps: ['weak-conversion','low-brand','no-awareness'],
-    alsoAcceptGaps: ['weak-retention','offline-digital-gap'],
+    topGaps: ['weak-conversion','low-brand','tofu-heavy'],
+    alsoAcceptGaps: ['no-awareness','offline-digital-gap'],
     idealStrategy: [
       {id:'lsa', stage:'conversion', budget:1500},
       {id:'gbp', stage:'awareness', budget:500},
@@ -927,7 +928,7 @@ const SCENARIOS = [
     },
     acceptableAlts: {'events':'consideration','fb-ig-ads':'consideration'},
     topGaps: ['low-quality-leads','weak-conversion','wrong-audience'],
-    alsoAcceptGaps: ['budget-thin','bofu-heavy'],
+    alsoAcceptGaps: ['tofu-heavy','budget-thin'],
     idealStrategy: [
       {id:'gads', stage:'conversion', budget:4000},
       {id:'meta-ads', stage:'awareness', budget:2500},
@@ -1117,7 +1118,7 @@ const SCENARIOS = [
     },
     acceptableAlts: {'referrals':'conversion'},
     topGaps: ['no-awareness','low-brand','weak-conversion'],
-    alsoAcceptGaps: ['bofu-heavy','offline-digital-gap'],
+    alsoAcceptGaps: ['offline-digital-gap','weak-retention'],
     idealStrategy: [
       {id:'lsa', stage:'conversion', budget:2000},
       {id:'gads', stage:'conversion', budget:1500},
@@ -1154,8 +1155,8 @@ const SCENARIOS = [
       'social-general':'awareness','gbp':'awareness','radio':'awareness','in-store':'retention'
     },
     acceptableAlts: {'gbp':'consideration','social-general':'consideration'},
-    topGaps: ['weak-conversion','offline-digital-gap','bofu-heavy'],
-    alsoAcceptGaps: ['no-awareness','weak-retention'],
+    topGaps: ['weak-conversion','offline-digital-gap','tofu-heavy'],
+    alsoAcceptGaps: ['weak-retention','no-awareness'],
     idealStrategy: [
       {id:'social-content', stage:'awareness', budget:4000},
       {id:'meta-ads', stage:'awareness', budget:5000},

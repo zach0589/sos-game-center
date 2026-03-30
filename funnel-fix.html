@@ -683,13 +683,18 @@ const SCENARIOS = [
     industry: 'HVAC',
     budget: 6000,
     goal: 'Immediate service calls',
+    serviceArea: 'Single metro area — 30-mile radius',
+    teamSize: '6 techs, 2 trucks, 1 office manager',
+    avgTicket: '$350 repair / $6,500 install',
+    yearsInBusiness: '8 years',
+    clientQuote: '"We need the phone to ring. When it does, we close. But after 5pm we miss a lot of calls and I know we\'re losing jobs."',
     currentTactics: [
       {id:'gads', stage:'conversion'},
       {id:'lsa', stage:'conversion'},
       {id:'website', stage:'consideration', custom:true, name:'Website'},
       {id:'truck-wraps', stage:'awareness'},
     ],
-    notes: 'Phones not always answered after hours.',
+    notes: 'Phones not always answered after hours. All budget currently going to paid search. No maintenance plan or repeat customer outreach.',
     suggestedMapping: {
       'gads':'conversion','lsa':'conversion','website':'consideration','truck-wraps':'awareness'
     },
@@ -716,6 +721,11 @@ const SCENARIOS = [
     industry: 'Restoration',
     budget: 25000,
     goal: 'Dominate storm response in region',
+    serviceArea: 'Regional — 3 counties, 75-mile radius',
+    teamSize: '18 crew, 8 vehicles, 2 project managers, dedicated sales rep',
+    avgTicket: '$8,500 (insurance mitigation avg)',
+    yearsInBusiness: '12 years',
+    clientQuote: '"When a storm hits, we\'re slammed for 3 weeks. Then nothing for months. We need to stay busy between events and be the first name people think of when it happens."',
     currentTactics: [
       {id:'gads', stage:'conversion'},
       {id:'seo-service', stage:'consideration'},
@@ -723,7 +733,7 @@ const SCENARIOS = [
       {id:'fleet', stage:'awareness', custom:true, name:'Fleet Branding'},
       {id:'radio', stage:'awareness'},
     ],
-    notes: 'Huge spikes then drop-offs.',
+    notes: 'Huge spikes then drop-offs. No off-season marketing. Budget concentrated in paid channels. No referral partner nurture program between storms.',
     suggestedMapping: {
       'gads':'conversion','seo-service':'consideration','tpa':'conversion','fleet':'awareness','radio':'awareness'
     },
@@ -749,12 +759,17 @@ const SCENARIOS = [
     industry: 'Plumbing',
     budget: 6000,
     goal: 'Consistent lead flow',
+    serviceArea: 'Single city + surrounding suburbs',
+    teamSize: '4 plumbers, 3 trucks, owner runs the office',
+    avgTicket: '$425 service call / $3,200 repipe',
+    yearsInBusiness: '5 years',
+    clientQuote: '"Some weeks we\'re turning jobs away, other weeks the phone doesn\'t ring. I have no idea what changed. We also don\'t follow up with past customers at all — once the job is done, we move on."',
     currentTactics: [
       {id:'lsa', stage:'conversion'},
       {id:'gads', stage:'conversion'},
       {id:'yard-signs', stage:'awareness'},
     ],
-    notes: 'No follow-up system.',
+    notes: 'No follow-up system. No CRM. No repeat customer outreach. Entire budget in bottom-of-funnel paid ads.',
     suggestedMapping: {
       'lsa':'conversion','gads':'conversion','yard-signs':'awareness'
     },
@@ -780,6 +795,11 @@ const SCENARIOS = [
     industry: 'Roofing',
     budget: 20000,
     goal: 'Scale high-ticket insurance jobs',
+    serviceArea: 'Metro + 4 surrounding counties',
+    teamSize: '3 sales reps, 6 install crews, office staff of 3',
+    avgTicket: '$12,000 (insurance replacement avg)',
+    yearsInBusiness: '10 years',
+    clientQuote: '"We\'re getting plenty of leads but our close rate is all over the place. Some reps close 40%, others close 10%. We need more of the right leads and a better sales process."',
     currentTactics: [
       {id:'meta-ads', stage:'awareness'},
       {id:'door-knock', stage:'conversion'},
@@ -787,7 +807,7 @@ const SCENARIOS = [
       {id:'yard-signs', stage:'awareness'},
       {id:'gads', stage:'conversion'},
     ],
-    notes: 'Lead volume is high but close rate is inconsistent.',
+    notes: 'Lead volume is high but close rate is inconsistent. No sales training. No quote follow-up process. Reps have wildly different results.',
     suggestedMapping: {
       'meta-ads':'awareness','door-knock':'conversion','website':'consideration','yard-signs':'awareness','gads':'conversion'
     },
@@ -815,12 +835,17 @@ const SCENARIOS = [
     industry: 'Cleaning',
     budget: 5000,
     goal: 'Get first 20 recurring customers',
+    serviceArea: 'One city — 15-mile radius',
+    teamSize: 'Owner + 1 employee, 1 van',
+    avgTicket: '$180 per cleaning',
+    yearsInBusiness: '6 months',
+    clientQuote: '"Nobody knows who we are yet. I\'m posting on Facebook and passing out flyers but I need actual paying customers on a regular schedule. I can\'t just get one-time jobs — I need recurring clients."',
     currentTactics: [
       {id:'gbp', stage:'awareness'},
       {id:'flyers', stage:'awareness'},
       {id:'fb-posts', stage:'awareness', custom:true, name:'Facebook Posts'},
     ],
-    notes: 'No brand recognition yet.',
+    notes: 'No brand recognition yet. Zero reviews. No way to capture leads from website. All tactics are awareness with no conversion path.',
     suggestedMapping: {
       'gbp':'awareness','flyers':'awareness','fb-posts':'awareness'
     },
@@ -846,6 +871,11 @@ const SCENARIOS = [
     industry: 'Pest Control',
     budget: 15000,
     goal: 'Break growth plateau',
+    serviceArea: 'Metro area + suburbs — 40-mile radius',
+    teamSize: '10 techs, 6 trucks, 2 office staff, call center vendor',
+    avgTicket: '$175 one-time / $45/mo recurring plan',
+    yearsInBusiness: '15 years',
+    clientQuote: '"We\'ve been stuck at the same revenue for 2 years. We keep spending more on ads but CPL keeps going up and the leads aren\'t as good. Most customers are one-time — we can\'t get them on a recurring plan."',
     currentTactics: [
       {id:'gads', stage:'conversion'},
       {id:'seo-blogs', stage:'awareness'},
@@ -853,7 +883,7 @@ const SCENARIOS = [
       {id:'direct-mail', stage:'awareness'},
       {id:'call-center', stage:'conversion', custom:true, name:'Call Center Handling Leads'},
     ],
-    notes: 'CPL has been rising.',
+    notes: 'CPL has been rising. Budget spread across 5 channels. Most customers are one-time with no recurring plan conversion. No loyalty or reactivation program.',
     suggestedMapping: {
       'gads':'conversion','seo-blogs':'awareness','seo-service':'consideration','direct-mail':'awareness','call-center':'conversion'
     },
@@ -880,13 +910,18 @@ const SCENARIOS = [
     industry: 'Landscaping',
     budget: 18000,
     goal: 'Become number one in market',
+    serviceArea: 'Affluent suburbs — 3 zip codes',
+    teamSize: '12 crew, 4 trucks, 2 designers, office manager',
+    avgTicket: '$800 maintenance contract / $15,000 hardscape project',
+    yearsInBusiness: '9 years',
+    clientQuote: '"Everyone knows our name but we get a lot of tire-kicker leads. People call for a quote on a $500 job when we really want the $10k+ design projects. We need better quality leads, not more volume."',
     currentTactics: [
       {id:'fb-ig-ads', stage:'awareness', custom:true, name:'Facebook & Instagram Ads'},
       {id:'seo-general', stage:'consideration', custom:true, name:'SEO'},
       {id:'yard-signs', stage:'awareness'},
       {id:'events', stage:'awareness'},
     ],
-    notes: 'Strong awareness but inconsistent lead quality.',
+    notes: 'Strong awareness but inconsistent lead quality. Getting lots of small-job inquiries. No quote follow-up. No targeting by project size. All 4 current tactics are awareness-level.',
     suggestedMapping: {
       'fb-ig-ads':'awareness','seo-general':'consideration','yard-signs':'awareness','events':'awareness'
     },
@@ -914,11 +949,16 @@ const SCENARIOS = [
     industry: 'Garage Door',
     budget: 5000,
     goal: 'Increase total jobs',
+    serviceArea: 'Small city + rural surroundings — population 45,000',
+    teamSize: 'Owner + 2 installers, 1 truck',
+    avgTicket: '$450 repair / $1,800 replacement',
+    yearsInBusiness: '4 years',
+    clientQuote: '"There just aren\'t that many people searching for garage doors here. I sponsor the little league team and run Google Ads but there\'s only so many clicks. I need to find customers who aren\'t actively searching yet."',
     currentTactics: [
       {id:'gads', stage:'conversion'},
       {id:'ll-sponsor', stage:'awareness', custom:true, name:'Local Sponsorship (Little League)'},
     ],
-    notes: 'Low search volume market.',
+    notes: 'Low search volume market. Only 2 marketing tactics. Digital and offline not connected. No brand presence beyond the sponsorship. No referral or repeat customer program.',
     suggestedMapping: {
       'gads':'conversion','ll-sponsor':'awareness'
     },
@@ -943,13 +983,18 @@ const SCENARIOS = [
     industry: 'HVAC + Plumbing',
     budget: 22000,
     goal: 'Grow both divisions',
+    serviceArea: 'Metro area — 2 locations',
+    teamSize: '8 HVAC techs, 5 plumbers, 4 trucks per division, shared office',
+    avgTicket: '$400 HVAC service / $375 plumbing service',
+    yearsInBusiness: '20 years (added plumbing 3 years ago)',
+    clientQuote: '"People know us for HVAC but don\'t realize we do plumbing too. Our ads mix everything together and I don\'t think the messaging is clear. We\'re spending a lot but I can\'t tell which division is getting the ROI."',
     currentTactics: [
       {id:'gads-mixed', stage:'conversion', custom:true, name:'Google Ads Mixed Campaigns'},
       {id:'seo-general', stage:'consideration', custom:true, name:'SEO'},
       {id:'billboards', stage:'awareness'},
       {id:'radio', stage:'awareness'},
     ],
-    notes: 'Messaging unclear and budget split inefficiently.',
+    notes: 'Messaging unclear and budget split inefficiently. One Google Ads campaign covers both services. Can\'t track ROI by division. Landing pages don\'t separate services.',
     suggestedMapping: {
       'gads-mixed':'conversion','seo-general':'consideration','billboards':'awareness','radio':'awareness'
     },
@@ -978,12 +1023,17 @@ const SCENARIOS = [
     industry: 'Carpet Cleaning',
     budget: 6500,
     goal: 'Lower CPL without attracting junk leads',
+    serviceArea: 'Metro area — 25-mile radius',
+    teamSize: '3 techs, 2 vans, owner handles sales',
+    avgTicket: '$165 (but Groupon jobs avg $89)',
+    yearsInBusiness: '7 years',
+    clientQuote: '"I\'m getting leads but they\'re all bargain hunters. Groupon brings volume but they never come back. The coupon mailers attract people who just want the cheapest option. I need real customers who\'ll pay full price and rebook annually."',
     currentTactics: [
       {id:'gads', stage:'conversion'},
       {id:'coupon-mail', stage:'awareness', custom:true, name:'Coupon Mailers'},
       {id:'groupon', stage:'conversion', custom:true, name:'Groupon-Style Deals'},
     ],
-    notes: 'Low-quality customers dominate.',
+    notes: 'Low-quality customers dominate. Groupon and coupon channels attract one-time bargain shoppers. No reviews strategy. No repeat customer program. Competing on price instead of quality.',
     suggestedMapping: {
       'gads':'conversion','coupon-mail':'awareness','groupon':'conversion'
     },
@@ -1011,13 +1061,18 @@ const SCENARIOS = [
     industry: 'Water Damage',
     budget: 17000,
     goal: 'More insurance work',
+    serviceArea: 'Metro + suburbs — 50-mile radius',
+    teamSize: '10 crew, 5 trucks, 2 project managers, 1 sales/estimator',
+    avgTicket: '$2,200 cash jobs / $9,500 insurance mitigation',
+    yearsInBusiness: '11 years',
+    clientQuote: '"We\'re getting calls but 70% are small cash jobs — homeowners with a leaky pipe wanting the cheapest fix. We want the big insurance mitigation work but our ads aren\'t attracting the right customer or the right referral sources."',
     currentTactics: [
       {id:'gads', stage:'conversion'},
       {id:'seo-service', stage:'consideration'},
       {id:'networking', stage:'consideration', custom:true, name:'Networking with Plumbers & Agents'},
       {id:'branded-vehicles', stage:'awareness', custom:true, name:'Branded Vehicles'},
     ],
-    notes: 'Getting lead volume but wrong job type.',
+    notes: 'Getting lead volume but wrong job type. 70% cash jobs, want insurance work. Ads target generic "water damage" keywords. No landing page specific to insurance/mitigation. Networking is informal with no system.',
     suggestedMapping: {
       'gads':'conversion','seo-service':'consideration','networking':'consideration','branded-vehicles':'awareness'
     },
@@ -1046,12 +1101,17 @@ const SCENARIOS = [
     industry: 'Electrical',
     budget: 8000,
     goal: 'Grow while transitioning from referrals',
+    serviceArea: 'Single city + nearby towns',
+    teamSize: '3 electricians, 2 trucks, owner runs jobs and office',
+    avgTicket: '$550 service / $4,000 panel upgrade',
+    yearsInBusiness: '18 years',
+    clientQuote: '"We\'ve always grown by word of mouth but the referrals are slowing down. I know I need to get online but I don\'t want to throw money at something I can\'t track. I need to see what\'s working before I spend more."',
     currentTactics: [
       {id:'referrals', stage:'retention', custom:true, name:'Referrals'},
       {id:'truck-wraps', stage:'awareness'},
       {id:'gads', stage:'conversion'},
     ],
-    notes: 'Owner is cautious about scaling.',
+    notes: 'Owner is cautious about scaling. Referrals slowing down. No online presence beyond basic Google Ads. No GBP optimization. No reviews strategy. No brand awareness beyond truck wraps.',
     suggestedMapping: {
       'referrals':'retention','truck-wraps':'awareness','gads':'conversion'
     },
@@ -1078,13 +1138,18 @@ const SCENARIOS = [
     industry: 'Restaurant (Regional Chain)',
     budget: 30000,
     goal: 'Increase weekday traffic across 5 locations',
+    serviceArea: '5 locations across metro area',
+    teamSize: '~80 total staff across locations, marketing manager, GM per store',
+    avgTicket: '$14 per visit',
+    yearsInBusiness: '22 years (5 locations over last 8 years)',
+    clientQuote: '"Weekends are packed — we turn tables. But Monday through Thursday we\'re at 40% capacity. We have strong brand recognition but nothing driving people in on a Tuesday. Our online and in-store promos don\'t connect."',
     currentTactics: [
       {id:'social-general', stage:'awareness', custom:true, name:'Social Media'},
       {id:'gbp', stage:'awareness'},
       {id:'radio', stage:'awareness'},
       {id:'in-store', stage:'retention', custom:true, name:'In-Store Promos'},
     ],
-    notes: 'Strong brand, inconsistent weekday traffic.',
+    notes: 'Strong brand, inconsistent weekday traffic. All current marketing is awareness — no direct conversion tactic. In-store promos don\'t reach people before they decide where to eat. Digital and offline not connected. No loyalty program.',
     suggestedMapping: {
       'social-general':'awareness','gbp':'awareness','radio':'awareness','in-store':'retention'
     },
@@ -1115,13 +1180,18 @@ const SCENARIOS = [
     industry: 'Gym Franchise',
     budget: 18000,
     goal: 'Reduce churn and grow memberships',
+    serviceArea: '3 locations in metro area',
+    teamSize: '25 trainers, 6 front desk, regional manager',
+    avgTicket: '$49/mo membership',
+    yearsInBusiness: '6 years (franchise)',
+    clientQuote: '"We sign up 200 new members a month but lose 150. People come in for the free trial, sign up, then stop showing up within 60 days. We\'re spending all this money to acquire members who don\'t stick around."',
     currentTactics: [
       {id:'paid-social', stage:'awareness', custom:true, name:'Paid Social'},
       {id:'gads', stage:'conversion'},
       {id:'free-trial', stage:'conversion', custom:true, name:'Free Trial Offers'},
       {id:'email', stage:'retention'},
     ],
-    notes: 'High signups, high drop-off after joining.',
+    notes: 'High signups, high drop-off after joining. 75% churn within 90 days. No onboarding sequence for new members. Email is generic blasts, not targeted. Free trials attract low-commitment signups. No referral program.',
     suggestedMapping: {
       'paid-social':'awareness','gads':'conversion','free-trial':'conversion','email':'retention'
     },
@@ -1150,13 +1220,18 @@ const SCENARIOS = [
     industry: 'E-commerce (Outdoor Brand)',
     budget: 35000,
     goal: 'Improve ROAS while scaling',
+    serviceArea: 'National DTC e-commerce',
+    teamSize: '12 employees — marketing team of 3, warehouse of 5',
+    avgTicket: '$85 avg order value',
+    yearsInBusiness: '4 years',
+    clientQuote: '"We\'re doing $2M in revenue but margins are getting crushed. Meta CPMs keep going up, ROAS is dropping, and we\'re spending a lot on influencers without knowing what\'s actually converting. We need to scale but not at the expense of profitability."',
     currentTactics: [
       {id:'shopping', stage:'conversion'},
       {id:'meta-ads', stage:'awareness'},
       {id:'email-sms', stage:'retention', custom:true, name:'Email & SMS'},
       {id:'influencer', stage:'awareness'},
     ],
-    notes: 'High traffic but margin pressure.',
+    notes: 'High traffic but margin pressure. ROAS declining. Influencer spend hard to attribute. No remarketing to recapture abandoned carts. Email/SMS not segmented. Heavy reliance on paid channels with rising CPMs.',
     suggestedMapping: {
       'shopping':'conversion','meta-ads':'awareness','email-sms':'retention','influencer':'awareness'
     },
@@ -1385,11 +1460,16 @@ function renderScenarioPanel(s) {
     <div class="scenario-detail"><strong>Industry:</strong> ${esc(s.industry)}</div>
     <div class="scenario-detail"><strong>Budget:</strong> $${s.budget.toLocaleString()}/mo</div>
     <div class="scenario-detail"><strong>Goal:</strong> ${esc(s.goal)}</div>
+    <div class="scenario-detail"><strong>Service Area:</strong> ${esc(s.serviceArea)}</div>
+    <div class="scenario-detail"><strong>Team:</strong> ${esc(s.teamSize)}</div>
+    <div class="scenario-detail"><strong>Avg Ticket:</strong> ${esc(s.avgTicket)}</div>
+    <div class="scenario-detail"><strong>In Business:</strong> ${esc(s.yearsInBusiness)}</div>
     <div class="scenario-detail"><strong>Current Marketing:</strong></div>
     <ul class="current-tactics-list">
       ${tacticsList.map(t => `<li>${esc(t)}</li>`).join('')}
     </ul>
-    <div class="scenario-notes"><strong>⚠ Notes:</strong> ${esc(s.notes)}</div>`;
+    <div class="scenario-notes"><strong>⚠ Notes:</strong> ${esc(s.notes)}</div>
+    ${s.clientQuote ? `<div style="background:rgba(42,109,181,.1);border:1px solid rgba(42,109,181,.3);border-radius:8px;padding:10px;margin-top:10px;font-size:.82rem;color:var(--sos-light);font-style:italic;">${esc(s.clientQuote)}</div>` : ''}`;
 
   // Phase-specific instructions
   const instructions = [
@@ -1417,9 +1497,14 @@ function renderPhaseReveal(board, s) {
         <div class="splash-detail-row"><span class="label">Industry</span><span class="value">${esc(s.industry)}</span></div>
         <div class="splash-detail-row"><span class="label">Monthly Budget</span><span class="value">$${s.budget.toLocaleString()}</span></div>
         <div class="splash-detail-row"><span class="label">Goal</span><span class="value">${esc(s.goal)}</span></div>
+        <div class="splash-detail-row"><span class="label">Service Area</span><span class="value">${esc(s.serviceArea)}</span></div>
+        <div class="splash-detail-row"><span class="label">Team Size</span><span class="value">${esc(s.teamSize)}</span></div>
+        <div class="splash-detail-row"><span class="label">Avg Ticket</span><span class="value">${esc(s.avgTicket)}</span></div>
+        <div class="splash-detail-row"><span class="label">In Business</span><span class="value">${esc(s.yearsInBusiness)}</span></div>
         <div class="splash-detail-row"><span class="label">Current Tactics</span><span class="value">${tacticsList.join(', ')}</span></div>
         <div class="splash-detail-row"><span class="label">Notes</span><span class="value" style="color:var(--sos-red)">${esc(s.notes)}</span></div>
       </div>
+      ${s.clientQuote ? `<div style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:16px;max-width:550px;width:100%;margin-top:12px;font-size:.95rem;color:var(--sos-light);font-style:italic;text-align:left;">${esc(s.clientQuote)}</div>` : ''}
       <button class="btn btn-green" style="margin-top:24px;padding:14px 32px;font-size:1rem;" onclick="nextPhase()">Start Round ▶</button>
     </div>`;
 }

@@ -747,7 +747,7 @@ const SCENARIOS = [
     name: 'PipePro Plumbing',
     subtitle: 'Feast or Famine',
     industry: 'Plumbing',
-    budget: 4000,
+    budget: 6000,
     goal: 'Consistent lead flow',
     currentTactics: [
       {id:'lsa', stage:'conversion'},
@@ -762,10 +762,11 @@ const SCENARIOS = [
     topGaps: ['poor-followup','weak-retention','no-awareness'],
     alsoAcceptGaps: ['bofu-heavy','sales-bottleneck'],
     idealStrategy: [
-      {id:'lsa', stage:'conversion', budget:1500},
-      {id:'gads', stage:'conversion', budget:1200},
+      {id:'lsa', stage:'conversion', budget:1800},
+      {id:'gads', stage:'conversion', budget:1500},
       {id:'gbp', stage:'awareness', budget:500},
       {id:'crm', stage:'retention', budget:800},
+      {id:'review-process', stage:'retention', budget:600},
     ],
   },
   // 4. Roofing — Scale the Machine
@@ -812,7 +813,7 @@ const SCENARIOS = [
     name: 'SparkleClean Co',
     subtitle: 'Startup Mode',
     industry: 'Cleaning',
-    budget: 2500,
+    budget: 5000,
     goal: 'Get first 20 recurring customers',
     currentTactics: [
       {id:'gbp', stage:'awareness'},
@@ -827,10 +828,11 @@ const SCENARIOS = [
     topGaps: ['no-awareness','weak-conversion','low-brand'],
     alsoAcceptGaps: ['weak-retention','bofu-heavy'],
     idealStrategy: [
-      {id:'lsa', stage:'conversion', budget:800},
+      {id:'lsa', stage:'conversion', budget:1500},
       {id:'gbp', stage:'awareness', budget:500},
-      {id:'review-process', stage:'retention', budget:500},
-      {id:'referral', stage:'retention', budget:700},
+      {id:'meta-ads', stage:'awareness', budget:1000},
+      {id:'review-process', stage:'retention', budget:1000},
+      {id:'referral', stage:'retention', budget:1000},
     ],
   },
   // 6. Pest Control — Stuck at the Ceiling
@@ -910,7 +912,7 @@ const SCENARIOS = [
     name: 'LiftRight Garage Doors',
     subtitle: 'Low Volume Market',
     industry: 'Garage Door',
-    budget: 2000,
+    budget: 5000,
     goal: 'Increase total jobs',
     currentTactics: [
       {id:'gads', stage:'conversion'},
@@ -924,10 +926,11 @@ const SCENARIOS = [
     topGaps: ['no-awareness','weak-retention','offline-digital-gap'],
     alsoAcceptGaps: ['low-brand','poor-followup'],
     idealStrategy: [
-      {id:'lsa', stage:'conversion', budget:500},
-      {id:'gbp', stage:'awareness', budget:400},
-      {id:'direct-mail', stage:'awareness', budget:600},
-      {id:'referral', stage:'retention', budget:500},
+      {id:'lsa', stage:'conversion', budget:1200},
+      {id:'gbp', stage:'awareness', budget:500},
+      {id:'direct-mail', stage:'awareness', budget:1000},
+      {id:'referral', stage:'retention', budget:800},
+      {id:'gads', stage:'conversion', budget:1000},
     ],
   },
   // 9. HVAC + Plumbing — Brand Confusion
@@ -973,7 +976,7 @@ const SCENARIOS = [
     name: 'FreshStart Carpet Cleaning',
     subtitle: 'Race to the Bottom',
     industry: 'Carpet Cleaning',
-    budget: 3000,
+    budget: 6500,
     goal: 'Lower CPL without attracting junk leads',
     currentTactics: [
       {id:'gads', stage:'conversion'},
@@ -988,10 +991,12 @@ const SCENARIOS = [
     topGaps: ['low-quality-leads','wrong-audience','weak-retention'],
     alsoAcceptGaps: ['low-brand','poor-followup'],
     idealStrategy: [
-      {id:'lsa', stage:'conversion', budget:800},
+      {id:'lsa', stage:'conversion', budget:1500},
+      {id:'gads', stage:'conversion', budget:1500},
       {id:'gbp', stage:'awareness', budget:500},
-      {id:'review-gen', stage:'retention', budget:800},
-      {id:'email-nurture', stage:'retention', budget:900},
+      {id:'seo-service', stage:'consideration', budget:1000},
+      {id:'review-gen', stage:'retention', budget:1000},
+      {id:'email-nurture', stage:'retention', budget:1000},
     ],
   },
   // 11. Water Damage — Premium Jobs Only

@@ -694,7 +694,7 @@ const SCENARIOS = [
       {id:'website', stage:'consideration', custom:true, name:'Website'},
       {id:'truck-wraps', stage:'awareness'},
     ],
-    notes: 'Phones not always answered after hours. All budget currently going to paid search. No maintenance plan or repeat customer outreach.',
+    notes: 'Phones not always answered after hours. Entire budget going to paid search. Past customers rarely call back for maintenance.',
     suggestedMapping: {
       'gads':'conversion','lsa':'conversion','website':'consideration','truck-wraps':'awareness'
     },
@@ -733,7 +733,7 @@ const SCENARIOS = [
       {id:'fleet', stage:'awareness', custom:true, name:'Fleet Branding'},
       {id:'radio', stage:'awareness'},
     ],
-    notes: 'Huge spikes then drop-offs. No off-season marketing. Budget concentrated in paid channels. No referral partner nurture program between storms.',
+    notes: 'Huge spikes during storms then revenue drops to near zero. Busy 3 weeks, slow for months. Plumber and agent relationships go cold between events.',
     suggestedMapping: {
       'gads':'conversion','seo-service':'consideration','tpa':'conversion','fleet':'awareness','radio':'awareness'
     },
@@ -763,13 +763,13 @@ const SCENARIOS = [
     teamSize: '4 plumbers, 3 trucks, owner runs the office',
     avgTicket: '$425 service call / $3,200 repipe',
     yearsInBusiness: '5 years',
-    clientQuote: '"Some weeks we\'re turning jobs away, other weeks the phone doesn\'t ring. I have no idea what changed. We also don\'t follow up with past customers at all — once the job is done, we move on."',
+    clientQuote: '"Some weeks we\'re turning jobs away, other weeks the phone doesn\'t ring. I have no idea what changed. Once a job is done, I never hear from that customer again."',
     currentTactics: [
       {id:'lsa', stage:'conversion'},
       {id:'gads', stage:'conversion'},
       {id:'yard-signs', stage:'awareness'},
     ],
-    notes: 'No follow-up system. No CRM. No repeat customer outreach. Entire budget in bottom-of-funnel paid ads.',
+    notes: 'Inconsistent lead flow month to month. Past customers never contacted again. Entire budget in paid search.',
     suggestedMapping: {
       'lsa':'conversion','gads':'conversion','yard-signs':'awareness'
     },
@@ -807,7 +807,7 @@ const SCENARIOS = [
       {id:'yard-signs', stage:'awareness'},
       {id:'gads', stage:'conversion'},
     ],
-    notes: 'Lead volume is high but close rate is inconsistent. No sales training. No quote follow-up process. Reps have wildly different results.',
+    notes: 'Lead volume is high but close rate varies wildly by rep (10%-40%). Lots of quotes go out but many never get a response back.',
     suggestedMapping: {
       'meta-ads':'awareness','door-knock':'conversion','website':'consideration','yard-signs':'awareness','gads':'conversion'
     },
@@ -845,7 +845,7 @@ const SCENARIOS = [
       {id:'flyers', stage:'awareness'},
       {id:'fb-posts', stage:'awareness', custom:true, name:'Facebook Posts'},
     ],
-    notes: 'No brand recognition yet. Zero reviews. No way to capture leads from website. All tactics are awareness with no conversion path.',
+    notes: 'No brand recognition yet. Zero online reviews. Website gets almost no traffic. Lots of awareness effort but very few actual bookings.',
     suggestedMapping: {
       'gbp':'awareness','flyers':'awareness','fb-posts':'awareness'
     },
@@ -883,7 +883,7 @@ const SCENARIOS = [
       {id:'direct-mail', stage:'awareness'},
       {id:'call-center', stage:'conversion', custom:true, name:'Call Center Handling Leads'},
     ],
-    notes: 'CPL has been rising. Budget spread across 5 channels. Most customers are one-time with no recurring plan conversion. No loyalty or reactivation program.',
+    notes: 'CPL has been rising steadily. Revenue flat for 2 years despite increased spend. Most customers use the service once and never come back.',
     suggestedMapping: {
       'gads':'conversion','seo-blogs':'awareness','seo-service':'consideration','direct-mail':'awareness','call-center':'conversion'
     },
@@ -921,7 +921,7 @@ const SCENARIOS = [
       {id:'yard-signs', stage:'awareness'},
       {id:'events', stage:'awareness'},
     ],
-    notes: 'Strong awareness but inconsistent lead quality. Getting lots of small-job inquiries. No quote follow-up. No targeting by project size. All 4 current tactics are awareness-level.',
+    notes: 'Strong awareness but getting lots of small-job inquiries ($500 lawn care) instead of design projects. Many quotes sent but low close rate on bigger jobs.',
     suggestedMapping: {
       'fb-ig-ads':'awareness','seo-general':'consideration','yard-signs':'awareness','events':'awareness'
     },
@@ -958,7 +958,7 @@ const SCENARIOS = [
       {id:'gads', stage:'conversion'},
       {id:'ll-sponsor', stage:'awareness', custom:true, name:'Local Sponsorship (Little League)'},
     ],
-    notes: 'Low search volume market. Only 2 marketing tactics. Digital and offline not connected. No brand presence beyond the sponsorship. No referral or repeat customer program.',
+    notes: 'Low search volume market — not enough people Googling garage doors. Only 2 marketing channels. Sponsorship gets the name out but doesn\'t generate calls directly.',
     suggestedMapping: {
       'gads':'conversion','ll-sponsor':'awareness'
     },
@@ -994,7 +994,7 @@ const SCENARIOS = [
       {id:'billboards', stage:'awareness'},
       {id:'radio', stage:'awareness'},
     ],
-    notes: 'Messaging unclear and budget split inefficiently. One Google Ads campaign covers both services. Can\'t track ROI by division. Landing pages don\'t separate services.',
+    notes: 'Messaging unclear — customers don\'t know they do plumbing. One ad campaign covers everything. Can\'t tell which division drives what. Budget split feels random.',
     suggestedMapping: {
       'gads-mixed':'conversion','seo-general':'consideration','billboards':'awareness','radio':'awareness'
     },
@@ -1025,15 +1025,15 @@ const SCENARIOS = [
     goal: 'Lower CPL without attracting junk leads',
     serviceArea: 'Metro area — 25-mile radius',
     teamSize: '3 techs, 2 vans, owner handles sales',
-    avgTicket: '$165 (but Groupon jobs avg $89)',
+    avgTicket: '$165 full price (but most jobs coming in at $89 from deal channels)',
     yearsInBusiness: '7 years',
-    clientQuote: '"I\'m getting leads but they\'re all bargain hunters. Groupon brings volume but they never come back. The coupon mailers attract people who just want the cheapest option. I need real customers who\'ll pay full price and rebook annually."',
+    clientQuote: '"I\'m getting leads but they\'re all bargain hunters looking for the cheapest option. High volume, low value. These customers never come back for a second booking. I need real customers who\'ll pay full price."',
     currentTactics: [
       {id:'gads', stage:'conversion'},
       {id:'coupon-mail', stage:'awareness', custom:true, name:'Coupon Mailers'},
       {id:'groupon', stage:'conversion', custom:true, name:'Groupon-Style Deals'},
     ],
-    notes: 'Low-quality customers dominate. Groupon and coupon channels attract one-time bargain shoppers. No reviews strategy. No repeat customer program. Competing on price instead of quality.',
+    notes: 'Low-quality customers dominate. Current marketing channels attract one-time bargain shoppers. Almost no repeat bookings. Very few online reviews despite 7 years in business.',
     suggestedMapping: {
       'gads':'conversion','coupon-mail':'awareness','groupon':'conversion'
     },
@@ -1072,7 +1072,7 @@ const SCENARIOS = [
       {id:'networking', stage:'consideration', custom:true, name:'Networking with Plumbers & Agents'},
       {id:'branded-vehicles', stage:'awareness', custom:true, name:'Branded Vehicles'},
     ],
-    notes: 'Getting lead volume but wrong job type. 70% cash jobs, want insurance work. Ads target generic "water damage" keywords. No landing page specific to insurance/mitigation. Networking is informal with no system.',
+    notes: 'Getting lead volume but 70% are small cash jobs. Want insurance mitigation work. Networking with plumbers and agents is sporadic — no consistent system. Ads bring in generic "water damage" searches.',
     suggestedMapping: {
       'gads':'conversion','seo-service':'consideration','networking':'consideration','branded-vehicles':'awareness'
     },
@@ -1111,7 +1111,7 @@ const SCENARIOS = [
       {id:'truck-wraps', stage:'awareness'},
       {id:'gads', stage:'conversion'},
     ],
-    notes: 'Owner is cautious about scaling. Referrals slowing down. No online presence beyond basic Google Ads. No GBP optimization. No reviews strategy. No brand awareness beyond truck wraps.',
+    notes: 'Referrals slowing down. Owner wants to see clear ROI before spending more. Minimal online presence — only Google Ads running. Very few online reviews.',
     suggestedMapping: {
       'referrals':'retention','truck-wraps':'awareness','gads':'conversion'
     },
@@ -1149,7 +1149,7 @@ const SCENARIOS = [
       {id:'radio', stage:'awareness'},
       {id:'in-store', stage:'retention', custom:true, name:'In-Store Promos'},
     ],
-    notes: 'Strong brand, inconsistent weekday traffic. All current marketing is awareness — no direct conversion tactic. In-store promos don\'t reach people before they decide where to eat. Digital and offline not connected. No loyalty program.',
+    notes: 'Weekends at capacity, weekdays at 40%. Strong local brand but nothing driving Tuesday-Thursday visits. In-store promos only reach people already in the restaurant.',
     suggestedMapping: {
       'social-general':'awareness','gbp':'awareness','radio':'awareness','in-store':'retention'
     },
@@ -1191,7 +1191,7 @@ const SCENARIOS = [
       {id:'free-trial', stage:'conversion', custom:true, name:'Free Trial Offers'},
       {id:'email', stage:'retention'},
     ],
-    notes: 'High signups, high drop-off after joining. 75% churn within 90 days. No onboarding sequence for new members. Email is generic blasts, not targeted. Free trials attract low-commitment signups. No referral program.',
+    notes: 'Signing up 200 new members/month but losing 150. 75% churn within 90 days. New members stop showing up after the first few weeks. Email blasts get low engagement.',
     suggestedMapping: {
       'paid-social':'awareness','gads':'conversion','free-trial':'conversion','email':'retention'
     },
@@ -1231,7 +1231,7 @@ const SCENARIOS = [
       {id:'email-sms', stage:'retention', custom:true, name:'Email & SMS'},
       {id:'influencer', stage:'awareness'},
     ],
-    notes: 'High traffic but margin pressure. ROAS declining. Influencer spend hard to attribute. No remarketing to recapture abandoned carts. Email/SMS not segmented. Heavy reliance on paid channels with rising CPMs.',
+    notes: 'High traffic but margins getting squeezed. ROAS declining. Influencer spend hard to attribute. Rising ad costs eating into profit. Cart abandonment rate is high.',
     suggestedMapping: {
       'shopping':'conversion','meta-ads':'awareness','email-sms':'retention','influencer':'awareness'
     },

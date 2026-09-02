@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Hot Seat — SOS Game Center</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a1628;--surface:#0f1f38;--border:#1e3a5f;
+  --sos-blue:#2a6db5;--sos-light:#5bb8f5;--sos-red:#d43a3a;
+  --text:#eef;--muted:#7a9bc0;--radius:12px;
+  --green:#43a047;--gold:#f5c842;--orange:#e67e22;--purple:#9b59b6;
+  --amber:#e08214;
+}
+html{font-size:16px}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:
+  radial-gradient(circle at 20% 30%, rgba(42,109,181,.12) 0%, transparent 50%),
+  radial-gradient(circle at 80% 70%, rgba(212,58,58,.08) 0%, transparent 50%),
+  radial-gradient(circle at 50% 50%, rgba(91,184,245,.05) 0%, transparent 60%);
+  pointer-events:none;z-index:0}
+.container{position:relative;z-index:1;width:100%;max-width:1360px;padding:28px 20px 40px}
+
+/* HEADER */
+.header{text-align:center;margin-bottom:22px}
+.back-link{position:absolute;left:20px;top:4px;color:var(--muted);text-decoration:none;font-size:.85rem;font-weight:600;transition:color .2s}
+.back-link:hover{color:var(--sos-light)}
+.header-row{display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.sos-logo{height:64px}
+.header h1{font-size:2.1rem;letter-spacing:3px;color:#fff;text-transform:uppercase;text-shadow:0 0 30px rgba(224,130,20,.3)}
+.header h1 .hl{color:var(--amber)}
+.header .sub{color:var(--muted);font-size:.95rem;margin-top:6px;letter-spacing:1px}
+
+/* BUTTONS */
+.btn{border:none;border-radius:8px;padding:11px 20px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;color:#fff;background:var(--border);letter-spacing:.3px}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-red{background:linear-gradient(135deg,#d43a3a,#a82626)}
+.btn-blue{background:linear-gradient(135deg,#2a6db5,#1b4c82)}
+.btn-green{background:linear-gradient(135deg,#43a047,#2e7031)}
+.btn-purple{background:linear-gradient(135deg,#9b59b6,#6d3d80)}
+.btn-amber{background:linear-gradient(135deg,#e08214,#a35c08)}
+.btn-secondary{background:var(--border);color:var(--text)}
+.btn-sm{padding:7px 13px;font-size:.78rem}
+.btn-full{width:100%}
+
+/* SETUP */
+.setup{max-width:620px;margin:0 auto;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:32px}
+.setup h2{font-size:1.3rem;margin-bottom:8px;color:#fff;text-align:center}
+.setup .setup-intro{color:var(--muted);font-size:.9rem;text-align:center;margin-bottom:24px;line-height:1.6}
+.setup-label{display:block;font-size:.78rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;margin:20px 0 10px}
+.mode-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mode-btn{background:#0a1628;border:2px solid var(--border);border-radius:10px;padding:16px 14px;cursor:pointer;transition:all .2s;text-align:left;color:var(--text);font-family:inherit}
+.mode-btn:hover{border-color:var(--sos-blue)}
+.mode-btn.active{border-color:var(--amber);background:rgba(224,130,20,.12)}
+.mode-btn strong{display:block;font-size:.95rem;margin-bottom:4px}
+.mode-btn span{font-size:.76rem;color:var(--muted);line-height:1.4}
+.team-count-row{display:flex;gap:10px}
+.team-count-btn{flex:1;background:#0a1628;border:2px solid var(--border);color:var(--text);border-radius:8px;padding:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.team-count-btn:hover{border-color:var(--sos-blue)}
+.team-count-btn.active{border-color:var(--amber);background:rgba(224,130,20,.12);color:var(--amber)}
+.setup-name-input{width:100%;background:#0a1628;border:2px solid var(--border);color:var(--text);border-radius:8px;padding:11px 14px;font-size:.9rem;font-family:inherit;margin-bottom:10px}
+.setup-name-input:focus{outline:none;border-color:var(--sos-blue)}
+
+/* GAME LAYOUT */
+.game{display:none;grid-template-columns:1fr 340px;gap:22px;align-items:start}
+.game.on{display:grid}
+.col-main{display:flex;flex-direction:column;gap:18px;min-width:0}
+.col-side{display:flex;flex-direction:column;gap:16px;position:sticky;top:20px}
+.panel{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:18px}
+.panel h3{font-size:.76rem;text-transform:uppercase;letter-spacing:1.4px;color:var(--muted);font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:7px}
+
+/* TOP BAR */
+.topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:13px 18px}
+.round-badge{background:linear-gradient(135deg,#e08214,#a35c08);color:#fff;padding:6px 15px;border-radius:20px;font-weight:800;font-size:.82rem;letter-spacing:.5px}
+.filter-wrap{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
+.filter-wrap label{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700}
+select.filter{background:#0a1628;border:2px solid var(--border);color:var(--text);border-radius:8px;padding:7px 11px;font-size:.82rem;font-family:inherit;cursor:pointer}
+select.filter:focus{outline:none;border-color:var(--sos-blue)}
+.deck-count{font-size:.72rem;color:var(--muted);font-weight:600}
+
+/* PHASE RAIL */
+.phase-rail{display:flex;gap:8px}
+.phase-step{flex:1;background:var(--surface);border:2px solid var(--border);border-radius:9px;padding:10px 12px;text-align:center;transition:all .25s;opacity:.45}
+.phase-step .pnum{font-size:.66rem;letter-spacing:1.2px;color:var(--muted);font-weight:800;text-transform:uppercase}
+.phase-step .pname{font-size:.88rem;font-weight:800;color:var(--text);margin-top:2px}
+.phase-step.active{opacity:1;border-color:var(--amber);background:rgba(224,130,20,.1);box-shadow:0 0 18px rgba(224,130,20,.15)}
+.phase-step.done{opacity:.8;border-color:var(--green)}
+.phase-step.done .pname{color:var(--green)}
+
+/* SCENARIO CARD */
+.card-slot{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);min-height:330px;padding:24px 26px;display:flex;flex-direction:column}
+.card-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--muted);gap:12px}
+.card-empty .big{font-size:3.4rem;animation:float 3s ease-in-out infinite}
+.card-empty p{font-size:.92rem;max-width:400px;line-height:1.6}
+.card-live{display:none;animation:slideIn .35s ease}
+.card-live.on{display:block}
+.card-meta-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.sec-tag{padding:4px 12px;border-radius:20px;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#fff}
+.id-tag{font-size:.7rem;color:var(--muted);font-weight:700;letter-spacing:1px}
+.biz-tag{background:var(--border);color:var(--sos-light);padding:4px 12px;border-radius:20px;font-size:.68rem;font-weight:700}
+.card-live h2{font-size:1.5rem;color:#fff;margin-bottom:12px;line-height:1.3}
+.bg-text{color:var(--text);font-size:1rem;line-height:1.65;margin-bottom:18px;opacity:.92}
+
+/* METRICS */
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:18px}
+.metric{background:#0a1628;border:1px solid var(--border);border-left:3px solid var(--sos-light);border-radius:8px;padding:11px 13px}
+.metric .m-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:700;margin-bottom:3px}
+.metric .m-value{font-size:1.02rem;font-weight:800;color:#fff}
+.metric.down{border-left-color:var(--sos-red)}
+.metric.up{border-left-color:var(--green)}
+.metric.flat{border-left-color:var(--muted)}
+
+/* REVEAL BLOCKS */
+.reveal{display:none;animation:slideIn .3s ease}
+.reveal.on{display:block}
+.concern-box{background:rgba(212,58,58,.1);border:2px solid rgba(212,58,58,.4);border-radius:10px;padding:16px 18px;margin-bottom:14px}
+.concern-box .cb-label{font-size:.68rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--sos-red);font-weight:800;margin-bottom:7px}
+.concern-box .cb-quote{font-size:1.18rem;font-weight:700;color:#fff;line-height:1.45;font-style:italic}
+.challenge-box{background:rgba(42,109,181,.1);border:2px solid rgba(42,109,181,.4);border-radius:10px;padding:14px 18px}
+.challenge-box .cb-label{font-size:.68rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--sos-light);font-weight:800;margin-bottom:6px}
+.challenge-box p{font-size:.95rem;line-height:1.55}
+
+/* COACH CARD */
+.coach{display:none;background:var(--surface);border:2px solid var(--gold);border-radius:var(--radius);padding:22px 26px;animation:slideIn .35s ease}
+.coach.on{display:block}
+.coach-head{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.coach-head .ch-icon{font-size:1.4rem}
+.coach-head h3{font-size:.9rem;text-transform:uppercase;letter-spacing:1.4px;color:var(--gold);font-weight:800;margin:0}
+.coach-block{margin-bottom:16px}
+.coach-block:last-child{margin-bottom:0}
+.coach-block .cbl{font-size:.7rem;text-transform:uppercase;letter-spacing:1.1px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.coach-block p{font-size:.94rem;line-height:1.65;color:var(--text);opacity:.94}
+.coach-block ul{margin:0;padding-left:20px}
+.coach-block li{font-size:.92rem;line-height:1.6;margin-bottom:6px;color:var(--text);opacity:.94}
+.cbl.diag{color:var(--sos-light)}
+.cbl.tell{color:var(--purple)}
+.cbl.strong{color:var(--green)}
+.cbl.trap{color:var(--sos-red)}
+.trap-box{background:rgba(212,58,58,.09);border:1px solid rgba(212,58,58,.35);border-radius:9px;padding:13px 16px}
+
+/* TIMER */
+.timer-box{text-align:center}
+.timer-display{font-size:3.1rem;font-weight:900;letter-spacing:2px;color:var(--text);font-variant-numeric:tabular-nums;line-height:1;margin-bottom:4px;transition:color .3s}
+.timer-display.warn{color:var(--orange)}
+.timer-display.danger{color:var(--sos-red);animation:pulse .8s ease-in-out infinite}
+.timer-label{font-size:.68rem;text-transform:uppercase;letter-spacing:1.4px;color:var(--muted);font-weight:800;margin-bottom:12px}
+.timer-btns{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+.timer-presets{display:flex;gap:6px;justify-content:center;margin-top:9px}
+.tp{background:#0a1628;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:4px 10px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.tp:hover{border-color:var(--sos-blue);color:var(--sos-light)}
+
+/* RUBRIC */
+.rub-group{margin-bottom:14px}
+.rub-group-title{font-size:.68rem;text-transform:uppercase;letter-spacing:1.1px;font-weight:800;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.rub-group-title.diag{color:var(--sos-light)}
+.rub-group-title.deliv{color:var(--amber)}
+.rub-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.rub-name{flex:1;font-size:.82rem;font-weight:600;color:var(--text)}
+.rub-adj{background:var(--border);border:none;color:var(--text);width:24px;height:24px;border-radius:5px;font-weight:900;cursor:pointer;font-size:.9rem;line-height:1;transition:background .15s}
+.rub-adj:hover{background:var(--sos-blue)}
+.rub-val{min-width:24px;text-align:center;font-weight:800;font-size:.95rem;color:var(--gold);font-variant-numeric:tabular-nums}
+.bonus-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;font-size:.78rem;color:var(--text);line-height:1.4;cursor:pointer}
+.bonus-row input{margin-top:2px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+.bonus-row .bpts{color:var(--green);font-weight:800;flex-shrink:0}
+.rub-total{display:flex;align-items:center;justify-content:space-between;background:#0a1628;border:2px solid var(--gold);border-radius:9px;padding:10px 14px;margin:12px 0}
+.rub-total .rt-label{font-size:.72rem;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted);font-weight:800}
+.rub-total .rt-val{font-size:1.5rem;font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums}
+
+/* TEAMS */
+.team-row{display:flex;align-items:center;gap:9px;background:#0a1628;border:2px solid var(--border);border-radius:9px;padding:9px 12px;margin-bottom:7px;cursor:pointer;transition:all .2s}
+.team-row:hover{border-color:var(--sos-blue)}
+.team-row.active{border-color:var(--amber);background:rgba(224,130,20,.12)}
+.team-row .t-rank{font-size:.78rem;font-weight:800;color:var(--muted);min-width:18px}
+.team-row .t-name{flex:1;font-weight:700;font-size:.88rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.team-row .t-score{font-weight:900;font-size:1.05rem;color:var(--gold);font-variant-numeric:tabular-nums}
+.team-row.lead .t-rank{color:var(--gold)}
+.active-hint{font-size:.7rem;color:var(--muted);margin-top:8px;line-height:1.4}
+
+/* SOLO PANEL */
+.solo-note{font-size:.82rem;color:var(--muted);line-height:1.55}
+
+/* TOAST + CONFETTI */
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--surface);border:2px solid var(--amber);color:var(--text);padding:13px 26px;border-radius:30px;font-weight:700;font-size:.92rem;z-index:999;transition:transform .35s cubic-bezier(.2,1.2,.4,1);box-shadow:0 10px 34px rgba(0,0,0,.5)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#confettiContainer{position:fixed;inset:0;pointer-events:none;z-index:998;overflow:hidden}
+.confetti-piece{position:absolute;top:-16px;animation:confetti-fall 2.6s linear forwards}
+
+/* FOOTER */
+.footer{text-align:center;padding:24px;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);width:100%;margin-top:36px}
+.footer a{color:var(--sos-light);text-decoration:none}
+
+/* ANIMATIONS */
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+@keyframes confetti-fall{0%{opacity:1;transform:translateY(0) rotate(0deg)}80%{opacity:1}100%{opacity:0;transform:translateY(105vh) rotate(720deg) scale(.4)}}
+
+/* RESPONSIVE */
+@media(max-width:1050px){
+  .game.on{grid-template-columns:1fr}
+  .col-side{position:static}
+}
+@media(max-width:700px){
+  .container{padding:20px 14px 30px}
+  .header h1{font-size:1.5rem}
+  .sos-logo{height:52px}
+  .back-link{position:static;display:inline-block;margin-bottom:10px}
+  .card-slot{padding:18px}
+  .card-live h2{font-size:1.22rem}
+  .metrics-grid{grid-template-columns:1fr}
+  .phase-rail{flex-direction:column}
+  .mode-row{grid-template-columns:1fr}
+  .filter-wrap{margin-left:0;width:100%}
+  .timer-display{font-size:2.5rem}
+}
+@media print{
+  body::before,.col-side,.phase-rail,.topbar,.footer,.back-link{display:none!important}
+  body{background:#fff;color:#000}
+  .game.on{grid-template-columns:1fr}
+  .card-slot,.coach{border-color:#999;background:#fff;color:#000}
+}
+</style>
+</head>
+<body>
+
+<div id="confettiContainer"></div>
+<div id="toast"></div>
+
+<div class="container">
+
+  <div class="header">
+    <a href="index.html" class="back-link">&larr; Game Center</a>
+    <div class="header-row">
+      <svg class="sos-logo" viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+        <text x="28" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text>
+        <g transform="translate(160,68)">
+          <circle cx="0" cy="0" r="48" fill="none" stroke="#fff" stroke-width="18"/>
+          <circle cx="0" cy="0" r="48" fill="none" stroke="#d43a3a" stroke-width="18" stroke-dasharray="25 50.7" stroke-dashoffset="0"/>
+          <line x1="-32" y1="-32" x2="-44" y2="-44" stroke="#ddd" stroke-width="2"/>
+          <line x1="32" y1="-32" x2="44" y2="-44" stroke="#ddd" stroke-width="2"/>
+          <line x1="-32" y1="32" x2="-44" y2="44" stroke="#ddd" stroke-width="2"/>
+          <line x1="32" y1="32" x2="44" y2="44" stroke="#ddd" stroke-width="2"/>
+        </g>
+        <text x="222" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text>
+        <text x="160" y="150" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="#5bb8f5" text-anchor="middle" letter-spacing="4">SPOTONSOLUTIONS</text>
+      </svg>
+    </div>
+    <h1>The <span class="hl">Hot Seat</span></h1>
+    <div class="sub">SOS Game Center &middot; 50 metrics-driven client scenarios</div>
+  </div>
+
+  <!-- ══════════════ SETUP ══════════════ -->
+  <div class="setup" id="setupScreen">
+    <h2>🔥 Take the Hot Seat</h2>
+    <p class="setup-intro">Each round the rep sees the numbers <em>before</em> they hear the complaint. Diagnose first, then handle the call. Analysis and delivery are scored separately.</p>
+
+    <label class="setup-label">Mode</label>
+    <div class="mode-row">
+      <button class="mode-btn active" data-mode="team">
+        <strong>🏆 Team Play</strong>
+        <span>Facilitator runs the room, teams compete for points. Best for Elevation sessions.</span>
+      </button>
+      <button class="mode-btn" data-mode="solo">
+        <strong>🎯 Solo Drill</strong>
+        <span>One rep, no scoring. Draw a card, work the problem, reveal the coach notes.</span>
+      </button>
+    </div>
+
+    <div id="teamSetup">
+      <label class="setup-label">How many teams?</label>
+      <div class="team-count-row">
+        <button class="team-count-btn" data-count="2">2</button>
+        <button class="team-count-btn" data-count="3">3</button>
+        <button class="team-count-btn active" data-count="4">4</button>
+      </div>
+      <label class="setup-label">Team names</label>
+      <div id="setupNames">
+        <input class="setup-name-input" type="text" placeholder="Team 1" maxlength="24">
+        <input class="setup-name-input" type="text" placeholder="Team 2" maxlength="24">
+        <input class="setup-name-input" type="text" placeholder="Team 3" maxlength="24">
+        <input class="setup-name-input" type="text" placeholder="Team 4" maxlength="24">
+      </div>
+    </div>
+
+    <label class="setup-label">Scenario deck</label>
+    <select class="filter btn-full" id="setupSection" style="width:100%">
+      <option value="all">All 50 scenarios</option>
+      <option value="PPC">Section 1 — PPC Performance (10)</option>
+      <option value="Meta">Section 2 — Paid Meta (10)</option>
+      <option value="SEO">Section 3 — SEO Performance (10)</option>
+      <option value="Personality">Section 4 — Difficult Personalities (10)</option>
+      <option value="Crucial">Section 5 — Crucial Conversations (10)</option>
+    </select>
+
+    <button class="btn btn-amber btn-full" id="btnStartGame" style="margin-top:24px">Start Session &rarr;</button>
+  </div>
+
+  <!-- ══════════════ GAME ══════════════ -->
+  <div class="game" id="gameScreen">
+
+    <div class="col-main">
+
+      <div class="topbar">
+        <span class="round-badge" id="roundBadge">Round 1</span>
+        <span class="deck-count" id="deckCount">50 cards left</span>
+        <div class="filter-wrap">
+          <label for="secFilter">Deck</label>
+          <select class="filter" id="secFilter">
+            <option value="all">All Sections</option>
+            <option value="PPC">1 · PPC Performance</option>
+            <option value="Meta">2 · Paid Meta</option>
+            <option value="SEO">3 · SEO Performance</option>
+            <option value="Personality">4 · Difficult Personalities</option>
+            <option value="Crucial">5 · Crucial Conversations</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="phase-rail">
+        <div class="phase-step" id="ph1"><div class="pnum">Phase 1</div><div class="pname">🔍 Diagnose</div></div>
+        <div class="phase-step" id="ph2"><div class="pnum">Phase 2</div><div class="pname">💬 Deliver</div></div>
+        <div class="phase-step" id="ph3"><div class="pnum">Phase 3</div><div class="pname">📋 Debrief</div></div>
+      </div>
+
+      <div class="card-slot">
+        <div class="card-empty" id="cardEmpty">
+          <div class="big">🔥</div>
+          <p>Draw a scenario to start the round. The rep sees the background and the numbers only — the client's complaint stays hidden until Phase 2.</p>
+        </div>
+
+        <div class="card-live" id="cardLive">
+          <div class="card-meta-row">
+            <span class="sec-tag" id="secTag">PPC Performance</span>
+            <span class="biz-tag" id="bizTag">Home Cleaning</span>
+            <span class="id-tag" id="idTag">#01</span>
+          </div>
+          <h2 id="cardTitle">Scenario Title</h2>
+          <p class="bg-text" id="cardBg">Background text.</p>
+          <div class="metrics-grid" id="metricsGrid"></div>
+
+          <div class="reveal" id="revealBlock">
+            <div class="concern-box">
+              <div class="cb-label">📞 Client says</div>
+              <div class="cb-quote" id="concernText"></div>
+            </div>
+            <div class="challenge-box">
+              <div class="cb-label">🎯 Rep challenge</div>
+              <p id="challengeText"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="coach" id="coachCard">
+        <div class="coach-head">
+          <span class="ch-icon">📋</span>
+          <h3>Facilitator Coach Card</h3>
+        </div>
+        <div class="coach-block">
+          <div class="cbl diag">📊 The read</div>
+          <p id="coachDiag"></p>
+        </div>
+        <div class="coach-block">
+          <div class="cbl tell">🔎 What gives it away</div>
+          <ul id="coachTells"></ul>
+        </div>
+        <div class="coach-block">
+          <div class="cbl strong">✅ A strong answer hits</div>
+          <ul id="coachStrong"></ul>
+        </div>
+        <div class="coach-block">
+          <div class="cbl trap">⚠️ The trap</div>
+          <div class="trap-box"><p id="coachTrap"></p></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── SIDE COLUMN ── -->
+    <div class="col-side">
+
+      <div class="panel">
+        <h3>⏱ Timer</h3>
+        <div class="timer-box">
+          <div class="timer-display" id="timerDisplay">1:00</div>
+          <div class="timer-label" id="timerLabel">Ready</div>
+          <div class="timer-btns">
+            <button class="btn btn-green btn-sm" id="btnTimerStart">▶ Start</button>
+            <button class="btn btn-secondary btn-sm" id="btnTimerReset">Reset</button>
+          </div>
+          <div class="timer-presets">
+            <button class="tp" data-secs="60">1:00</button>
+            <button class="tp" data-secs="120">2:00</button>
+            <button class="tp" data-secs="180">3:00</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>🎬 Round Control</h3>
+        <button class="btn btn-amber btn-full" id="btnDraw" style="margin-bottom:8px">🔥 Draw Scenario</button>
+        <button class="btn btn-red btn-full" id="btnReveal" style="margin-bottom:8px" disabled>📞 Reveal Client Concern</button>
+        <button class="btn btn-purple btn-full" id="btnCoach" style="margin-bottom:8px" disabled>📋 Reveal Coach Card</button>
+        <button class="btn btn-blue btn-full" id="btnNextRound" disabled>Next Round &rarr;</button>
+      </div>
+
+      <div class="panel" id="scorePanel">
+        <h3>⭐ Score the Rep</h3>
+
+        <div class="rub-group">
+          <div class="rub-group-title diag">Phase 1 · Diagnosis</div>
+          <div class="rub-row"><span class="rub-name">📊 Read the data</span><button class="rub-adj" data-dim="0" data-dir="-1">−</button><span class="rub-val" id="rub0">5</span><button class="rub-adj" data-dim="0" data-dir="1">+</button></div>
+          <div class="rub-row"><span class="rub-name">🔍 Root cause</span><button class="rub-adj" data-dim="1" data-dir="-1">−</button><span class="rub-val" id="rub1">5</span><button class="rub-adj" data-dim="1" data-dir="1">+</button></div>
+        </div>
+
+        <div class="rub-group">
+          <div class="rub-group-title deliv">Phase 2 · Delivery</div>
+          <div class="rub-row"><span class="rub-name">🎯 Control</span><button class="rub-adj" data-dim="2" data-dir="-1">−</button><span class="rub-val" id="rub2">5</span><button class="rub-adj" data-dim="2" data-dir="1">+</button></div>
+          <div class="rub-row"><span class="rub-name">💛 Empathy</span><button class="rub-adj" data-dim="3" data-dir="-1">−</button><span class="rub-val" id="rub3">5</span><button class="rub-adj" data-dim="3" data-dir="1">+</button></div>
+          <div class="rub-row"><span class="rub-name">💬 Plain language</span><button class="rub-adj" data-dim="4" data-dir="-1">−</button><span class="rub-val" id="rub4">5</span><button class="rub-adj" data-dim="4" data-dir="1">+</button></div>
+        </div>
+
+        <div class="rub-group">
+          <div class="rub-group-title deliv">Bonus</div>
+          <label class="bonus-row"><input type="checkbox" class="bonus-check" data-pts="5"><span>Dodged the trap</span><span class="bpts">+5</span></label>
+          <label class="bonus-row"><input type="checkbox" class="bonus-check" data-pts="3"><span>Used the client's own numbers</span><span class="bpts">+3</span></label>
+          <label class="bonus-row"><input type="checkbox" class="bonus-check" data-pts="3"><span>Gave a next step with a date</span><span class="bpts">+3</span></label>
+        </div>
+
+        <div class="rub-total">
+          <span class="rt-label">Round total</span>
+          <span class="rt-val" id="rubTotal">25</span>
+        </div>
+        <button class="btn btn-green btn-full" id="btnAward">🏆 Award to Active Team</button>
+      </div>
+
+      <div class="panel" id="teamPanel">
+        <h3>🏆 Scoreboard</h3>
+        <div id="scoreboard"></div>
+        <p class="active-hint">Click a team to put them on the hot seat. Advances automatically each round.</p>
+      </div>
+
+      <div class="panel" id="soloPanel" style="display:none">
+        <h3>🎯 Solo Drill</h3>
+        <p class="solo-note">Read the background and metrics, then write down your diagnosis <em>before</em> revealing the client's concern. Say your response out loud — out loud is the whole point — then check yourself against the coach card.</p>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>SpotOn Solutions Game Center &middot; Built for Elevation &middot; <a href="https://spotonsolutions.com">spotonsolutions.com</a></p>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+// SCENARIO DECK — 50 cards, 5 sections
+// m: [label, value, trend]  trend = "up" | "down" | "flat"
+// ══════════════════════════════════════════════════════════════════════════════
+const SCENARIOS = [
+
+// ─────────────────────────── SECTION 1 · PPC PERFORMANCE ───────────────────────────
+{n:1,sec:"PPC",title:"Leads Are Down This Month",biz:"Home Cleaning",
+ bg:"A local home cleaning service is concerned about a drop in leads from Google Ads.",
+ m:[["Leads","42 → 31","down"],["Spend","$1,260 → $1,240","flat"],["Cost Per Lead","$30 → $40","down"],["Conversion Rate","9% → 6%","down"]],
+ concern:"Why are leads dropping?",
+ challenge:"Explain performance clearly, identify possible causes, and suggest simple optimizations.",
+ diag:"Spend is flat, so this is not a budget story. CPL rose because conversion rate fell by a third — roughly the same traffic is arriving and fewer people are converting. The problem lives downstream of the click: landing page, form, tracking, call handling, or a shift in traffic quality.",
+ tells:["Spend moved less than 2% — nothing changed on the money side","Conversion rate 9% → 6% is a 33% relative drop and drives the entire CPL increase","Clicks are implied roughly flat, so this is not a demand problem"],
+ strong:["Separates volume from efficiency out loud instead of lumping it into one number","Checks whether something broke first — form, tracking, phone path, a recent site change","Reviews search terms for intent drift and checks for new competitors in the auction","Asks about call answer rate and lead follow-up on the client side","Proposes a specific diagnostic with a date, not a vague optimization promise"],
+ trap:"Reaching for more budget. Spend did not change, so adding spend just buys more traffic for a funnel that is already leaking. Fix the conversion rate before buying more clicks."},
+
+{n:2,sec:"PPC",title:"Why Did Costs Go Up?",biz:"Landscaping",
+ bg:"A landscaping company noticed an increase in cost per click and wants to know what happened.",
+ m:[["Cost Per Click","$2.10 → $2.85","down"],["Clicks","410 → 395","flat"],["Leads","26 → 24","flat"],["Cost Per Lead","$33 → $46","down"]],
+ concern:"Why are clicks more expensive?",
+ challenge:"Explain cost fluctuations without alarming the client.",
+ diag:"Auction pressure, not campaign decay. Conversion rate is essentially unchanged (6.3% → 6.1%) and click volume held. The campaign is doing the same job it did last month — the clicks simply cost more, which means competitors bid up or seasonal demand spiked.",
+ tells:["Conversion rate is flat — the campaign's efficiency did not degrade","Clicks barely moved, so this is not a delivery or budget-pacing issue","CPC is the only metric that really moved; everything else follows from it"],
+ strong:["Says plainly that the campaign did not get worse, the auction got more expensive","Names likely causes — seasonality, a new competitor, or broader bidding in the category","Offers real levers: tighter match types, lower-competition terms, Quality Score work","Reframes onto cost per booked job rather than cost per click","Stays calm — the tone here matters as much as the analysis"],
+ trap:"Apologizing as though this were a performance failure, or promising to bring CPC back down. You do not control the auction, and committing to a number you cannot influence sets up the next hard conversation."},
+
+{n:3,sec:"PPC",title:"We Got Clicks But No Calls",biz:"Personal Injury Law",
+ bg:"A personal injury lawyer wants more phone calls but is suddenly seeing mostly form fills.",
+ m:[["Clicks","520","flat"],["Form Fills","18","flat"],["Calls","3 (normally ~10)","down"],["Call Conv. Rate","12% → 5%","down"]],
+ concern:"Why aren't people calling?",
+ challenge:"Identify conversion gaps and recommend call-focused optimizations.",
+ diag:"Check the plumbing before the psychology. Forms are holding steady while calls collapse — that pattern points at a channel-specific failure, not a drop in overall demand. Verify call assets, the call tracking number, and click-to-call on mobile before theorizing about user behavior.",
+ tells:["Form fills steady + calls collapsing = one channel broke, not the whole funnel","A fall from ~10 to 3 is a step change, which usually means mechanical, not behavioral","Call conversion rate more than halved while everything else held"],
+ strong:["Tests the phone path end to end before speculating — call the number","Checks call asset status, call-only ads, and whether the number on the landing page is correct","Looks at the device split, since calls skew heavily mobile","Asks whether calls are being answered during business hours — unanswered calls often go unlogged","Then optimizes toward calls: call assets, call-focused copy, bidding to call conversions"],
+ trap:"Jumping straight to ad copy and CTA rewrites before confirming the phone actually works. If the tracking number is broken, every creative change you make is wasted motion."},
+
+{n:4,sec:"PPC",title:"Can We Just Increase the Budget?",biz:"Pest Control",
+ bg:"A pest control company is happy with results and wants to aggressively scale spend.",
+ m:[["Budget","$1,500 / month","flat"],["Impression Share","68%","flat"],["Leads","33","flat"],["Cost Per Lead","$45","flat"]],
+ concern:"Let's just scale fast.",
+ challenge:"Set realistic expectations about scaling efficiency and diminishing returns.",
+ diag:"There is genuine headroom — 32% of available impressions are going unclaimed — but it is not free. The cheapest, highest-intent inventory is already being captured. Incremental spend buys progressively less qualified traffic, so CPL rises as you scale. The honest answer is yes, with a tradeoff attached.",
+ tells:["68% impression share means real room exists — this is not a no","CPL at $45 is the current floor, not the number that survives scaling","Nothing in the data suggests the account is maxed out yet"],
+ strong:["Says yes, then immediately prices the tradeoff instead of just celebrating","Models the expected CPL at higher spend — closer to $50-55, not a flat $45","Recommends a staged increase with a read period rather than one large jump","Agrees in advance on the CPL ceiling where scaling stops being worth it","Asks whether the client can operationally handle the extra call volume"],
+ trap:"Both extremes fail here. Flatly saying no ignores 32% of unclaimed share. Saying yes while implying CPL stays at $45 guarantees a disappointed client in 30 days."},
+
+{n:5,sec:"PPC",title:"These Leads Are Bad",biz:"High-End Remodeling",
+ bg:"A high-end remodeling company is unhappy with the quality of the leads coming through.",
+ m:[["Leads","22","flat"],["Cost Per Lead","$75","flat"],["Search Terms","“cheap”, “budget”, “DIY”","down"],["Brand Position","Premium","flat"]],
+ concern:"These leads aren't good.",
+ challenge:"Improve targeting and align on what qualifies as a good lead.",
+ diag:"Targeting and intent mismatch — and it is fixable. The search terms are the smoking gun: broad or loose keyword matching is pulling price-shoppers into a premium brand's funnel. These are real people searching, they are just the wrong people.",
+ tells:["The search terms themselves — a premium remodeler should never pay for “DIY”","$75 CPL is not unreasonable for the category, so cost is not the actual complaint","Volume is fine; the issue is entirely composition"],
+ strong:["Acknowledges the complaint without getting defensive — the client is right","Adds negatives immediately: cheap, budget, DIY, free, how to","Tightens match types and adds qualifying language to ad copy and landing page","Adds a budget-range or project-scope field to the form to filter earlier","Gets the client to define “good lead” in writing so it becomes measurable"],
+ trap:"Promising more leads and better quality at the same cost per lead. Qualifying traffic reduces volume and raises CPL by design — set that expectation now or you will be defending it next month."},
+
+{n:6,sec:"PPC",title:"Why Are We Showing for That?",biz:"Divorce Attorney",
+ bg:"A divorce attorney noticed an irrelevant search term triggering their ads and is unsettled by it.",
+ m:[["Search Term","“free legal advice online”","down"],["Click-Through Rate","0.8%","down"],["Impressions","2,400","flat"],["Match Type","Broad / Phrase","flat"]],
+ concern:"Why are we showing for this?",
+ challenge:"Explain match types and search intent in simple terms.",
+ diag:"Match type breadth. Broad and phrase matching let Google interpret intent loosely, so an informational query slipped into a hiring-intent campaign. The 0.8% CTR is actually reassuring — the market is self-selecting away — but the impressions still dilute data and can drag quality signals.",
+ tells:["0.8% CTR means almost nobody clicked, so very little money was actually wasted","“Free legal advice” is informational intent, not hiring intent","2,400 impressions is small in context — this is hygiene, not hemorrhage"],
+ strong:["Explains match types in plain language: “we told Google the topic, not the exact words”","Points out the low CTR as evidence the waste was minimal — that is genuinely calming","Adds negatives on the spot: free, advice, how to, DIY, pro se","Commits to a regular search-term review cadence so this stays managed","Frames the whole thing as routine maintenance rather than a mistake"],
+ trap:"Over-apologizing. Treating a normal search-term finding as a crisis teaches the client to panic every time they open the report, and you will be handling this call monthly."},
+
+{n:7,sec:"PPC",title:"Performance Looks the Same — Is That Good?",biz:"Dental Office",
+ bg:"A dental office expected stronger month-over-month growth and is underwhelmed by the report.",
+ m:[["Leads","36 → 38","up"],["Cost Per Lead","$58 → $56","up"],["Conversion Rate","10% → 10.5%","up"],["Budget","Unchanged","flat"]],
+ concern:"Why aren't we growing?",
+ challenge:"Reframe stable performance as a positive outcome while identifying growth opportunities.",
+ diag:"Every metric moved in the right direction. This is quiet, healthy performance, and the client's disappointment is about expectation rather than results. At a fixed budget the account is near steady state — growth from here needs a new input, not a repair.",
+ tells:["All three metrics improved, even if modestly — nothing here is broken","Budget is unchanged, which caps how much growth is even available","Small gains at flat spend is what a well-run mature account looks like"],
+ strong:["States plainly that nothing is wrong, then does not stop there","Is honest that at this budget the account is close to its ceiling","Offers real growth levers with tradeoffs: more budget, wider geography, new services or campaign types","Suggests improving close rate on existing leads as a zero-spend growth path","Asks about capacity — 38 leads may already be filling the chair schedule"],
+ trap:"Manufacturing a problem to look useful. Equally bad: promising growth without naming what has to change to produce it. Flat is not failure, but “it's fine” is not a plan either."},
+
+{n:8,sec:"PPC",title:"Why Did Clicks Drop This Week?",biz:"Local Gym",
+ bg:"A local gym saw a sudden dip in weekly traffic and called the same afternoon.",
+ m:[["Clicks","210 → 162","down"],["Impressions","5,200 → 4,100","down"],["Click-Through Rate","4.0% (steady)","flat"],["Leads","18 → 14","down"]],
+ concern:"What happened this week?",
+ challenge:"Explain demand fluctuations simply and calmly.",
+ diag:"Demand-side, not performance-side. Impressions fell about 21% and clicks fell proportionally while CTR held at 4.0% — fewer people searched, and the ads performed identically to everyone who did. Nothing in the account changed.",
+ tells:["Flat CTR is the whole story: same share of available demand captured","Impressions and clicks fell together at nearly the same rate","One week is a very small window to read anything from"],
+ strong:["Separates “how many people are looking” from “how well we do with them”","Checks seasonality, week-over-week patterns, holidays, and local events","Pulls up the 4-8 week view so a single week has context","Actively recommends doing nothing yet, and explains why that is the disciplined call","Sets a threshold for what would actually justify a change"],
+ trap:"Making changes to fix a one-week dip. Reactive edits on noise reset learning and make performance genuinely worse — so the panic response creates the problem it was meant to solve."},
+
+{n:9,sec:"PPC",title:"My Competitor Is Always Above Me",biz:"Professional Services",
+ bg:"A client keeps searching their own keywords and seeing a competitor's ad above theirs.",
+ m:[["Impression Share","72%","flat"],["Absolute Top Rate","41%","flat"],["Leads","29","flat"],["Cost Per Lead","Stable","flat"]],
+ concern:"Why aren't we #1?",
+ challenge:"Shift focus from ranking position to performance outcomes.",
+ diag:"Position is a lever, not a goal. They are in the auction 72% of the time and hold the top slot 41% of the time — buying more top placement is available, but it costs more per click and does not automatically produce more or cheaper leads.",
+ tells:["72% impression share is healthy — they are showing up","Absolute top rate of 41% means they do win the top spot regularly","The client is measuring position; the account is being measured on leads"],
+ strong:["Reframes onto cost per lead and lead quality as the actual scoreboard","Explains that repeatedly searching your own category skews what you personally see","Offers to test a higher top-of-page share on a segment and measure the CPL impact","Lets the data settle it rather than winning the argument rhetorically","Takes the concern seriously — position genuinely does matter in some high-intent categories"],
+ trap:"Agreeing to chase #1 without pricing what it costs. The mirror-image trap is dismissing the concern outright — test it instead of lecturing, and you keep the relationship and the point."},
+
+{n:10,sec:"PPC",title:"We Paused and Leads Stopped — Why?",biz:"Home Services",
+ bg:"A client paused ads temporarily to test the impact, then restarted them.",
+ m:[["Before Pause","10 leads / week","flat"],["During Pause","1 lead / week","down"],["After Restart","6 leads (recovering)","up"],["Status","Ramping back","flat"]],
+ concern:"Why did leads stop?",
+ challenge:"Reinforce PPC's role in lead generation without sounding condescending.",
+ diag:"The pause was an accidental holdout test and it produced unusually clean evidence: paid was driving roughly 90% of that lead flow. The lagging recovery — 6 rather than 10 — is normal, since campaigns re-enter learning and ad rank history takes time to rebuild.",
+ tells:["1 lead/week during the pause is the organic baseline, laid bare","6 after restart is a ramp, not the new ceiling","The client generated better proof of value than any deck you could have built"],
+ strong:["Thanks them for running the test and uses their data rather than your opinion","Explains the ramp so they do not panic at week one of the restart","Sets a 2-4 week expectation for the return to prior levels","Recommends budget dial-downs instead of hard pauses if cost is the real concern","Keeps the tone collegial — they ran an experiment and learned something"],
+ trap:"Sounding smug. “Well, obviously” wins the point and costs the relationship. The client did something reasonable and it worked as a test — treat it that way."},
+
+// ─────────────────────────── SECTION 2 · PAID META ───────────────────────────
+{n:11,sec:"Meta",title:"Ad Engagement Dropped",biz:"E-Commerce Retail",
+ bg:"An e-commerce retailer is seeing lower engagement across their Meta ads this period.",
+ m:[["Impressions","35,000 → 32,000","flat"],["Click-Through Rate","2.8% → 1.9%","down"],["Cost Per Lead","$25 → $33","down"],["Creative","Unchanged","flat"]],
+ concern:"Why is engagement down?",
+ challenge:"Explain relevance, creative fatigue, and audience saturation.",
+ diag:"Creative fatigue. Impressions barely moved but CTR fell 32% — the same audience is seeing the same creative and has stopped responding to it. The rising CPL is a downstream consequence, not a separate problem.",
+ tells:["CTR is the leading indicator here and it fell hard","Near-flat impressions rules out a delivery or budget problem","Creative has not been refreshed, which is the first thing to check on Meta"],
+ strong:["Checks frequency and how long the creative has been running","Explains that Meta creative has a shelf life measured in weeks, unlike search ads","Proposes genuinely new hooks and formats, not recolored versions of the same ad","Considers broadening the audience or adding exclusions to reduce saturation","Sets up a rotation cadence so this becomes prevention instead of diagnosis"],
+ trap:"Treating it as a targeting problem and rebuilding audiences. The audience did not stop being right — the creative aged out. Rebuilding targeting burns a cycle and the CTR stays down."},
+
+{n:12,sec:"Meta",title:"Cost Per Lead Increased",biz:"Online Fitness",
+ bg:"An online fitness program is seeing rising cost per lead on their Facebook campaigns after a spend increase.",
+ m:[["Spend","$1,800 → $2,200","down"],["Leads","60 → 50","down"],["Cost Per Lead","$30 → $44","down"],["Audience Size","Unchanged","flat"]],
+ concern:"Why are leads costing more?",
+ challenge:"Explain changes in auction dynamics and audience competition.",
+ diag:"Two things happened at once and they compound: spend rose 22% and leads fell 17%. Pushing more budget into the same audience buys more expensive, less responsive inventory — and auction competition may have risen on top of that. The marginal spend produced negative yield.",
+ tells:["Leads went down while spend went up — that is the key relationship","Audience size did not grow to absorb the extra budget","CPL rose 47%, far more than any plausible auction shift alone"],
+ strong:["Names the compounding clearly instead of blaming one cause","Separates “the auction got pricier” from “we scaled past efficiency”","Checks frequency and audience size as the constraint on scaling","Recommends pulling back to the efficient spend level, then expanding audience and creative before scaling again","Establishes that spend and results are not linear on Meta"],
+ trap:"Blaming it entirely on external auction pressure. Part of this was self-inflicted by scaling too fast into a fixed audience, and owning that half is what makes the other half believable."},
+
+{n:13,sec:"Meta",title:"Ads Are Not Delivering",biz:"Retail",
+ bg:"A retailer's Meta campaign dramatically underdelivered last week.",
+ m:[["Impressions","12,500 → 4,200","down"],["Reach","7,000 → 2,300","down"],["Click-Through Rate","3.2% → 2.1%","down"],["Delivery","Restricted?","down"]],
+ concern:"Why didn't these ads run?",
+ challenge:"Troubleshoot budget pacing, audience size, or policy restrictions.",
+ diag:"A delivery failure, not a performance one — a 66% impression collapse is mechanical. Check in order: budget pacing or exhaustion, audience too narrow, an ad disapproval or policy flag, a learning-phase reset from a mid-flight edit, or bid caps too low to win auctions.",
+ tells:["Reach fell proportionally with impressions — fewer people reached, not lower frequency","The size of the drop rules out normal variance","Multiple plausible causes exist, which is itself the signal to go look"],
+ strong:["Opens the account and checks delivery diagnostics before theorizing","Says “let me look and come back with the actual reason” rather than guessing fluently","Reports what was checked, what was found, and the specific fix with a timeline","Reviews whether anyone edited the campaign mid-flight and reset learning","Follows up in writing once the cause is confirmed"],
+ trap:"Guessing a cause live on the call. Five plausible explanations exist here, and confidently naming the wrong one costs real credibility when you have to walk it back tomorrow."},
+
+{n:14,sec:"Meta",title:"Low Video Completion Rates",biz:"Fitness Apparel",
+ bg:"A fitness apparel brand is running video ads and is unhappy with how few people finish them.",
+ m:[["Video Starts","8,000","flat"],["Watched 75%","1,200 (15%)","down"],["Click-Through Rate","1.8%","down"],["Objective","Conversions","flat"]],
+ concern:"People aren't watching the videos.",
+ challenge:"Suggest creative adjustments and hook placement.",
+ diag:"15% at the 75% mark is not automatically bad — it depends on length and objective. But paired with a 1.8% CTR the read is a weak hook: the opening seconds are not earning attention, so drop-off is front-loaded. The retention curve matters far more than the endpoint number.",
+ tells:["Where viewers drop is more informative than how many finish","Low completion plus low CTR points at the hook, not the ending","The objective is conversions, which makes completion a diagnostic rather than a goal"],
+ strong:["Pulls the retention graph and finds the actual drop-off point before prescribing","If the drop is in the first three seconds, names the hook as the problem","Recommends shorter cuts, opening on the payoff, motion early, captions for sound-off viewing","Moves branding to the front rather than saving it for the end","Questions the metric itself — completion rate is not what the client is paying for"],
+ trap:"Optimizing to completion rate as if it were the KPI. A video everyone finishes and nobody buys from is still a failed ad."},
+
+{n:15,sec:"Meta",title:"Campaign Overlapping Audiences",biz:"Multi-Product Retail",
+ bg:"A client is running several Meta campaigns simultaneously and performance is inconsistent between them.",
+ m:[["Leads Per Campaign","20 – 25","flat"],["CPM","$18 → $22","down"],["Audience Overlap","35%","down"],["Ad Sets","Many, small","down"]],
+ concern:"Why is performance inconsistent?",
+ challenge:"Explain overlap and recommend consolidation.",
+ diag:"The campaigns are bidding against each other. A 35% overlap means Meta is running an internal auction between the client's own ad sets, which lifts CPM and fragments learning across campaigns that each have too little data to optimize properly.",
+ tells:["Rising CPM alongside steady lead volume is the fingerprint of self-competition","35% overlap is well past the point where it distorts delivery","Small ad sets never exit learning, which is why results swing"],
+ strong:["Explains it in plain terms: “you are outbidding yourself”","Recommends consolidating into fewer, better-funded ad sets so each exits learning","Uses audience exclusions where campaigns genuinely must stay separate","Notes that consolidation usually improves both CPM and week-to-week stability","References Meta's own direction of travel toward broader targeting and fewer ad sets"],
+ trap:"Proposing more granular splitting to “fix the inconsistency.” That is the exact opposite of the fix and makes fragmentation worse — it is also the intuitive answer, which is why it catches people."},
+
+{n:16,sec:"Meta",title:"Retargeting Ads Underperforming",biz:"E-Commerce",
+ bg:"An e-commerce brand's remarketing campaign has lost steam over the past few weeks.",
+ m:[["Retargeting CTR","3.6% → 2.5%","down"],["Conversion Rate","3.2%","flat"],["Pool Size","Not yet checked","flat"],["Creative Age","Unchanged","flat"]],
+ concern:"Why aren't retargeting ads working?",
+ challenge:"Diagnose pixel issues, frequency, and creative fatigue.",
+ diag:"Three candidate causes, and you need data to separate them: pixel or CAPI signal loss shrinking and staling the audience, frequency fatigue on a small pool, or creative that has not changed while the audience cycled through it. Order of investigation matters more than the eventual answer.",
+ tells:["Retargeting pools are small by nature, so fatigue arrives fast","Conversion rate holding while CTR falls suggests fewer people are engaging, not worse people","Post-iOS14 signal loss is a common and under-checked cause"],
+ strong:["Verifies pixel and CAPI firing and event quality before anything else","Checks pool size trend — a shrinking audience explains a lot on its own","Then checks frequency, then creative age, in that order","Recommends tiering the audience by recency and capping frequency","Notes that retargeting only scales as fast as top-of-funnel feeds it"],
+ trap:"Assuming creative fatigue and refreshing the ads when the pixel is actually broken. You burn a full cycle, the numbers do not move, and you have spent your credibility on the wrong fix."},
+
+{n:17,sec:"Meta",title:"Clicks Are Cheap but No Conversions",biz:"SaaS",
+ bg:"A SaaS company is seeing an unusually low cost per lead but very few actual sign-ups.",
+ m:[["Clicks","2,400","flat"],["Leads","15","down"],["Cost Per Lead","$5","up"],["Conversion Rate","0.6%","down"]],
+ concern:"We're paying little but getting nothing.",
+ challenge:"Identify landing page or targeting gaps.",
+ diag:"Cheap clicks are the symptom, not the consolation prize. A $5 CPL alongside 0.6% conversion means the campaign is buying low-intent attention from people who were never going to sign up. Meta is optimizing toward the cheapest click and delivering exactly that, faithfully.",
+ tells:["0.6% is far below any healthy SaaS benchmark","Cheap plus non-converting almost always means wrong audience or wrong optimization event","2,400 clicks producing 15 leads is a volume of evidence, not a fluke"],
+ strong:["Reframes hard: the low cost is the problem, not the silver lining","Checks what conversion event the campaign optimizes for — clicks and landing page views versus actual sign-ups","Verifies the pixel actually tracks the sign-up event","Audits the landing page for message match and friction","Recommends optimizing to the sign-up event and warns the CPL number will get “worse” — and that this is correct"],
+ trap:"The best trap in the deck: celebrating the $5 CPL. Any rep who opens with “the good news is your cost per lead is excellent” has already lost the round."},
+
+{n:18,sec:"Meta",title:"Ad Account Limited",biz:"Service Business",
+ bg:"Meta has restricted the client's ad account following a policy violation. Everything is stopped.",
+ m:[["Impressions","0","down"],["Clicks","0","down"],["Leads","0","down"],["Account Status","Restricted","down"]],
+ concern:"Why can't our ads run?",
+ challenge:"Explain policy, remediation, and plan for appeal.",
+ diag:"Everything is halted. This is a crisis-communication round far more than an analysis round — speed, clarity, and visible ownership matter more than insight. The zeroes across the board tell you it is account-level, not campaign-level.",
+ tells:["Zeroes on every metric means account-level enforcement","There is nothing to optimize — the only variable is how you handle the conversation","Meta's appeal process is genuinely opaque, which shapes what you can honestly promise"],
+ strong:["Leads with status and plan, not with a long explanation of Meta's policy framework","States what triggered it if known, and says plainly if it is not yet known","Describes the appeal process and a realistic window, flagging that it is not guaranteed","Offers interim mitigation — shift budget to search, lean on organic and email","Commits to a specific update time and puts it in writing"],
+ trap:"Over-promising a resolution date. You do not control Meta support, and a missed date converts a platform problem into a trust problem that outlives the restriction."},
+
+{n:19,sec:"Meta",title:"Campaign Reached Frequency Fatigue",biz:"Clothing Retail",
+ bg:"A clothing retailer's click-through rate has fallen steadily after weeks of the same campaign running.",
+ m:[["Frequency","6.5","down"],["Click-Through Rate","3.2% → 1.9%","down"],["Cost Per Lead","$28 → $40","down"],["Audience","Small / narrow","down"]],
+ concern:"Why aren't people clicking anymore?",
+ challenge:"Explain audience fatigue and refresh creative.",
+ diag:"Textbook saturation. A frequency of 6.5 means the average person has seen this ad six-plus times in the period. CTR halved and CPL rose accordingly. The structural issue is that the audience is too small for the spend behind it.",
+ tells:["Frequency above roughly 3-4 on prospecting is the warning line — 6.5 is well past it","CTR and CPL moved in lockstep, exactly as saturation predicts","A narrow audience is the root cause the frequency number is pointing at"],
+ strong:["Explains frequency in human terms: they have seen it six times and already decided","Names both levers — refresh creative and expand the audience — and says at 6.5 you need both","Sets a frequency threshold to monitor so this is caught earlier next time","Builds a creative rotation calendar rather than reacting each time","Ties the fix back to the CPL the client actually cares about"],
+ trap:"Refreshing creative only. New ads shown to an exhausted audience buy a short reprieve and the problem returns in three weeks, because the pool size was the real constraint."},
+
+{n:20,sec:"Meta",title:"Messenger Leads Not Responding",biz:"Service Business",
+ bg:"A service business is running Meta lead generation through Messenger and most conversations go nowhere.",
+ m:[["Messages Received","140","flat"],["Replies","28 (20%)","down"],["Conversions","10","down"],["Cost Per Lead","$18 → $50","down"]],
+ concern:"Why aren't leads answering?",
+ challenge:"Suggest follow-up strategy and lead nurturing.",
+ diag:"Responsibility is split, and saying so carefully is the whole exercise. A 20% reply rate points at both the low-friction nature of Messenger leads and the speed of the client's follow-up. Response time is the single biggest variable in this channel — and you do not yet know theirs.",
+ tells:["The funnel collapses at 140 → 28, before the client's close rate is even relevant","Messenger and lead-form ads attract low-commitment responses by design","CPL nearly tripled, so whatever is happening is happening at the top"],
+ strong:["Asks for the client's actual response time before assigning any cause","Explains that Messenger leads decay in minutes, not days","Recommends automated instant replies, a qualifying question in the flow, and a human follow-up SLA","If speed is already good, pivots to lead quality and proposes testing a higher-friction format","Raises the client-side issue as a shared problem, not an accusation"],
+ trap:"Telling the client their team is slow before confirming it. This card is really testing whether a rep can raise a client-side failure diplomatically — leading with blame ends that conversation immediately."},
+
+// ─────────────────────────── SECTION 3 · SEO PERFORMANCE ───────────────────────────
+{n:21,sec:"SEO",title:"Organic Traffic Dropped",biz:"E-Commerce",
+ bg:"An e-commerce site's organic traffic declined sharply month over month.",
+ m:[["Organic Sessions","12,500 → 9,800 (-22%)","down"],["Conversions","Down 18%","down"],["Keywords Lost Page 1","15","down"],["Site Changes","Unconfirmed","flat"]],
+ concern:"What happened to our traffic?",
+ challenge:"Explain algorithm changes, seasonality, and long-term SEO.",
+ diag:"A 22% drop alongside 15 page-one losses is a ranking event, not noise. Candidates in order: a Google algorithm update, a site change such as a migration or redesign, a technical regression in indexing or canonicals, or competitor gains. Seasonality must be ruled out year over year, not month over month.",
+ tells:["Conversions fell less than traffic (-18% vs -22%), so the lost traffic skewed slightly lower-value","15 specific page-one losses gives you something concrete to investigate","Month-over-month comparison is the wrong lens for a seasonal business"],
+ strong:["Checks known algorithm update dates against the drop date first","Pulls the year-over-year comparison rather than relying on month-over-month","Identifies exactly which pages and queries lost, instead of discussing the drop in aggregate","Asks what changed on the site in that window — deployments are a frequent culprit","Delivers a prioritized recovery plan with an honest timeline and no promised bounce-back date"],
+ trap:"Saying “it's just an algorithm update” and stopping. That is a cause, not a plan, and the client hears it as a shrug — especially when they are down 18% in conversions."},
+
+{n:22,sec:"SEO",title:"Keyword Rankings Plateaued",biz:"SaaS",
+ bg:"A SaaS company has seen no ranking movement for several months and is questioning the investment.",
+ m:[["Page 1 Keywords","32 → 32","flat"],["Search Visibility","65% → 64%","flat"],["Competitor Activity","Ongoing","flat"],["New Content","Minimal","down"]],
+ concern:"Why aren't we moving up?",
+ challenge:"Reframe stability as positive and outline next steps.",
+ diag:"Holding position in a competitive category is a real outcome — competitors are actively trying to take those spots. But the client is right that flat is not growth, and the honest read is that current effort maintains position rather than expands it.",
+ tells:["-1% visibility is noise, not decline","Holding 32 page-one keywords while competitors invest is genuinely work","Minimal new content is the reason there is no expansion"],
+ strong:["Validates the concern rather than dismissing it — flat really is not growth","Explains that maintenance and growth are different investments with different price tags","Brings a specific prioritized list: unclaimed keyword clusters, authority building, technical depth","Quantifies what growth would require in effort and time","Gives the client a decision to make rather than a reassurance to accept"],
+ trap:"Reframing flat as a win and stopping there. The client will hear complacency, and they will be right — this card punishes a rep who only reframes and never proposes."},
+
+{n:23,sec:"SEO",title:"We Lost Our Featured Snippet",biz:"Online Retail",
+ bg:"An online retailer lost the featured snippet they had held for a high-value query.",
+ m:[["Featured Snippet","Lost","down"],["Impressions","21,000 → 18,500","down"],["Click-Through Rate","5.4% → 3.9%","down"],["Organic Ranking","Likely intact","flat"]],
+ concern:"Why did we lose it?",
+ challenge:"Explain dynamic SERPs and content optimization.",
+ diag:"Snippets are rented, never owned — Google reassigns them constantly and sometimes removes them from a query entirely. The CTR drop is the real cost here, and its size is exactly what losing position zero looks like.",
+ tells:["Impressions fell only 12% while CTR fell 28% — the ranking held, the prominence did not","That gap is the signature of a snippet loss rather than a ranking loss","One query should not set the mood for the whole account"],
+ strong:["Sets the expectation that snippets are borrowed and volatility is structural","Identifies who took it and what format their answer uses","Recommends restructuring content to match snippet patterns: direct answer up top, clean headers, lists and tables","Says plainly that recovery is possible but not guaranteed or schedulable","Widens the frame back to overall organic performance"],
+ trap:"Guaranteeing you will win it back. You cannot, Google decides, and a promise here becomes a recurring agenda item on every call until the client stops believing the other things you say."},
+
+{n:24,sec:"SEO",title:"Local SEO Rankings Dropped",biz:"Restaurant",
+ bg:"A restaurant lost visibility in the local pack and noticed fewer people finding them nearby.",
+ m:[["Local Pack","#1 → #3","down"],["Review Rating","4.6 → 4.5","down"],["Impressions","6,200 → 4,800","down"],["Review Velocity","Slowing","down"]],
+ concern:"Why aren't we showing locally?",
+ challenge:"Discuss GMB factors, reviews, and citations.",
+ diag:"Local ranking runs on proximity, relevance, and prominence. The review dip is a real but small signal — look for the bigger levers: Google Business Profile changes, category settings, NAP and citation consistency, slowing review velocity, competitor activity, or a local algorithm update.",
+ tells:["Review velocity often matters more than the rating itself","A 0.1 rating drop rarely moves the pack on its own","Proximity means rankings genuinely differ by where the searcher is standing"],
+ strong:["Audits the Google Business Profile first — categories, hours, attributes, photos, posts, Q&A","Checks citation and NAP consistency across directories","Compares review velocity against the competitors now ranking above them","Recommends a structured, ongoing review-generation cadence","Explains proximity, so “we dropped” is understood partly as “you searched from somewhere else”"],
+ trap:"Pinning it all on 4.6 → 4.5. It is the most visible number on the card and the least likely sole cause — and chasing it alone will not restore the ranking."},
+
+{n:25,sec:"SEO",title:"Organic Leads Are Down",biz:"Law Firm",
+ bg:"A law firm is seeing fewer form submissions coming from organic search.",
+ m:[["Leads","38 → 25","down"],["Organic Sessions","8,400 → 7,100","down"],["Conversion Rate","5% → 3.5%","down"],["Form Status","Untested","flat"]],
+ concern:"Why is organic lead volume dropping?",
+ challenge:"Identify on-page or SERP visibility issues.",
+ diag:"Both halves declined, but conversion rate is the bigger driver. Traffic fell 15% while leads fell 34%. Had conversion held, 7,100 sessions would still have produced about 35 leads — so roughly a third of the loss is traffic and two thirds is conversion. Two problems, two workstreams.",
+ tells:["Doing that arithmetic out loud is precisely the skill this card tests","A 5% → 3.5% conversion drop is large enough to suspect breakage","Traffic decline alone cannot account for the lead decline"],
+ strong:["Quantifies the split between traffic loss and conversion loss explicitly","Tests the form, tracking, and phone path — the most common and most embarrassing cause","Checks for recent site changes, speed regressions, and layout changes","Separately examines whether the lost traffic was the commercially valuable kind","Keeps the two causes on separate tracks rather than merging them into one story"],
+ trap:"Treating this as one problem and addressing only traffic. That leaves the larger cause — conversion — completely untouched, and the leads do not come back."},
+
+{n:26,sec:"SEO",title:"Competitor Surpassed Us",biz:"Dental Practice",
+ bg:"A local dentist believes a competitor is beating them across the board in search.",
+ m:[["Organic Traffic","5,200 → 4,700","down"],["Top 10 Keywords","23 → 19","down"],["Competitor Investment","Increasing","down"],["Technical Health","No issues found","flat"]],
+ concern:"They're outranking us everywhere.",
+ challenge:"Explain the competitive SEO landscape and next steps.",
+ diag:"Modest, real erosion — not a collapse. Losing 4 of 23 top-ten keywords while traffic fell 10% suggests a competitor is investing rather than that something broke. “Everywhere” is the client's frustration talking, and specifics are the antidote.",
+ tells:["Proportional decline across both metrics reads as competitive displacement","No technical issues found rules out the scarier explanations","19 of 23 keywords are still top ten — the picture is nowhere near “everywhere”"],
+ strong:["Replaces “everywhere” with a specific list: which keywords, lost to whom","Audits what the competitor actually did on those pages — depth, freshness, links, page experience","Brings a targeted plan for the keywords worth reclaiming","Is willing to say which keywords are not economically worth fighting for","Leads with prioritization, which is the actual value being offered"],
+ trap:"Promising to beat the competitor across the board. Some of those keywords are not worth the spend to reclaim, and saying so plainly builds more trust than a blanket commitment you will quietly abandon."},
+
+{n:27,sec:"SEO",title:"Site Lost Indexing",biz:"Multi-Page Site",
+ bg:"A client's site has lost a chunk of pages from the Google index.",
+ m:[["Indexed Pages","420 → 385","down"],["Organic Traffic","10,500 → 9,000","down"],["Recent Deployment","Yes","down"],["Search Console","Not yet reviewed","flat"]],
+ concern:"Why aren't pages showing up?",
+ challenge:"Diagnose technical SEO issues and prioritize fixes.",
+ diag:"Technical, and quickly diagnosable. 35 pages dropped out of the index — Search Console's coverage report will name the exclusion reason: noindex tags, robots.txt changes, canonical misconfiguration, 404s and redirect errors, server errors, or thin-content flags.",
+ tells:["This is the most objectively answerable card in the section — the tool names the reason","A recent deployment in the same window is a strong lead","35 pages could be worthless tag pages or the money pages — the count alone tells you nothing"],
+ strong:["Goes to Search Console and reads the actual exclusion reasons rather than speculating","Asks which pages, not how many — that is the right first question","Checks what shipped in that deployment window","Fixes, then requests reindexing, and explains recrawl takes days to weeks","Prioritizes by traffic and revenue impact rather than by page count"],
+ trap:"Assuming all 35 pages matter equally. Reporting “we lost 35 pages” as a crisis when they were paginated archives — or shrugging when they were service pages — both come from skipping the same question."},
+
+{n:28,sec:"SEO",title:"Mobile Traffic Declined",biz:"E-Commerce",
+ bg:"An e-commerce site is losing mobile visibility while desktop holds steady.",
+ m:[["Mobile Sessions","8,200 → 6,500","down"],["Desktop Sessions","5,100 → 5,200","flat"],["Mobile CTR","4.2% → 3.1%","down"],["Core Web Vitals","Unchecked","flat"]],
+ concern:"Why are mobile users dropping off?",
+ challenge:"Investigate mobile usability and page speed.",
+ diag:"Device-specific, which narrows the field enormously. Desktop is stable, so this is not a site-wide content or authority problem — it is mobile rendering, mobile page experience, or mobile SERP composition. Since Google indexes mobile-first, a mobile problem becomes a ranking problem.",
+ tells:["The flat desktop line is the single most valuable data point on the card","It rules out every explanation that is not device-specific","Mobile CTR falling alongside sessions suggests SERP-level change as well as site-level"],
+ strong:["Names the device isolation explicitly and uses it to narrow the investigation","Checks mobile Core Web Vitals, usability errors, render-blocking resources, intrusive interstitials","Asks whether a recent design change affected mobile only","Considers mobile SERP features — local pack, AI overviews — pushing organic results down","Prioritizes fixes by revenue impact, since mobile is the larger traffic source here"],
+ trap:"Proposing a general SEO plan. The data has already eliminated everything that is not device-specific, and ignoring that is wasting the best clue you were given."},
+
+{n:29,sec:"SEO",title:"Blog Posts Aren't Ranking",biz:"Content Marketing",
+ bg:"A client's content marketing programme is producing posts that no longer rank.",
+ m:[["Top 10 Posts","12 → 7","down"],["Organic Sessions","3,800 → 2,900","down"],["Content Age","12-24 months","down"],["Commercial Intent","Mostly informational","down"]],
+ concern:"Why isn't our content visible?",
+ challenge:"Discuss competition, on-page SEO, and content refresh.",
+ diag:"Content decay plus rising competition. Older posts lose ground as fresher, deeper competitors publish — normal lifecycle, not failure. But it is also worth asking whether this content targets keywords with commercial value at all, because if not, ranking it would not have helped much either.",
+ tells:["Mostly informational intent is the quiet red flag on this card","Decay over 12-24 months is expected without refreshes","AI overviews are compressing informational click-through across the whole industry"],
+ strong:["Separates decay from strategy instead of treating both as one problem","Recommends refreshing existing posts first — that usually outperforms publishing new ones","Identifies which posts have commercial intent and prioritizes those","Adds internal linking as a cheap, fast lever","Is candid if the content plan targets low-value terms, and proposes shifting toward bottom-funnel topics"],
+ trap:"Promising more posts as the fix. Volume is the reflexive answer and it is usually wrong when the existing library is decaying — you would be adding to the pile that is already sinking."},
+
+{n:30,sec:"SEO",title:"Conversion Rate Dropped from Organic",biz:"Local Service",
+ bg:"A local service business is getting organic traffic but far fewer completed forms.",
+ m:[["Leads from Organic","25 → 15","down"],["Conversion Rate","4.5% → 2.7%","down"],["Traffic Volume","Roughly steady","flat"],["Form Status","Untested","flat"]],
+ concern:"Why is organic traffic not converting?",
+ challenge:"Analyze UX, landing page, and keyword intent alignment.",
+ diag:"Traffic is not the named problem here — conversion is. Check mechanics first (forms, tracking, phone path), then experience (speed, mobile UX, layout changes), then intent (did the traffic mix shift toward informational queries that were never going to convert?).",
+ tells:["A 40% conversion drop with steady traffic is large enough to suspect breakage over behavior","Untested form status is the most likely and most checkable cause","Whether the drop is site-wide or page-specific changes the entire diagnosis"],
+ strong:["Tests the form personally before the call — broken forms are the most common cause and the worst one to miss","Checks for GA4 or tracking configuration changes in the window","Segments by landing page to see whether the drop is concentrated or site-wide","Uses that result correctly: concentrated points to a page change, site-wide points to tracking","Only then explores keyword intent shifts"],
+ trap:"Launching into a sophisticated keyword-intent theory when the form might simply be broken. Check the boring cause first — it is right more often than the interesting one."},
+
+// ─────────────────────── SECTION 4 · DIFFICULT PERSONALITIES ───────────────────────
+{n:31,sec:"Personality",title:"The Impatient Owner",biz:"HVAC",
+ bg:"An HVAC client expected fast results and is frustrated three weeks after launch.",
+ m:[["Campaign Age","3 weeks","down"],["Spend to Date","$900","flat"],["Leads","11","flat"],["Cost Per Lead","$82","down"]],
+ concern:"This should be way higher by now.",
+ challenge:"Manage urgency and set realistic expectations.",
+ diag:"Three weeks sits inside the learning window and $900 is not enough spend to conclude anything. 11 leads is a real signal but not a verdict. Campaigns typically improve materially between weeks three and ten as conversion data accumulates.",
+ tells:["Sample size is the honest answer — $900 buys very little statistical confidence","$82 CPL is high for HVAC but entirely normal for a campaign still in learning","11 leads may already be profitable depending on their close rate and job value"],
+ strong:["Validates the urgency first — they are spending real money and want it to work","Gets concrete about what optimization is underway right now","Names checkpoint dates and the CPL expected by each one","Gives the client something specific to hold them to","Asks about close rate and job value, since 11 leads may already be paying for itself"],
+ trap:"“Just be patient.” It is true and completely useless. Patience without a timeline and a checkpoint reads as stalling, and this client will hear it as evasion."},
+
+{n:32,sec:"Personality",title:"The Budget Skeptic",biz:"Roofing",
+ bg:"A roofing company keeps returning to how expensive the clicks are.",
+ m:[["Cost Per Click","$14","down"],["Leads","32","up"],["Cost Per Lead","$62","up"],["Conversion Rate","22%","up"]],
+ concern:"Why are clicks so expensive?",
+ challenge:"Explain high-intent traffic value and industry benchmarks.",
+ diag:"The account is performing well and the client is anchored on the wrong number. A 22% conversion rate is strong, and $62 CPL against a roofing job worth thousands is excellent economics. The $14 CPC is high in isolation and irrelevant in context.",
+ tells:["High CPC plus high conversion rate is the definition of high-intent traffic","22% conversion is the metric that makes the $14 defensible","Cost per job, not cost per click, is the number that decides whether this works"],
+ strong:["Walks up the funnel one step at a time: click, lead, job, revenue","Asks what a roofing job is worth and what their close rate is","Computes cost per acquired job live on the call using their numbers","Lands on a single sentence: you are paying $X to win a $Y job","Uses the client's own figures rather than industry benchmarks — it is far more persuasive"],
+ trap:"Defending the $14 CPC on its own terms. You cannot win an argument about whether $14 is a lot; you can only win one about what it buys."},
+
+{n:33,sec:"Personality",title:"The “My Friend Said” Client",biz:"Chiropractic",
+ bg:"A chiropractor has been given outside marketing advice and wants to change direction.",
+ m:[["Leads","25 / month","up"],["Cost Per Lead","$48","up"],["Conversion Rate","13%","up"],["Requested Change","Switch to display ads","down"]],
+ concern:"We should switch to display ads.",
+ challenge:"Redirect the conversation to data without dismissing their input.",
+ diag:"Current performance is solid and display would almost certainly perform worse for lead generation — it is an awareness format with far lower intent. But the underlying question, “are we missing something?”, is legitimate and deserves a real answer.",
+ tells:["The ask is a proposed solution, not a stated problem — find the problem behind it","25 leads at $48 with 13% conversion is a healthy account nobody should be dismantling","The real motive is usually “I want more volume” or “I want to be seen”"],
+ strong:["Takes the input seriously instead of defending territory","Asks what appealed about the idea, which surfaces the actual underlying want","Explains honestly what display does well and what it does badly","Offers a small bounded test with agreed success criteria rather than a flat refusal","Protects the relationship, which matters more here than winning the argument"],
+ trap:"Dismissiveness. “Your friend doesn't know what he's talking about” may be accurate and will still cost you the account — the client hears it as “you don't listen to me.”"},
+
+{n:34,sec:"Personality",title:"The Blamer",biz:"Plumbing",
+ bg:"A plumbing company is in a seasonal slowdown and is convinced something is broken.",
+ m:[["Leads","40 → 28","down"],["Conversion Rate","11% (steady)","flat"],["Cost Per Lead","$50 → $52","flat"],["Season","Off-peak","down"]],
+ concern:"Something is wrong with the ads.",
+ challenge:"Introduce seasonality calmly and explain trends.",
+ diag:"Seasonality, and the data says so cleanly. Conversion rate held and CPL barely moved — the ads are converting available demand at the same efficiency as before. There is simply less demand to convert. Nothing is wrong with the ads.",
+ tells:["Steady conversion rate is the exonerating evidence — degraded ads would show degraded efficiency","CPL moved $2, which is noise","Only volume changed, which is what a demand shift looks like"],
+ strong:["Leads with the efficiency data before ever saying the word seasonality","Shows the year-over-year comparison if it is available","Then introduces seasonality, once the numbers have already made the case","Brings options: shift budget to off-season services, adjust spend to the demand curve, or hold","Gives a plan so seasonality does not land as resignation"],
+ trap:"Opening with “that's just seasonality.” It is the right answer and the worst possible first sentence — it lands as a deflection until the efficiency numbers have earned it."},
+
+{n:35,sec:"Personality",title:"The Micromanager",biz:"Med Spa",
+ bg:"A med spa owner noticed campaign changes they were not told about in advance.",
+ m:[["Click-Through Rate","3.1% → 4.5%","up"],["Leads","Up 20%","up"],["Cost Per Lead","$70 → $60","up"],["Client Notified","No","down"]],
+ concern:"Why did you change that?",
+ challenge:"Explain testing strategy while maintaining trust and transparency.",
+ diag:"The change worked on every metric. The client's issue is process and communication, not performance — they were surprised, and surprise erodes trust even when the results improve. Read the emotional content, not the numbers.",
+ tells:["Nothing here is a performance problem, which means the numbers are not the answer","“Client notified: no” is the actual finding on this card","The question is “why wasn't I told,” dressed up as “why did you change that”"],
+ strong:["Answers the process question first, before mentioning results at all","Explains the testing framework and why iteration is normal and continuous","Owns the communication gap: you should have heard this from me, not found it","Then shows results as validation rather than as a defense","Agrees on a change-notification cadence going forward — a little control usually ends the pattern"],
+ trap:"Leading with the improved numbers. “But it worked” answers a question they did not ask and confirms exactly what they fear: that things happen to their account without them."},
+
+{n:36,sec:"Personality",title:"The Price Shopper",biz:"Garage Doors",
+ bg:"A garage door company has been quoted a lower rate elsewhere and is raising it on the call.",
+ m:[["Leads","44","up"],["Cost Per Lead","$38","up"],["Conversion Rate","12%","up"],["Competitor Quote","Lower","down"]],
+ concern:"Someone else is cheaper.",
+ challenge:"Reinforce value and outcomes over cost alone.",
+ diag:"Performance is strong, so nothing in the data justifies a change. Price is rarely the real objection — it is the easiest one to say out loud. The underlying question is usually whether the value is visible enough to feel worth it.",
+ tells:["44 leads at $38 with 12% conversion is a healthy account","Nothing in the data supports switching, so the risk is entirely relationship-side","Cheaper agencies usually mean less management time, junior staff, or spend counted inside the fee"],
+ strong:["Asks what the comparison actually includes — the answer is usually revealing","Asks what problem they are trying to solve by switching","Quantifies current return using their job value and close rate","States the price calmly, without flinching and without justifying it defensively","Treats confidence, not argument, as the tool — this card is about composure"],
+ trap:"Immediately offering a discount. It confirms the price was padded, starts a negotiation you will keep losing, and invites the same conversation every quarter."},
+
+{n:37,sec:"Personality",title:"The “I Googled It Once” Expert",biz:"Attorney",
+ bg:"An attorney has been manually searching their own keywords and reporting what they see.",
+ m:[["Impression Share","75%","up"],["Top of Page Rate","70%","up"],["Leads","30","up"],["Client's Method","Manual searching","down"]],
+ concern:"We should always be #1.",
+ challenge:"Explain auction dynamics and personalization of search results.",
+ diag:"The position metrics are strong, and the client's personal searching is not a valid measurement method. Results are personalized by location, history, device, and time — and repeatedly searching your own ads without clicking actively teaches Google to stop showing them to you.",
+ tells:["75% impression share and 70% top-of-page are good numbers by any standard","The anecdote conflicts with the data because the anecdote is unreliable","100% impression share would mean either far fewer searches covered or a much larger budget"],
+ strong:["Explains personalization without condescension — this genuinely surprises most people","Notes that ad budget is finite, so total coverage has a real cost","Gives them a legitimate way to check, like the Ad Preview tool, so they feel able to verify","Returns to lead volume and cost as the real scoreboard","Manages tone carefully, because the facts here are easy and the delivery is not"],
+ trap:"Making the client feel stupid. This card is almost entirely a tone test — being right in a way that embarrasses them turns a small correction into a lasting resentment."},
+
+{n:38,sec:"Personality",title:"The Short-Term Thinker",biz:"E-Commerce",
+ bg:"An e-commerce client is reacting to one weak week inside an otherwise strong month.",
+ m:[["Monthly ROAS","3.8x","up"],["Last 7 Days ROAS","2.1x","down"],["Revenue","Down 18% WoW","down"],["Prior Weeks","Consistent","flat"]],
+ concern:"This week is terrible.",
+ challenge:"Shift focus to longer-term trends and performance stability.",
+ diag:"A weak week inside a strong month. 3.8x monthly is healthy and a single week at 2.1x sits within normal e-commerce variance unless something specific happened. Worth checking — not worth panicking over.",
+ tells:["The monthly figure is the more reliable estimate; seven days is high-variance data","Prior weeks being consistent gives the 2.1x context it needs","Nothing structural has changed in the account"],
+ strong:["Acknowledges the week is genuinely worse rather than waving it away","Shows variance across prior weeks so 2.1x has a frame of reference","Actually checks for real causes: promo ended, competitor sale, stock issues, tracking gap","Then agrees a rule for what would trigger action — a defined threshold over a defined window","That rule is what stops this exact conversation recurring every month"],
+ trap:"Dismissing the week without checking it. Sometimes the bad week is real, and a rep who reflexively says “it's just variance” will eventually be wrong at an expensive moment."},
+
+{n:39,sec:"Personality",title:"The Distrustful Client",biz:"Auto Detailing",
+ bg:"An auto detailing business doubts that the reported leads are genuinely coming from ads.",
+ m:[["Leads","47","up"],["Cost Per Lead","$34","up"],["Call Tracking","Enabled","up"],["Conversion Rate","14%","up"]],
+ concern:"How do we know these are from ads?",
+ challenge:"Build trust through clear tracking explanations and transparency.",
+ diag:"A legitimate question asked with suspicion. Attribution is genuinely imperfect, and the honest answer includes its limits — which is exactly why answering transparently builds more trust than answering confidently.",
+ tells:["Call tracking is already in place, so there is real evidence available to show","The numbers are good, which is partly why they seem too good to the client","The gaps in attribution are real and the client will find them eventually"],
+ strong:["Shows the mechanism rather than asserting the result — tracking numbers, recordings, form timestamps, click paths","Offers to walk through specific individual leads together in the platform","Volunteers the limitations before the client discovers them: offline conversions, brand overlap, multi-touch journeys","Offers to cross-reference against their CRM if they will share it","Treats transparency as the deliverable, not persuasion"],
+ trap:"Getting defensive, or overclaiming precision. Attribution has real gaps, and pretending it does not hands a sceptical client something concrete to catch you on later."},
+
+{n:40,sec:"Personality",title:"The Emotional Reactor",biz:"Cosmetic Dentistry",
+ bg:"A cosmetic dentist is reacting strongly to a small increase in cost per lead.",
+ m:[["Cost Per Lead","$72 → $79","down"],["Leads","26 → 25","flat"],["Conversion Rate","9% → 9%","flat"],["Client State","Escalated","down"]],
+ concern:"This is getting out of control.",
+ challenge:"De-escalate emotions while providing data-driven context.",
+ diag:"A 10% CPL move with flat conversion and one fewer lead is close to noise. The emotional intensity is disproportionate to the data, which means something else is driving it — cash flow pressure, a bad month in the practice, or accumulated anxiety that has found a target.",
+ tells:["Essentially nothing changed — the numbers are not the problem to solve","Conversion rate is identical, which rules out any performance degradation","The gap between the data and the reaction is itself the diagnostic"],
+ strong:["Slows the conversation down and lets them talk before presenting anything","Acknowledges the feeling first without conceding a failure that did not happen","Asks what has changed on their end — the real issue almost always surfaces here","Only then offers the small, honest context on the numbers","Understands that sequence is the entire exercise on this card"],
+ trap:"Leading with data at an escalated client. Correct facts delivered into emotion read as dismissal and escalate the call further — you will be right and the relationship will be worse."},
+
+// ─────────────────────── SECTION 5 · CRUCIAL CONVERSATIONS ───────────────────────
+{n:41,sec:"Crucial",title:"Addressing a Missed Monthly Report",biz:"Any Account",
+ bg:"A client is upset because the monthly report they were promised arrived late.",
+ m:[["Report Sent","2 days late","down"],["Campaign Performance","Stable","flat"],["Cause","Internal miss","down"],["Client Trust","Dented","down"]],
+ concern:"We didn't get the report on time.",
+ challenge:"Apologize, take ownership, and outline a plan to prevent recurrence.",
+ diag:"A small operational failure with a real trust cost. The stable performance is relevant context but must not be used as a defense. This is a short conversation that reps routinely make long and worse.",
+ tells:["The mistake is unambiguous and it is yours","Performance being fine is true and is not the point","Length is the giveaway — anxious over-explaining reads as excuse-making"],
+ strong:["Apologizes once, cleanly, without over-apologizing","Offers no excuses dressed up as explanations","States what happened, what has changed to prevent it, and when reports will land going forward","Then delivers the report content well, which is the actual repair","Keeps it short — a clean two-sentence ownership beats a paragraph of contrition"],
+ trap:"“But performance was fine anyway.” It converts an easy apology into a defensive one and tells the client their expectation does not matter to you."},
+
+{n:42,sec:"Crucial",title:"Discussing Contract Renewal",biz:"Long-Term Client",
+ bg:"A long-term client is hesitant about renewing their marketing contract.",
+ m:[["Avg Monthly Leads","35","up"],["Avg Cost Per Lead","$45","up"],["Client Lifetime Value","$12,000","up"],["Monthly Acq. Cost","$1,575","flat"]],
+ concern:"We're not sure we want to continue.",
+ challenge:"Highlight past successes, future strategy, and ROI.",
+ diag:"The numbers make an overwhelming case once you convert them: 35 leads at $45 is $1,575 in monthly acquisition cost against a $12,000 lifetime value. Even a modest close rate returns many multiples. But renewal hesitancy is rarely about the numbers, so lead with a question rather than the case.",
+ tells:["LTV is on the card because you are meant to multiply it — most reps forget","The economics are not close, which means the objection is something else","You do not yet know what the actual hesitation is"],
+ strong:["Asks what is driving the hesitation before pitching anything","Then quantifies the return in dollars using their LTV and close rate","Presents forward strategy — what year two does that year one could not","Is willing to hear a real objection (budget, internal change, a competitor pitch) and address that instead","Does not discount as an opening move"],
+ trap:"Launching into a prepared retention pitch before diagnosing the hesitation. You will answer the wrong objection very persuasively and still lose the renewal."},
+
+{n:43,sec:"Crucial",title:"Explaining a Performance Drop",biz:"Retail",
+ bg:"A retail client has seen a sudden drop in conversions and revenue, and the cause is not yet confirmed.",
+ m:[["Revenue","$12,500 → $9,800","down"],["Conversion Rate","3.5% → 2.8%","down"],["Traffic","Roughly steady","flat"],["Root Cause","Still investigating","down"]],
+ concern:"Why did sales drop?",
+ challenge:"Deliver an explanation without blame, focusing on actionable next steps.",
+ diag:"Revenue fell 22% and conversion fell 20%, so most of the revenue loss is conversion rather than traffic. Causes could sit on either side — site or checkout issues, pricing, stock, promotional calendar, or seasonality. The card deliberately withholds the answer, because the skill being tested is delivering an honest “here is what I know and what I am still checking.”",
+ tells:["The two percentages moving together points squarely at conversion","Traffic being steady eliminates a whole category of explanation","You genuinely do not know yet, and that is the condition you must communicate well"],
+ strong:["States clearly what the data shows and, just as clearly, what it does not","Gives a specific investigation list with owners and a date to report back","Raises possible client-side causes — stock, pricing, promo changes — as questions, not accusations","Avoids blame in either direction while still being concrete","Commits to a follow-up with findings and then actually meets it"],
+ trap:"Filling the uncertainty with a confident guess. This card rewards calibrated honesty over fluency, and a wrong confident answer is far more damaging than an honest “I'm still checking.”"},
+
+{n:44,sec:"Crucial",title:"Handling Scope Creep",biz:"Small Business",
+ bg:"A client wants to add campaigns beyond the original agreement without changing the fee.",
+ m:[["Current Campaigns","3","flat"],["Ad Budget","$1,500 / month","flat"],["Requested","2 extra campaigns","down"],["Budget Per Campaign","~$300 if split 5 ways","down"]],
+ concern:"Can you just add these without extra cost?",
+ challenge:"Maintain boundaries, explain impact on performance and pricing.",
+ diag:"Two separate problems the client has merged: management scope, which is your time, and ad budget, which is their spend. Splitting $1,500 across five campaigns starves all of them regardless of what you charge — so there is a performance argument here, not only a commercial one.",
+ tells:["$300 per campaign is below the threshold where campaigns gather enough data to optimize","The performance argument is stronger than the fee argument and lands better","The client is not being unreasonable, they are conflating two things"],
+ strong:["Leads with the performance consequence: even free, splitting the budget five ways hurts all five","Then addresses scope separately and plainly","Offers real options: prioritize and swap a campaign, raise budget to support expansion, or expand scope at a stated cost","Says no to the free part clearly and without apology","Always gives a path to yes alongside the no"],
+ trap:"Absorbing it “just this once.” It sets the precedent permanently and, uniquely here, actively damages the performance you will be judged on next month."},
+
+{n:45,sec:"Crucial",title:"Communicating Paused Campaigns",biz:"Any Account",
+ bg:"Google Ads has paused the account because invoices have gone unpaid and the card on file declined.",
+ m:[["Unpaid Invoices","Dec + Jan","down"],["Card on File","Declined","down"],["Leads","0 / week","down"],["Cause","Client-side","down"]],
+ concern:"Why aren't our ads running?",
+ challenge:"Be firm but empathetic, and outline resolution steps.",
+ diag:"The uncomfortable one. The client's stated question has an answer they may already know. It has to be handled directly, without embarrassment or accusation — a declined card is far more often an oversight than a refusal to pay.",
+ tells:["The cause and the fix are both entirely in the client's hands","Google's pause is automatic and not something you control or can appeal","Every day of downtime has a quantifiable cost you can use constructively"],
+ strong:["States the situation factually and early rather than burying it or letting them guess","Separates the platform reality from the relationship — Google pauses on non-payment, that is not your choice","Assumes good faith about the declined card","Gives the exact steps and timeline to restart, including that ads need to ramp back up","Quantifies the cost of downtime as motivation, never as a threat","Is firm and warm simultaneously, which is the whole exercise"],
+ trap:"Softening it so much that the client leaves the call not understanding they need to pay today. Vagueness here is not politeness — it costs them another week of zero leads."},
+
+{n:46,sec:"Crucial",title:"Negotiating a Discount",biz:"Small Business",
+ bg:"A client with a well-performing account is asking for a lower monthly fee.",
+ m:[["Cost Per Lead","$48","up"],["Leads","42 / month","up"],["Conversion Rate","11%","up"],["Reason for Ask","Unknown","down"]],
+ concern:"Can we get a cheaper rate?",
+ challenge:"Explain the value of services and justify cost while staying professional.",
+ diag:"Performance is good, so a discount is not warranted on results. But “can we get a cheaper rate” often masks a cash-flow problem or a value-visibility problem — and those get very different responses. Find out which before answering.",
+ tells:["42 leads at $48 with 11% conversion is a healthy account","The request is not performance-driven, so the stated reason is not the real one","Reason for ask is listed as unknown for a reason"],
+ strong:["Asks what is prompting the request before responding to it","If cash flow, offers structural options — payment timing, or reduced scope at a lower price","If value perception, re-anchors on outcomes in dollars","Holds the rate calmly and without defensiveness","Is explicit that a lower fee means less work, never the same work for less"],
+ trap:"Cutting the price to keep the peace. It permanently devalues the service, and it guarantees the identical conversation next quarter starting from the new lower number."},
+
+{n:47,sec:"Crucial",title:"Explaining Billing Confusion",biz:"Any Account",
+ bg:"A client believes they were overbilled across several months and is asking for an explanation.",
+ m:[["March Invoice","Voided","flat"],["Charges Applied","3 months, correct","up"],["Actual Overcharge","None","up"],["Client Perception","Overbilled","down"]],
+ concern:"Why was I charged extra?",
+ challenge:"Clarify billing, highlight corrections, and maintain trust.",
+ diag:"The client is wrong on the facts, and being right is the least important part of handling it. Clarity and a verifiable paper trail resolve the substance; tone determines whether the relationship survives it.",
+ tells:["The voided March invoice almost certainly explains the confusion","A voided invoice appearing in their records is a reasonable thing to misread","No overcharge occurred, so there is nothing to concede and everything to explain"],
+ strong:["Walks through each month line by line with documentation","Offers the voided invoice as the explanation, giving them a face-saving reason to have asked","Confirms no overcharge occurred and sends the reconciliation in writing","Asks whether they want billing communicated differently going forward","Never says “as I already explained”"],
+ trap:"Being right loudly. Winning the accounting argument while making the client feel accused of incompetence is a net loss, even though every number you cited was correct."},
+
+{n:48,sec:"Crucial",title:"Setting Expectations for a New Campaign",biz:"New Client",
+ bg:"A new client expected immediate results from both SEO and PPC and is disappointed after one week.",
+ m:[["Campaign Age","1 week","down"],["Leads","5","flat"],["Cost Per Lead","$95","down"],["SEO Movement","Minimal (expected)","flat"]],
+ concern:"We thought results would be immediate.",
+ challenge:"Set realistic timelines and explain the learning and optimization phases.",
+ diag:"Everything on this card is normal for week one. PPC is still in learning and SEO at seven days has produced no measurable movement and should not have. If there was a failure here it happened at the sale, when expectations were not set.",
+ tells:["The two channels have radically different timelines and clients routinely conflate them","One week of PPC data is not a performance signal","$95 CPL in week one says almost nothing about week eight"],
+ strong:["Separates PPC and SEO explicitly and gives each its own realistic curve","Frames PPC as meaningfully improving over 4-8 weeks, SEO over 3-6 months","Explains what “learning” actually means in concrete terms, not jargon","Defines what week 4, week 8, and month 3 should look like so there are checkpoints","Asks what they were told during the sale, and addresses it honestly if expectations were oversold"],
+ trap:"Promising faster results to calm them down. It buys one comfortable call and guarantees a much worse one in a month, with less credibility to spend."},
+
+{n:49,sec:"Crucial",title:"Aligning Marketing and Sales",biz:"Mid-Size Client",
+ bg:"A client's sales team says the leads marketing is delivering are not converting into revenue.",
+ m:[["Leads","36","flat"],["Cost Per Lead","$55","flat"],["Close Rate","18%","up"],["Call Answer Rate","62%","down"]],
+ concern:"Marketing isn't delivering revenue.",
+ challenge:"Bridge the gap between marketing and sales with actionable insights.",
+ diag:"The 62% answer rate is the finding. Roughly four in ten paid-for leads never reach a human at all — those are lost before sales can even work them. Fixing answer rate is almost certainly higher-leverage than generating more leads.",
+ tells:["62% is the clear outlier on the card","18% close rate is respectable in most categories, so sales is not obviously the problem either","More leads through a 62% funnel simply wastes more money"],
+ strong:["Brings the answer-rate number early and lets it carry the conversation","Frames it as a shared opportunity: getting to 90% is roughly 10 more conversations a month at zero extra spend","Recommends call recording review, speed-to-lead standards, and after-hours coverage","Also offers marketing-side improvements — qualification, routing — so it is genuinely mutual","Proposes a recurring joint marketing and sales review"],
+ trap:"Accepting the framing and responding by promising more leads. That is the expensive, agreeable answer — it spends more budget to push more leads into the same leaking funnel."},
+
+{n:50,sec:"Crucial",title:"Addressing Negative Feedback",biz:"Social Client",
+ bg:"A client is unhappy with the creative and messaging being published on their behalf.",
+ m:[["Engagement Rate","4.2%","up"],["Follower Growth","+3% MoM","up"],["Posts Per Week","3","flat"],["Brand Alignment","Client says no","down"]],
+ concern:"This content doesn't feel like us.",
+ challenge:"Accept feedback without defensiveness and guide toward brand alignment.",
+ diag:"The metrics are fine and entirely beside the point. “This doesn't feel like us” is a brand-alignment problem, and the client is the sole authority on their own brand. Performance data is not a valid rebuttal to it.",
+ tells:["Nothing on the card supports arguing back","The client is not claiming it does not perform — they are claiming it is not them","That distinction is the whole card"],
+ strong:["Receives the feedback without defending anything","Gets specific: which posts, and what exactly felt off — tone, visuals, or language","Asks for examples of content that does feel right","Converts it into something durable — a brand voice guide or an approval step — so it is not relitigated monthly","Mentions performance only as context for what is worth preserving, never as a counterargument","Thanks them for saying it directly"],
+ trap:"Rebutting with engagement numbers. It answers a claim the client never made, and it tells them you would rather be right about the data than get their brand right."}
+
+];
+
+const SEC_META = {
+  PPC:        {label:"PPC Performance",        color:"#43a047"},
+  Meta:       {label:"Paid Meta",              color:"#2a6db5"},
+  SEO:        {label:"SEO Performance",        color:"#5bb8f5"},
+  Personality:{label:"Difficult Personality",  color:"#e67e22"},
+  Crucial:    {label:"Crucial Conversation",   color:"#9b59b6"},
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let mode = "team";
+let teams = [];
+let scores = [];
+let activeTeam = 0;
+let currentRound = 1;
+let usedIds = [];
+let currentCard = null;
+let phase = 0;                  // 0 none · 1 diagnose · 2 deliver · 3 debrief
+let rubricVals = [5,5,5,5,5];
+let timerSecs = 60;
+let timerBase = 60;
+let timerRunning = false;
+let timerInterval = null;
+let selectedCount = 4;
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function $(id){ return document.getElementById(id); }
+
+function showToast(msg, dur){
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(function(){ t.classList.remove("show"); }, dur || 2500);
+}
+
+function launchConfetti(){
+  const c = $("confettiContainer");
+  c.innerHTML = "";
+  const colors = ["#2a6db5","#d43a3a","#5bb8f5","#f5c842","#43a047","#e67e22","#9b59b6","#1abc9c"];
+  for (let i = 0; i < 60; i++){
+    const p = document.createElement("div");
+    p.className = "confetti-piece";
+    p.style.left = Math.random() * 100 + "%";
+    p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    p.style.width = (6 + Math.random() * 8) + "px";
+    p.style.height = (6 + Math.random() * 8) + "px";
+    p.style.borderRadius = Math.random() > .5 ? "50%" : "2px";
+    p.style.animationDelay = (Math.random() * .5) + "s";
+    p.style.animationDuration = (2 + Math.random() * 1.2) + "s";
+    c.appendChild(p);
+  }
+  setTimeout(function(){ c.innerHTML = ""; }, 3500);
+}
+
+function activeDeck(){
+  const f = $("secFilter").value;
+  return SCENARIOS.filter(function(s){ return f === "all" || s.sec === f; });
+}
+
+function updateDeckCount(){
+  const deck = activeDeck();
+  const left = deck.filter(function(s){ return usedIds.indexOf(s.n) === -1; }).length;
+  $("deckCount").textContent = left + " of " + deck.length + " cards left";
+}
+
+// ── SETUP ─────────────────────────────────────────────────────────────────────
+document.querySelectorAll(".mode-btn").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    mode = this.dataset.mode;
+    document.querySelectorAll(".mode-btn").forEach(function(b){ b.classList.remove("active"); });
+    this.classList.add("active");
+    $("teamSetup").style.display = mode === "team" ? "block" : "none";
+  });
+});
+
+document.querySelectorAll(".team-count-btn").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    selectedCount = parseInt(this.dataset.count);
+    document.querySelectorAll(".team-count-btn").forEach(function(b){ b.classList.remove("active"); });
+    this.classList.add("active");
+    const inputs = $("setupNames").querySelectorAll(".setup-name-input");
+    inputs.forEach(function(inp, i){ inp.style.display = i < selectedCount ? "block" : "none"; });
+  });
+});
+
+$("btnStartGame").addEventListener("click", function(){
+  if (mode === "team"){
+    const inputs = Array.from($("setupNames").querySelectorAll(".setup-name-input")).slice(0, selectedCount);
+    teams = inputs.map(function(inp, i){ return inp.value.trim() || ("Team " + (i + 1)); });
+    scores = teams.map(function(){ return 0; });
+    buildScoreboard();
+    $("scorePanel").style.display = "block";
+    $("teamPanel").style.display = "block";
+    $("soloPanel").style.display = "none";
+  } else {
+    $("scorePanel").style.display = "none";
+    $("teamPanel").style.display = "none";
+    $("soloPanel").style.display = "block";
+  }
+  $("secFilter").value = $("setupSection").value;
+  updateDeckCount();
+  $("setupScreen").style.display = "none";
+  $("gameScreen").classList.add("on");
+});
+
+// ── SCOREBOARD ────────────────────────────────────────────────────────────────
+function buildScoreboard(){
+  const board = $("scoreboard");
+  board.innerHTML = "";
+  const order = teams.map(function(name, i){ return {name:name, score:scores[i], i:i}; })
+                     .sort(function(a, b){ return b.score - a.score; });
+  order.forEach(function(t, rank){
+    const row = document.createElement("div");
+    row.className = "team-row" + (t.i === activeTeam ? " active" : "") + (rank === 0 && t.score > 0 ? " lead" : "");
+    row.innerHTML = '<span class="t-rank">' + (rank === 0 && t.score > 0 ? "👑" : "#" + (rank + 1)) + '</span>' +
+                    '<span class="t-name"></span><span class="t-score">' + t.score + '</span>';
+    row.querySelector(".t-name").textContent = t.name;
+    row.addEventListener("click", function(){
+      activeTeam = t.i;
+      buildScoreboard();
+      showToast("🔥 " + teams[activeTeam] + " on the hot seat");
+    });
+    board.appendChild(row);
+  });
+}
+
+// ── PHASE RAIL ────────────────────────────────────────────────────────────────
+function setPhase(p){
+  phase = p;
+  [1,2,3].forEach(function(i){
+    const el = $("ph" + i);
+    el.classList.remove("active","done");
+    if (i < p) el.classList.add("done");
+    if (i === p) el.classList.add("active");
+  });
+}
+
+// ── DRAW ──────────────────────────────────────────────────────────────────────
+$("btnDraw").addEventListener("click", function(){
+  const deck = activeDeck();
+  let pool = deck.filter(function(s){ return usedIds.indexOf(s.n) === -1; });
+  if (pool.length === 0){
+    usedIds = usedIds.filter(function(id){
+      return deck.every(function(s){ return s.n !== id; });
+    });
+    pool = deck.slice();
+    showToast("🔄 Deck reshuffled — all cards back in play", 3000);
+  }
+  currentCard = pool[Math.floor(Math.random() * pool.length)];
+  usedIds.push(currentCard.n);
+  renderCard(currentCard);
+  updateDeckCount();
+
+  setPhase(1);
+  $("btnReveal").disabled = false;
+  $("btnCoach").disabled = true;
+  $("btnNextRound").disabled = false;
+  resetTimer(60);
+  $("timerLabel").textContent = "Phase 1 · Diagnose";
+});
+
+function renderCard(c){
+  $("cardEmpty").style.display = "none";
+  $("cardLive").classList.add("on");
+  $("coachCard").classList.remove("on");
+  $("revealBlock").classList.remove("on");
+
+  const meta = SEC_META[c.sec];
+  const tag = $("secTag");
+  tag.textContent = meta.label;
+  tag.style.background = meta.color;
+
+  $("bizTag").textContent = c.biz;
+  $("idTag").textContent = "#" + String(c.n).padStart(2, "0");
+  $("cardTitle").textContent = c.title;
+  $("cardBg").textContent = c.bg;
+
+  const grid = $("metricsGrid");
+  grid.innerHTML = "";
+  c.m.forEach(function(row){
+    const d = document.createElement("div");
+    d.className = "metric " + (row[2] || "flat");
+    const l = document.createElement("div"); l.className = "m-label"; l.textContent = row[0];
+    const v = document.createElement("div"); v.className = "m-value"; v.textContent = row[1];
+    d.appendChild(l); d.appendChild(v);
+    grid.appendChild(d);
+  });
+
+  $("concernText").textContent = "“" + c.concern + "”";
+  $("challengeText").textContent = c.challenge;
+  $("coachDiag").textContent = c.diag;
+
+  const tl = $("coachTells"); tl.innerHTML = "";
+  c.tells.forEach(function(t){ const li = document.createElement("li"); li.textContent = t; tl.appendChild(li); });
+
+  const st = $("coachStrong"); st.innerHTML = "";
+  c.strong.forEach(function(t){ const li = document.createElement("li"); li.textContent = t; st.appendChild(li); });
+
+  $("coachTrap").textContent = c.trap;
+}
+
+// ── REVEAL CONCERN (PHASE 2) ──────────────────────────────────────────────────
+$("btnReveal").addEventListener("click", function(){
+  if (!currentCard) return;
+  $("revealBlock").classList.add("on");
+  setPhase(2);
+  $("btnReveal").disabled = true;
+  $("btnCoach").disabled = false;
+  resetTimer(120);
+  $("timerLabel").textContent = "Phase 2 · Deliver";
+  showToast("📞 Client is on the line — 2 minutes");
+});
+
+// ── COACH CARD (PHASE 3) ──────────────────────────────────────────────────────
+$("btnCoach").addEventListener("click", function(){
+  if (!currentCard) return;
+  $("coachCard").classList.add("on");
+  setPhase(3);
+  $("btnCoach").disabled = true;
+  stopTimer();
+  $("timerLabel").textContent = "Phase 3 · Debrief";
+  $("coachCard").scrollIntoView({behavior:"smooth", block:"nearest"});
+});
+
+// ── TIMER ─────────────────────────────────────────────────────────────────────
+function fmt(s){
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return m + ":" + (r < 10 ? "0" : "") + r;
+}
+
+function paintTimer(){
+  const d = $("timerDisplay");
+  d.textContent = fmt(timerSecs);
+  d.classList.remove("warn","danger");
+  if (timerSecs <= 30 && timerSecs > 0) d.classList.add("danger");
+  else if (timerSecs <= 60) d.classList.add("warn");
+}
+
+function stopTimer(){
+  timerRunning = false;
+  clearInterval(timerInterval);
+  $("btnTimerStart").textContent = "▶ Start";
+}
+
+function resetTimer(secs){
+  stopTimer();
+  timerBase = secs || timerBase;
+  timerSecs = timerBase;
+  paintTimer();
+}
+
+$("btnTimerStart").addEventListener("click", function(){
+  if (timerRunning){
+    stopTimer();
+    return;
+  }
+  if (timerSecs <= 0) resetTimer(timerBase);
+  timerRunning = true;
+  this.textContent = "⏸ Pause";
+  timerInterval = setInterval(function(){
+    timerSecs--;
+    paintTimer();
+    if (timerSecs <= 0){
+      stopTimer();
+      showToast("⏰ Time!", 3000);
+    }
+  }, 1000);
+});
+
+$("btnTimerReset").addEventListener("click", function(){ resetTimer(timerBase); });
+
+document.querySelectorAll(".tp").forEach(function(b){
+  b.addEventListener("click", function(){ resetTimer(parseInt(this.dataset.secs)); });
+});
+
+// ── RUBRIC ────────────────────────────────────────────────────────────────────
+function bonusPts(){
+  return Array.from(document.querySelectorAll(".bonus-check"))
+    .reduce(function(a, cb){ return a + (cb.checked ? parseInt(cb.dataset.pts) : 0); }, 0);
+}
+
+function updateRubric(){
+  rubricVals.forEach(function(v, i){ $("rub" + i).textContent = v; });
+  const base = rubricVals.reduce(function(a, b){ return a + b; }, 0);
+  $("rubTotal").textContent = base + bonusPts();
+}
+
+function resetRubric(){
+  rubricVals = [5,5,5,5,5];
+  document.querySelectorAll(".bonus-check").forEach(function(cb){ cb.checked = false; });
+  updateRubric();
+}
+
+document.querySelectorAll(".rub-adj").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    const dim = parseInt(this.dataset.dim);
+    const dir = parseInt(this.dataset.dir);
+    rubricVals[dim] = Math.max(1, Math.min(10, rubricVals[dim] + dir));
+    updateRubric();
+  });
+});
+
+document.querySelectorAll(".bonus-check").forEach(function(cb){
+  cb.addEventListener("change", updateRubric);
+});
+
+// ── AWARD ─────────────────────────────────────────────────────────────────────
+$("btnAward").addEventListener("click", function(){
+  if (!teams.length) return;
+  const total = rubricVals.reduce(function(a, b){ return a + b; }, 0) + bonusPts();
+  scores[activeTeam] += total;
+  buildScoreboard();
+  launchConfetti();
+  showToast("🏆 +" + total + " pts → " + teams[activeTeam] + "!", 2800);
+  resetRubric();
+});
+
+// ── NEXT ROUND ────────────────────────────────────────────────────────────────
+$("btnNextRound").addEventListener("click", function(){
+  currentRound++;
+  $("roundBadge").textContent = "Round " + currentRound;
+  currentCard = null;
+  $("cardLive").classList.remove("on");
+  $("coachCard").classList.remove("on");
+  $("revealBlock").classList.remove("on");
+  $("cardEmpty").style.display = "flex";
+  setPhase(0);
+  $("btnReveal").disabled = true;
+  $("btnCoach").disabled = true;
+  $("btnNextRound").disabled = true;
+  resetRubric();
+  resetTimer(60);
+  $("timerLabel").textContent = "Ready";
+  if (mode === "team" && teams.length){
+    activeTeam = (activeTeam + 1) % teams.length;
+    buildScoreboard();
+    showToast("🔥 " + teams[activeTeam] + " is up");
+  }
+  window.scrollTo({top:0, behavior:"smooth"});
+});
+
+// ── FILTER ────────────────────────────────────────────────────────────────────
+$("secFilter").addEventListener("change", updateDeckCount);
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+paintTimer();
+updateRubric();
+setPhase(0);
+
+</script>
+</body>
+</html>

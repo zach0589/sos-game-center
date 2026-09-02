@@ -1,10 +1,10 @@
-<!-- agency-empire.html — SOS Game Center -->
+<!-- agency-empire.html — SOS x GFF Game Center -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agency Empire — SOS Game Center</title>
+<title>Agency Empire — SOS &times; GFF Game Center</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -324,17 +324,28 @@ body::before{content:'';position:fixed;inset:0;background:
 .footer a{color:var(--sos-light);text-decoration:none}
 @media(max-width:1100px){.game-layout{flex-direction:column}.sidebar{width:100%;max-height:none;flex-direction:row;flex-wrap:wrap}.sidebar>.panel{flex:1;min-width:260px}}
 @media(max-width:700px){.board-grid{aspect-ratio:auto;grid-template-rows:repeat(7,55px)}.space-name{font-size:.35rem}}
+
+/* ===== SOS x GFF cobrand lockup ===== */
+:root{--gff-teal:#0eaab9;--gff-teal-dark:#0b8794;--gff-ink:#414242}
+.cobrand{display:inline-flex;align-items:center;justify-content:center;gap:10px}
+.cobrand-rule{width:2px;height:28px;border-radius:2px;background:linear-gradient(180deg,transparent,rgba(14,170,185,.55),transparent);flex-shrink:0}
+.gff-logo{height:22px;width:auto;flex-shrink:0}
+.start-content .start-logo{margin-bottom:0}
+.start-content .cobrand{margin-bottom:24px}
+.start-content .gff-logo{height:50px}
+.start-content .cobrand-rule{height:62px}
+
 </style>
 </head>
 <body>
 <div id="startScreen">
   <div class="start-content">
-    <svg class="start-logo" viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+    <span class="cobrand"><svg class="start-logo" viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
       <text x="28" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text>
       <g transform="translate(160,68)"><circle cx="0" cy="0" r="48" fill="none" stroke="#fff" stroke-width="18"/><circle cx="0" cy="0" r="48" fill="none" stroke="#d43a3a" stroke-width="18" stroke-dasharray="25 50.7" stroke-dashoffset="0"/><line x1="-32" y1="-32" x2="-44" y2="-44" stroke="#ddd" stroke-width="2"/><line x1="32" y1="-32" x2="44" y2="-44" stroke="#ddd" stroke-width="2"/><line x1="-32" y1="32" x2="-44" y2="44" stroke="#ddd" stroke-width="2"/><line x1="32" y1="32" x2="44" y2="44" stroke="#ddd" stroke-width="2"/></g>
       <text x="222" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text>
       <text x="160" y="150" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="#5bb8f5" text-anchor="middle" letter-spacing="4">SPOTONSOLUTIONS</text>
-    </svg>
+    </svg><span class="cobrand-rule"></span><img class="gff-logo" src="assets/gff-logo-white.png" alt="Get Found First"></span>
     <h1>Agency <span class="hl">Empire</span></h1>
     <div class="subtitle">A Digital Marketing Board Game</div>
     <p class="desc">Build your agency empire by buying services, completing property sets, upgrading your offerings, and outearning the competition. Navigate event cards, dodge scope creep, survive crisis mode, and prove your team runs the best agency in town.</p>
@@ -349,7 +360,7 @@ body::before{content:'';position:fixed;inset:0;background:
   <div class="header">
     <a href="index.html" class="back-link"><span>&#8592;</span> Game Center</a>
     <div class="header-row">
-      <svg class="sos-logo" viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg"><text x="28" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text><g transform="translate(160,68)"><circle cx="0" cy="0" r="48" fill="none" stroke="#fff" stroke-width="18"/><circle cx="0" cy="0" r="48" fill="none" stroke="#d43a3a" stroke-width="18" stroke-dasharray="25 50.7" stroke-dashoffset="0"/></g><text x="222" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text></svg>
+      <span class="cobrand"><svg class="sos-logo" viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg"><text x="28" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text><g transform="translate(160,68)"><circle cx="0" cy="0" r="48" fill="none" stroke="#fff" stroke-width="18"/><circle cx="0" cy="0" r="48" fill="none" stroke="#d43a3a" stroke-width="18" stroke-dasharray="25 50.7" stroke-dashoffset="0"/></g><text x="222" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text></svg><span class="cobrand-rule"></span><img class="gff-logo" src="assets/gff-logo-white.png" alt="Get Found First"></span>
       <div><h1>Agency <span class="hl">Empire</span></h1><div class="sub">A Digital Marketing Board Game</div></div>
     </div>
   </div>
@@ -361,7 +372,7 @@ body::before{content:'';position:fixed;inset:0;background:
       <div class="sidebar-controls"><button class="btn btn-secondary btn-sm" onclick="showHowToPlay()">How to Play</button><button class="btn btn-secondary btn-sm" onclick="confirmNewGame()">New Game</button></div>
     </div>
   </div>
-  <div class="footer"><p>SpotOn Solutions Game Center &middot; Built for Elevation &middot; <a href="https://spotonsolutions.com">spotonsolutions.com</a></p></div>
+  <div class="footer"><p>Spot On Solutions &times; Get Found First &middot; Built for Elevation &middot; <a href="https://spotonsolutions.com">spotonsolutions.com</a> &middot; <a href="https://getfoundfirst.com">getfoundfirst.com</a></p></div>
 </div>
 <div id="modalOverlay" class="modal-overlay" style="display:none"><div id="modalContent" class="modal"></div></div>
 <div id="toast" class="toast"></div>

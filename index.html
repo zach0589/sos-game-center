@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SOS Game Center</title>
+<title>SOS &times; GFF Game Center</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -18,7 +18,8 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:
   radial-gradient(circle at 20% 30%, rgba(42,109,181,.12) 0%, transparent 50%),
   radial-gradient(circle at 80% 70%, rgba(212,58,58,.08) 0%, transparent 50%),
-  radial-gradient(circle at 50% 50%, rgba(91,184,245,.05) 0%, transparent 60%);
+  radial-gradient(circle at 50% 50%, rgba(91,184,245,.05) 0%, transparent 60%),
+  radial-gradient(circle at 85% 15%, rgba(14,170,185,.10) 0%, transparent 55%);
   pointer-events:none;z-index:0}
 
 .container{position:relative;z-index:1;width:100%;max-width:1100px;padding:40px 24px}
@@ -32,7 +33,7 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backg
 .header .tagline{color:var(--muted);font-size:1.05rem;margin-top:8px;letter-spacing:1px}
 
 /* DIVIDER */
-.divider{width:120px;height:3px;background:linear-gradient(90deg,transparent,var(--sos-blue),transparent);margin:0 auto 40px;border-radius:2px}
+.divider{width:180px;height:3px;background:linear-gradient(90deg,transparent,var(--sos-blue) 35%,var(--gff-teal) 65%,transparent);margin:0 auto 40px;border-radius:2px}
 
 /* GAME GRID */
 .games-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:24px;margin-bottom:48px}
@@ -57,7 +58,7 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backg
 .card-body h3{font-size:1.2rem;font-weight:700;margin-bottom:6px;color:#fff}
 .card-body p{color:var(--muted);font-size:.9rem;line-height:1.5}
 .card-body .card-meta{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap}
-.card-tag{background:var(--border);color:var(--sos-light);padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.card-tag{background:var(--border);color:var(--gff-teal);padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
 .card-tag.live{background:rgba(67,160,71,.2);color:#66bb6a}
 .card-tag.soon{background:rgba(122,155,192,.15);color:var(--muted)}
 
@@ -70,7 +71,9 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backg
 
 /* FOOTER */
 .footer{text-align:center;padding:24px;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);width:100%;margin-top:auto}
-.footer a{color:var(--sos-light);text-decoration:none}
+.footer a{color:var(--gff-teal);text-decoration:none}
+.cobrand-line{margin-top:10px;color:var(--muted);font-size:.75rem;letter-spacing:3px;text-transform:uppercase}
+.cobrand-line span{color:var(--gff-teal);font-weight:700}
 
 /* ANIMATIONS */
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
@@ -92,6 +95,13 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backg
   .sos-logo{height:60px}
   .games-grid{grid-template-columns:1fr}
 }
+
+/* ===== SOS x GFF cobrand lockup ===== */
+:root{--gff-teal:#0eaab9;--gff-teal-dark:#0b8794;--gff-ink:#414242}
+.cobrand{display:inline-flex;align-items:center;justify-content:center;gap:18px}
+.cobrand-rule{width:2px;height:62px;border-radius:2px;background:linear-gradient(180deg,transparent,rgba(14,170,185,.55),transparent);flex-shrink:0}
+.gff-logo{height:50px;width:auto;flex-shrink:0}
+@media(max-width:700px){.gff-logo{height:37px}.cobrand-rule{height:47px}}
 </style>
 </head>
 <body>
@@ -99,7 +109,7 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backg
 <div class="container">
   <div class="header">
     <div class="logo-area">
-      <svg class="sos-logo" viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <span class="cobrand"><svg class="sos-logo" viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
         <text x="28" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text>
         <g transform="translate(160,68)">
           <circle cx="0" cy="0" r="48" fill="none" stroke="#fff" stroke-width="18"/>
@@ -111,10 +121,11 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backg
         </g>
         <text x="222" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text>
         <text x="160" y="150" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="#5bb8f5" text-anchor="middle" letter-spacing="4">SPOTONSOLUTIONS</text>
-      </svg>
+      </svg><span class="cobrand-rule"></span><img class="gff-logo" src="assets/gff-logo-white.png" alt="Get Found First"></span>
     </div>
     <h1><span>Game</span> Center</h1>
     <div class="tagline">Team training games for Elevation sessions and beyond</div>
+    <div class="cobrand-line">Spot On Solutions <span>&times;</span> Get Found First</div>
   </div>
   <div class="divider"></div>
 
@@ -355,7 +366,7 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backg
 </div>
 
 <div class="footer">
-  <p>SpotOn Solutions Game Center &middot; Built for Elevation &middot; <a href="https://spotonsolutions.com">spotonsolutions.com</a></p>
+  <p>Spot On Solutions &times; Get Found First &middot; Built for Elevation &middot; <a href="https://spotonsolutions.com">spotonsolutions.com</a> &middot; <a href="https://getfoundfirst.com">getfoundfirst.com</a></p>
 </div>
 
 </body>

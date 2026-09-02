@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<title>Funnel Fix — SOS Game Center</title>
+<title>Funnel Fix — SOS &times; GFF Game Center</title>
 <style>
 /* ========== DESIGN SYSTEM ========== */
 :root {
@@ -442,6 +442,12 @@ body::before {
   .main-area { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
   .scenario-panel, .right-panel { max-height: none; }
 }
+
+/* ===== SOS x GFF cobrand lockup ===== */
+:root{--gff-teal:#0eaab9;--gff-teal-dark:#0b8794;--gff-ink:#414242}
+.cobrand{display:inline-flex;align-items:center;justify-content:center;gap:22px}
+.cobrand-rule{width:2px;height:78px;border-radius:2px;background:linear-gradient(180deg,transparent,rgba(14,170,185,.55),transparent);flex-shrink:0}
+.gff-logo{height:62px;width:auto;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -449,7 +455,7 @@ body::before {
   <!-- ========== SETUP SCREEN ========== -->
   <div id="setupScreen" class="setup-screen">
     <div class="logo-area">
-      <svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" width="200">
+      <span class="cobrand"><svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" width="200">
         <text x="28" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5">S</text>
         <g transform="translate(160,68)">
           <circle cx="0" cy="0" r="48" fill="none" stroke="#fff" stroke-width="18"/>
@@ -457,10 +463,10 @@ body::before {
         </g>
         <text x="222" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5">S</text>
         <text x="160" y="150" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="#5bb8f5" text-anchor="middle" letter-spacing="4">SPOTONSOLUTIONS</text>
-      </svg>
+      </svg><span class="cobrand-rule"></span><img class="gff-logo" src="assets/gff-logo-white.png" alt="Get Found First"></span>
     </div>
     <h1>Funnel <span class="hl">Fix</span></h1>
-    <div class="sub">SOS Game Center &middot; Marketing Strategy Simulation</div>
+    <div class="sub">SOS &times; GFF Game Center &middot; Marketing Strategy Simulation</div>
     <div class="setup-card">
       <h2>How It Works</h2>
       <p style="font-size:.9rem;color:var(--muted);line-height:1.6;margin-bottom:16px;">
@@ -548,7 +554,7 @@ body::before {
     </div>
 
     <div class="footer">
-      <p>SpotOn Solutions Game Center &middot; Built for Elevation &middot; <a href="https://spotonsolutions.com">spotonsolutions.com</a></p>
+      <p>Spot On Solutions &times; Get Found First &middot; Built for Elevation &middot; <a href="https://spotonsolutions.com">spotonsolutions.com</a> &middot; <a href="https://getfoundfirst.com">getfoundfirst.com</a></p>
     </div>
   </div>
 </div>

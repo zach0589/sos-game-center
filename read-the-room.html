@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Read the Room — SOS × GFF Game Center</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a1628;--surface:#0f1f38;--border:#1e3a5f;
+  --sos-blue:#2a6db5;--sos-light:#5bb8f5;--sos-red:#d43a3a;
+  --text:#eef;--muted:#7a9bc0;--radius:12px;
+  --green:#43a047;--gold:#f5c842;--orange:#e67e22;--purple:#9b59b6;--amber:#e08214;
+  --d:#d43a3a;--i:#f5c842;--s:#43a047;--c:#5bb8f5;
+}
+html{font-size:16px}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:
+  radial-gradient(circle at 20% 30%, rgba(155,89,182,.12) 0%, transparent 50%),
+  radial-gradient(circle at 80% 70%, rgba(42,109,181,.10) 0%, transparent 50%),
+  radial-gradient(circle at 50% 50%, rgba(91,184,245,.05) 0%, transparent 60%);
+  pointer-events:none;z-index:0}
+.container{position:relative;z-index:1;width:100%;max-width:1360px;padding:28px 20px 40px}
+
+/* HEADER */
+.header{text-align:center;margin-bottom:22px;position:relative}
+.back-link{position:absolute;left:20px;top:4px;color:var(--muted);text-decoration:none;font-size:.85rem;font-weight:600;transition:color .2s}
+.back-link:hover,.back-link:focus-visible{color:var(--sos-light)}
+.header-row{display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.cobrand{display:inline-flex;align-items:center;gap:14px}
+.cobrand-rule{width:2px;height:50px;border-radius:2px;background:linear-gradient(180deg,transparent,rgba(14,170,185,.55),transparent);flex-shrink:0}
+.gff-logo{height:40px;width:auto;flex-shrink:0}
+.sos-logo{height:64px}
+.header h1{font-size:2.1rem;letter-spacing:3px;color:#fff;text-transform:uppercase;text-shadow:0 0 30px rgba(155,89,182,.35)}
+.header h1 .hl{color:var(--purple)}
+.header .sub{color:var(--muted);font-size:.95rem;margin-top:6px;letter-spacing:1px}
+
+/* BUTTONS */
+.btn{border:none;border-radius:8px;padding:11px 20px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;color:#fff;background:var(--border);letter-spacing:.3px}
+.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.btn:focus-visible{outline:3px solid var(--sos-light);outline-offset:2px}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-red{background:linear-gradient(135deg,#d43a3a,#a82626)}
+.btn-blue{background:linear-gradient(135deg,#2a6db5,#1b4c82)}
+.btn-green{background:linear-gradient(135deg,#43a047,#2e7031)}
+.btn-purple{background:linear-gradient(135deg,#9b59b6,#6d3d80)}
+.btn-amber{background:linear-gradient(135deg,#e08214,#a35c08)}
+.btn-secondary{background:var(--border);color:var(--text)}
+.btn-sm{padding:7px 13px;font-size:.78rem}
+.btn-full{width:100%}
+
+/* SETUP */
+.setup{max-width:640px;margin:0 auto;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:32px}
+.setup h2{font-size:1.3rem;margin-bottom:8px;color:#fff;text-align:center}
+.setup-intro{color:var(--muted);font-size:.9rem;line-height:1.6;text-align:center;margin-bottom:22px}
+.setup-intro em{color:var(--sos-light);font-style:normal;font-weight:600}
+.setup-label{display:block;font-size:.75rem;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);margin:18px 0 9px}
+.mode-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mode-btn{background:var(--bg);border:2px solid var(--border);border-radius:9px;padding:14px;cursor:pointer;text-align:left;font-family:inherit;color:var(--text);transition:all .2s}
+.mode-btn strong{display:block;font-size:.92rem;margin-bottom:5px}
+.mode-btn span{display:block;font-size:.76rem;color:var(--muted);line-height:1.45}
+.mode-btn.active{border-color:var(--purple);background:rgba(155,89,182,.12)}
+.mode-btn:focus-visible{outline:3px solid var(--sos-light);outline-offset:2px}
+.team-count-row{display:flex;gap:9px}
+.team-count-btn{flex:1;background:var(--bg);border:2px solid var(--border);border-radius:8px;padding:11px;font-size:1rem;font-weight:800;color:var(--text);cursor:pointer;font-family:inherit;transition:all .2s}
+.team-count-btn.active{border-color:var(--purple);background:rgba(155,89,182,.16);color:#fff}
+.setup-name-input{width:100%;background:var(--bg);border:2px solid var(--border);border-radius:8px;padding:10px 13px;color:var(--text);font-size:.9rem;font-family:inherit;margin-bottom:8px}
+.setup-name-input:focus{outline:none;border-color:var(--sos-light)}
+.filter{background:var(--bg);border:2px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:.85rem;font-family:inherit;cursor:pointer}
+
+/* GAME */
+.game{display:none}
+.game.on{display:grid;grid-template-columns:1fr 330px;gap:20px;align-items:start}
+.col-main{min-width:0;display:flex;flex-direction:column;gap:16px}
+.col-side{display:flex;flex-direction:column;gap:16px;position:sticky;top:16px}
+.panel{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:17px}
+.panel h3{font-size:.78rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+
+.topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.round-badge{background:linear-gradient(135deg,#9b59b6,#6d3d80);color:#fff;font-weight:800;font-size:.82rem;padding:7px 15px;border-radius:20px;letter-spacing:.6px}
+.deck-count{color:var(--muted);font-size:.8rem}
+.filter-wrap{margin-left:auto;display:flex;align-items:center;gap:8px}
+.filter-wrap label{font-size:.72rem;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:700}
+
+/* PHASE RAIL */
+.phase-rail{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.phase-step{background:var(--surface);border:2px solid var(--border);border-radius:9px;padding:10px 13px;opacity:.4;transition:all .25s}
+.phase-step.active{opacity:1;border-color:var(--purple);background:rgba(155,89,182,.12)}
+.phase-step.done{opacity:.75;border-color:var(--green)}
+.pnum{font-size:.66rem;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:700}
+.pname{font-size:.92rem;font-weight:700;color:#fff;margin-top:3px}
+
+/* CARD */
+.card-slot{min-height:0}
+.card-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:var(--surface);border:2px dashed var(--border);border-radius:var(--radius);padding:48px 30px;min-height:240px}
+.card-empty .big{font-size:3rem;margin-bottom:14px;opacity:.55}
+.card-empty p{color:var(--muted);font-size:.9rem;max-width:440px;line-height:1.6}
+.card-live{display:none;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:24px}
+.card-live.on{display:block}
+.card-meta-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px;align-items:center}
+.sec-tag{color:#fff;font-size:.7rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:4px 11px;border-radius:5px}
+.who-tag{background:var(--border);color:var(--text);font-size:.72rem;font-weight:700;padding:4px 11px;border-radius:5px}
+.id-tag{margin-left:auto;color:var(--muted);font-size:.76rem;font-weight:700;letter-spacing:1px}
+.card-live h2{font-size:1.45rem;color:#fff;margin-bottom:11px;line-height:1.25}
+.scene-text{color:#cfe0f2;font-size:1rem;line-height:1.68}
+.scene-text em{color:var(--sos-light);font-style:italic}
+
+/* DISC CALL BLOCK */
+.callblock{display:none;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:20px}
+.callblock.on{display:block}
+.cb-head{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;flex-wrap:wrap}
+.cb-head h3{font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--purple);font-weight:800}
+.cb-head span{font-size:.8rem;color:var(--muted)}
+.cb-hint{color:var(--muted);font-size:.84rem;line-height:1.55}
+.profile-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:14px}
+.pcard{background:var(--bg);border:2px solid var(--border);border-radius:10px;padding:14px 12px;text-align:center}
+.pletter{width:34px;height:34px;margin:0 auto 9px;border-radius:8px;font-weight:900;font-size:1.05rem;display:flex;align-items:center;justify-content:center}
+.pname{font-weight:700;font-size:.86rem;color:#fff;letter-spacing:.2px}
+.ptraits{font-size:.73rem;color:var(--muted);line-height:1.45;margin-top:6px}
+.ppct{font-size:.67rem;color:var(--muted);margin-top:8px;font-weight:800;letter-spacing:.6px;opacity:.8}
+.commit{display:flex;align-items:center;gap:14px;background:var(--bg);border-radius:10px;padding:15px 17px;margin-top:13px}
+.commit-icon{font-size:1.5rem;flex:none}
+.commit p{font-size:.9rem;line-height:1.55;color:#cfe0f2}
+.commit strong{color:#fff}
+
+/* RESPONSE OPTIONS */
+.opts{display:none;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:20px}
+.opts.on{display:block}
+.opt{display:flex;gap:13px;align-items:flex-start;background:var(--bg);border:2px solid var(--border);border-radius:10px;padding:14px 15px;margin-bottom:9px;transition:all .2s}
+.opt-key{width:28px;height:28px;flex-shrink:0;border-radius:7px;background:var(--border);color:#fff;font-weight:800;font-size:.85rem;display:flex;align-items:center;justify-content:center}
+.opt-body{flex:1;min-width:0}
+.opt-text{font-size:.93rem;line-height:1.6;color:#dbe8f5}
+.opt-why{display:none;margin-top:9px;padding-top:9px;border-top:1px solid var(--border);font-size:.84rem;line-height:1.55;color:var(--muted)}
+.opt.graded .opt-why{display:block}
+.opt-verdict{display:none;font-size:.68rem;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;padding:3px 9px;border-radius:4px;margin-bottom:7px}
+.opt.graded .opt-verdict{display:inline-block}
+.opt.v-best{border-color:var(--green);background:rgba(67,160,71,.09)}
+.opt.v-best .opt-verdict{background:var(--green);color:#fff}
+.opt.v-best .opt-key{background:var(--green)}
+.opt.v-ok{border-color:var(--gold)}
+.opt.v-ok .opt-verdict{background:var(--gold);color:#241c00}
+.opt.v-poor .opt-verdict{background:var(--border);color:var(--muted)}
+.opt.v-harm{border-color:var(--sos-red);background:rgba(212,58,58,.07)}
+.opt.v-harm .opt-verdict{background:var(--sos-red);color:#fff}
+
+/* SCORING PASS */
+.scorepass{display:none;background:var(--surface);border:2px solid var(--green);border-radius:var(--radius);padding:20px}
+.scorepass.on{display:block}
+.sp-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--border);flex-wrap:wrap}
+.sp-name{flex:1;min-width:120px;font-weight:700;font-size:.92rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sp-group{display:flex;align-items:center;gap:5px;flex:none}
+.sp-label{font-size:.62rem;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);margin-right:2px}
+.sp-chip{min-width:38px;height:34px;padding:0 9px;border-radius:7px;border:2px solid var(--border);background:var(--bg);color:var(--muted);font-weight:800;font-size:.82rem;cursor:pointer;font-family:inherit;transition:all .15s}
+.sp-chip:hover{transform:translateY(-2px)}
+.sp-chip:focus-visible{outline:3px solid var(--sos-light);outline-offset:2px}
+.sp-chip.on.hit{background:var(--green);border-color:var(--green);color:#fff}
+.sp-chip.on.near{background:var(--gold);border-color:var(--gold);color:#241c00}
+.sp-chip.on.miss{background:var(--border);border-color:var(--line,#3a5a80);color:#fff}
+.sp-chip.on.v-best{background:var(--green);border-color:var(--green);color:#fff}
+.sp-chip.on.v-ok{background:var(--gold);border-color:var(--gold);color:#241c00}
+.sp-chip.on.v-poor{background:var(--border);color:#fff}
+.sp-chip.on.v-harm{background:var(--sos-red);border-color:var(--sos-red);color:#fff}
+.sp-total{margin-left:auto;font-weight:900;font-size:1.15rem;color:var(--sos-light);font-variant-numeric:tabular-nums;min-width:46px;text-align:right}
+.setup-check{display:flex;align-items:center;gap:10px;background:var(--bg);border:2px solid var(--border);border-radius:9px;padding:12px 14px;cursor:pointer;margin-top:9px}
+.setup-check input{width:17px;height:17px;accent-color:var(--purple);cursor:pointer;flex:none}
+.setup-check span{font-size:.85rem;color:var(--text)}
+.setup-check small{display:block;color:var(--muted);font-size:.76rem;margin-top:3px;line-height:1.45}
+
+/* COACH */
+.coach{display:none;background:linear-gradient(160deg,rgba(155,89,182,.10),var(--surface));border:2px solid var(--purple);border-radius:var(--radius);padding:22px}
+.coach.on{display:block}
+.coach-head{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.coach-head h3{font-size:1.05rem;color:#fff}
+.ch-icon{font-size:1.25rem}
+.answer-strip{display:flex;align-items:center;gap:14px;background:var(--bg);border-radius:10px;padding:15px 17px;margin-bottom:16px;flex-wrap:wrap}
+.big-letter{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.9rem;font-weight:900;flex-shrink:0}
+.as-body{flex:1;min-width:180px}
+.as-title{font-size:1.05rem;font-weight:800;color:#fff}
+.as-traits{font-size:.84rem;color:var(--muted);margin-top:4px;line-height:1.5}
+.coach-block{margin-bottom:15px}
+.cbl{font-size:.72rem;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;margin-bottom:7px}
+.cbl.tell{color:var(--sos-light)}
+.cbl.rule{color:var(--green)}
+.cbl.fear{color:var(--orange)}
+.cbl.note{color:var(--purple)}
+.coach-block p{color:#cfe0f2;font-size:.92rem;line-height:1.65}
+.coach-block ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+.coach-block li{color:#cfe0f2;font-size:.9rem;line-height:1.55;padding-left:18px;position:relative}
+.coach-block li::before{content:'▸';position:absolute;left:0;color:var(--sos-light)}
+.fear-box{background:rgba(230,126,34,.10);border-left:3px solid var(--orange);border-radius:0 8px 8px 0;padding:12px 15px}
+.fear-box p{color:#f0d8bd;font-size:.9rem}
+
+/* TIMER */
+.timer-box{text-align:center}
+.timer-display{font-size:2.5rem;font-weight:900;color:#fff;letter-spacing:2px;font-variant-numeric:tabular-nums}
+.timer-display.warn{color:var(--gold)}
+.timer-display.danger{color:var(--sos-red)}
+.timer-label{font-size:.75rem;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;margin:4px 0 11px;font-weight:700}
+.timer-btns{display:flex;gap:8px;margin-bottom:9px}
+.timer-btns .btn{flex:1}
+.timer-presets{display:flex;gap:6px}
+.tp{flex:1;background:var(--bg);border:2px solid var(--border);border-radius:7px;padding:6px;font-size:.75rem;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .2s}
+.tp:hover,.tp.active{border-color:var(--purple);color:#fff}
+
+/* SCOREBOARD */
+.team-row{display:flex;align-items:center;gap:9px;background:var(--bg);border:2px solid var(--border);border-radius:9px;padding:10px 12px;margin-bottom:7px}
+.team-row.lead{border-color:var(--gold);background:rgba(245,200,66,.08)}
+.t-rank{font-size:.85rem;font-weight:800;color:var(--muted);width:26px;flex-shrink:0}
+.t-name{flex:1;min-width:0;font-weight:700;font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t-score{font-weight:900;font-size:1.1rem;color:var(--sos-light);font-variant-numeric:tabular-nums}
+.t-delta{font-size:.72rem;font-weight:800;color:var(--green);flex-shrink:0}
+
+/* DISC REFERENCE */
+.ref-item{border:2px solid var(--border);border-radius:9px;margin-bottom:7px;overflow:hidden}
+.ref-head{width:100%;display:flex;align-items:center;gap:10px;background:var(--bg);border:none;padding:10px 12px;cursor:pointer;font-family:inherit;color:var(--text);text-align:left}
+.ref-head:focus-visible{outline:3px solid var(--sos-light);outline-offset:-3px}
+.ref-letter{width:26px;height:26px;border-radius:6px;font-weight:900;font-size:.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ref-name{flex:1;font-weight:700;font-size:.85rem}
+.ref-pct{font-size:.72rem;color:var(--muted);font-weight:700}
+.ref-body{display:none;padding:12px;background:var(--surface);border-top:1px solid var(--border)}
+.ref-item.open .ref-body{display:block}
+.ref-body .rb-label{font-size:.66rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin:9px 0 5px}
+.ref-body .rb-label:first-child{margin-top:0}
+.ref-body ul{list-style:none;display:flex;flex-direction:column;gap:4px}
+.ref-body li{font-size:.79rem;line-height:1.45;color:#cfe0f2;padding-left:14px;position:relative}
+.ref-body li::before{content:'·';position:absolute;left:4px;color:var(--muted)}
+
+/* SOLO */
+.solo-note{color:var(--muted);font-size:.82rem;line-height:1.6}
+
+/* TOAST + CONFETTI */
+#toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--surface);border:2px solid var(--purple);border-radius:10px;padding:13px 24px;font-weight:700;font-size:.92rem;z-index:999;transition:transform .3s;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#confettiContainer{position:fixed;inset:0;pointer-events:none;z-index:998;overflow:hidden}
+.confetti-piece{position:absolute;top:-14px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(104vh) rotate(720deg);opacity:0}}
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+  .btn:hover:not(:disabled),.dbtn:hover:not(:disabled),.obtn:hover:not(:disabled){transform:none}
+}
+@media(max-width:1080px){
+  .game.on{grid-template-columns:1fr}
+  .col-side{position:static}
+}
+@media(max-width:700px){
+  .gff-logo{height:32px}.cobrand-rule{height:41px}
+  .header h1{font-size:1.5rem}
+  .mode-row{grid-template-columns:1fr}
+  .profile-grid{grid-template-columns:1fr 1fr}
+  .phase-rail{grid-template-columns:1fr}
+  .back-link{position:static;display:inline-block;margin-bottom:10px}
+}
+</style>
+</head>
+<body>
+
+<div id="confettiContainer"></div>
+<div id="toast"></div>
+
+<div class="container">
+
+  <div class="header">
+    <a href="index.html" class="back-link">&larr; Game Center</a>
+    <div class="header-row">
+      <span class="cobrand"><svg class="sos-logo" viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+        <text x="28" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text>
+        <g transform="translate(160,68)">
+          <circle cx="0" cy="0" r="48" fill="none" stroke="#fff" stroke-width="18"/>
+          <circle cx="0" cy="0" r="48" fill="none" stroke="#d43a3a" stroke-width="18" stroke-dasharray="25 50.7" stroke-dashoffset="0"/>
+          <line x1="-32" y1="-32" x2="-44" y2="-44" stroke="#ddd" stroke-width="2"/>
+          <line x1="32" y1="-32" x2="44" y2="-44" stroke="#ddd" stroke-width="2"/>
+          <line x1="-32" y1="32" x2="-44" y2="44" stroke="#ddd" stroke-width="2"/>
+          <line x1="32" y1="32" x2="44" y2="44" stroke="#ddd" stroke-width="2"/>
+        </g>
+        <text x="222" y="110" font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="130" fill="#2a6db5" text-anchor="start">S</text>
+        <text x="160" y="150" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="#5bb8f5" text-anchor="middle" letter-spacing="4">SPOTONSOLUTIONS</text>
+      </svg><span class="cobrand-rule"></span><img class="gff-logo" src="assets/gff-logo-white.png" alt="Get Found First"></span>
+    </div>
+    <h1>Read the <span class="hl">Room</span></h1>
+    <div class="sub">SOS &times; GFF Game Center &middot; 40 DISC scenarios &middot; Read and response scored separately</div>
+  </div>
+
+  <!-- ══════════════ SETUP ══════════════ -->
+  <div class="setup" id="setupScreen">
+    <h2>🧩 Read the Room</h2>
+    <p class="setup-intro">Every round describes a real person behaving like themselves. Teams call the DISC profile first &mdash; then pick the response tuned to it. <em>The read and the response are scored separately</em>, because getting the profile right and still handling it wrong is the most common way this goes sideways.</p>
+
+    <label class="setup-label" for="modeTeam">Mode</label>
+    <div class="mode-row">
+      <button class="mode-btn active" id="modeTeam" data-mode="team">
+        <strong>🏆 Team Play</strong>
+        <span>Every team calls every card. Auto-scored on both lines. Best for Elevation sessions.</span>
+      </button>
+      <button class="mode-btn" data-mode="solo">
+        <strong>🎯 Solo Drill</strong>
+        <span>One person, no scoring. Read the card, commit out loud, reveal the answer.</span>
+      </button>
+    </div>
+
+    <div id="teamSetup">
+      <label class="setup-label">How many teams?</label>
+      <div class="team-count-row">
+        <button class="team-count-btn" data-count="2">2</button>
+        <button class="team-count-btn active" data-count="3">3</button>
+        <button class="team-count-btn" data-count="4">4</button>
+      </div>
+      <label class="setup-label">Team names</label>
+      <div id="setupNames">
+        <input class="setup-name-input" type="text" placeholder="Team 1" maxlength="24" aria-label="Team 1 name">
+        <input class="setup-name-input" type="text" placeholder="Team 2" maxlength="24" aria-label="Team 2 name">
+        <input class="setup-name-input" type="text" placeholder="Team 3" maxlength="24" aria-label="Team 3 name">
+        <input class="setup-name-input" type="text" placeholder="Team 4" maxlength="24" aria-label="Team 4 name">
+      </div>
+      <label class="setup-check" for="chkScore">
+        <input type="checkbox" id="chkScore" checked>
+        <span>Keep score<small>Off = discussion only. Draw, reveal, talk, move on — three clicks a round.</small></span>
+      </label>
+    </div>
+
+    <label class="setup-label" for="setupSection">Scenario deck</label>
+    <select class="filter btn-full" id="setupSection" style="width:100%">
+      <option value="all">All 40 scenarios</option>
+      <option value="Tells">Section 1 — Teammate Tells (10)</option>
+      <option value="Feedback">Section 2 — Feedback &amp; Coaching (10)</option>
+      <option value="Pressure">Section 3 — Change &amp; Pressure (10)</option>
+      <option value="Client">Section 4 — Reading the Client (10)</option>
+    </select>
+
+    <button class="btn btn-purple btn-full" id="btnStartGame" style="margin-top:24px">Start Session &rarr;</button>
+  </div>
+
+  <!-- ══════════════ GAME ══════════════ -->
+  <div class="game" id="gameScreen">
+    <div class="col-main">
+
+      <div class="topbar">
+        <span class="round-badge" id="roundBadge">Round 1</span>
+        <span class="deck-count" id="deckCount">40 cards left</span>
+        <div class="filter-wrap">
+          <label for="secFilter">Deck</label>
+          <select class="filter" id="secFilter">
+            <option value="all">All Sections</option>
+            <option value="Tells">1 · Teammate Tells</option>
+            <option value="Feedback">2 · Feedback &amp; Coaching</option>
+            <option value="Pressure">3 · Change &amp; Pressure</option>
+            <option value="Client">4 · Reading the Client</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="phase-rail">
+        <div class="phase-step" id="ph1"><div class="pnum">Phase 1</div><div class="pname">🔍 Read</div></div>
+        <div class="phase-step" id="ph2"><div class="pnum">Phase 2</div><div class="pname">💬 Respond</div></div>
+        <div class="phase-step" id="ph3"><div class="pnum">Phase 3</div><div class="pname">📋 Debrief</div></div>
+      </div>
+
+      <div class="card-slot">
+        <div class="card-empty" id="cardEmpty">
+          <div class="big">🧩</div>
+          <p>Draw a card to start the round. Teams read the behavior and commit to a DISC call before any response options appear.</p>
+        </div>
+
+        <div class="card-live" id="cardLive">
+          <div class="card-meta-row">
+            <span class="sec-tag" id="secTag">Teammate Tells</span>
+            <span class="who-tag" id="whoTag">Account Manager</span>
+            <span class="id-tag" id="idTag">#01</span>
+          </div>
+          <h2 id="cardTitle">Scenario Title</h2>
+          <p class="scene-text" id="cardScene">Scene text.</p>
+        </div>
+      </div>
+
+      <!-- PHASE 1 · THE READ -->
+      <div class="callblock" id="callBlock">
+        <div class="cb-head"><h3>Phase 1 · Call the profile</h3><span id="callHint">Every team locks one letter</span></div>
+        <p class="cb-hint">Exact match <strong>+10</strong> &middot; correct secondary blend <strong>+4</strong> &middot; miss <strong>0</strong>.</p>
+        <div class="profile-grid" id="profileGrid"></div>
+        <div class="commit">
+          <span class="commit-icon" aria-hidden="true">✊</span>
+          <p>Every team writes down one letter &mdash; <strong>D, I, S or C</strong> &mdash; and keeps it hidden. Nobody says it out loud yet. When all teams have committed, show the response options.</p>
+        </div>
+      </div>
+
+      <!-- PHASE 2 · THE RESPONSE -->
+      <div class="opts" id="optsBlock">
+        <div class="cb-head"><h3>Phase 2 · Pick the response</h3><span>Same scenario, four ways to handle it</span></div>
+        <p class="cb-hint">Best response <strong>+10</strong> &middot; workable <strong>+5</strong> &middot; tone-deaf <strong>0</strong> &middot; makes it worse <strong>&minus;3</strong>.</p>
+        <div id="optList"></div>
+        <div class="commit">
+          <span class="commit-icon" aria-hidden="true">✊</span>
+          <p>Each team writes down a response letter next to their profile call. Then <strong>everyone reveals both at once</strong> &mdash; count it down &mdash; and hit Reveal &amp; Score.</p>
+        </div>
+      </div>
+
+      <!-- PHASE 3 · DEBRIEF -->
+      <div class="coach" id="coachCard">
+        <div class="coach-head"><span class="ch-icon">📋</span><h3>Facilitator Coach Card</h3></div>
+        <div class="answer-strip">
+          <div class="big-letter" id="bigLetter">S</div>
+          <div class="as-body">
+            <div class="as-title" id="asTitle">Steadiness</div>
+            <div class="as-traits" id="asTraits">Team-oriented · Follow-through · Loyalty · Acceptance</div>
+          </div>
+          <div style="text-align:right"><div class="as-traits" id="asPct">69% of people</div></div>
+        </div>
+        <div class="coach-block">
+          <div class="cbl tell">🔎 What gives it away</div>
+          <ul id="coachTells"></ul>
+        </div>
+        <div class="coach-block">
+          <div class="cbl rule">✅ The rule from the deck</div>
+          <p id="coachRule"></p>
+        </div>
+        <div class="coach-block">
+          <div class="cbl fear">⚠️ What they're protecting</div>
+          <div class="fear-box"><p id="coachFear"></p></div>
+        </div>
+        <div class="coach-block">
+          <div class="cbl note">💬 Take it further</div>
+          <p id="coachNote"></p>
+        </div>
+      </div>
+
+      <div class="scorepass" id="scorePass">
+        <div class="cb-head"><h3>Score the round</h3><span>Tap what each team revealed</span></div>
+        <div id="spRows"></div>
+        <button class="btn btn-green btn-full" id="btnAward" style="margin-top:16px">Award Points &amp; Next Round &rarr;</button>
+      </div>
+
+    </div>
+
+    <!-- ── SIDE COLUMN ── -->
+    <div class="col-side">
+
+      <div class="panel">
+        <h3>🎬 Round Control</h3>
+        <button class="btn btn-purple btn-full" id="btnDraw" style="margin-bottom:8px">🧩 Draw Card</button>
+        <button class="btn btn-blue btn-full" id="btnLockRead" style="margin-bottom:8px" disabled>👀 Show Response Options</button>
+        <button class="btn btn-amber btn-full" id="btnReveal" style="margin-bottom:8px" disabled>📋 Reveal &amp; Score</button>
+        <button class="btn btn-green btn-full" id="btnNextRound" disabled>Next Round &rarr;</button>
+      </div>
+
+      <div class="panel">
+        <h3>⏱ Timer</h3>
+        <div class="timer-box">
+          <div class="timer-display" id="timerDisplay">0:45</div>
+          <div class="timer-label" id="timerLabel">Ready</div>
+          <div class="timer-btns">
+            <button class="btn btn-green btn-sm" id="btnTimerStart">▶ Start</button>
+            <button class="btn btn-secondary btn-sm" id="btnTimerReset">Reset</button>
+          </div>
+          <div class="timer-presets">
+            <button class="tp active" data-secs="45">0:45</button>
+            <button class="tp" data-secs="90">1:30</button>
+            <button class="tp" data-secs="120">2:00</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="teamPanel">
+        <h3>🏆 Scoreboard</h3>
+        <div id="scoreboard"></div>
+      </div>
+
+      <div class="panel" id="soloPanel" style="display:none">
+        <h3>🎯 Solo Drill</h3>
+        <p class="solo-note">No scoring. Read the card, say your call and your response out loud, then reveal. Try to name the profile's greatest fear before you look.</p>
+      </div>
+
+      <div class="panel">
+        <h3>📖 DISC Quick Reference</h3>
+        <div id="refList"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+// DISC PROFILE REFERENCE — sourced from the SOS/GFF "DISC 101" deck
+// (The Maxwell DISC Method, Katie Harris)
+// ══════════════════════════════════════════════════════════════════════════════
+const DISC = {
+  D:{name:"Dominance", pct:"3% of people", color:"#d43a3a", ink:"#fff",
+     traits:"Seeks control · Decisive · Direct · Results",
+     seeks:"Seeks results. Active. Multi-tasker.",
+     marks:["Driven by authority","Will easily try to take control","Embraces any change that gets results","Very comfortable with direct confrontation","Treasures loyalty"],
+     fear:"Being taken advantage of.",
+     comms:["Be brief, direct, and to the point — then leave","Ask \"what\" questions, not \"how\" questions","Don't ramble","Discuss the problem and its effect on outcomes"]},
+  I:{name:"Influence", pct:"11% of people", color:"#f5c842", ink:"#241c00",
+     traits:"Persuasive · Spontaneous · Friendly · Spotlight",
+     seeks:"Seeks a friendly environment. Always active.",
+     marks:["Relationship-oriented","Emotional and animated","Great storyteller","Encourager","Treasures great experiences with others"],
+     fear:"Rejection, or loss of approval.",
+     comms:["Don't do all the talking","Don't ignore their ideas","Allow time for socializing","Follow up with the details in writing","Four short 10-minute discussions beat one 40-minute one"]},
+  S:{name:"Steadiness", pct:"69% of people", color:"#43a047", ink:"#fff",
+     traits:"Team-oriented · Follow-through · Loyalty · Acceptance",
+     seeks:"Seeks a team environment. Very loyal.",
+     marks:["Easygoing and agreeable","Evenly paced","Good listener","Compassionate","Treasures peaceful relationships"],
+     fear:"Loss of security, and confrontation.",
+     comms:["Create a friendly tone for the discussion","Show interest in them as a person","Don't be overly aggressive","Minimize the potential for confrontation","Give definition to the goal and everyone's role","Give them time to adjust to any change"]},
+  C:{name:"Compliance", pct:"17% of people", color:"#5bb8f5", ink:"#04182b",
+     traits:"Compliant · Analytical · Planner · Accuracy",
+     seeks:"Seeks an environment that honors logic and facts.",
+     marks:["Conscientious","Accurate","Detail-oriented","Treasures perfection"],
+     fear:"Criticism.",
+     comms:["Provide all the details","Use validated facts","Be precise in your explanation","Be very specific","Be patient, answer every question, follow up with the data they asked for"]}
+};
+
+const SEC_META = {
+  Tells:    {label:"Teammate Tells",     color:"#9b59b6"},
+  Feedback: {label:"Feedback & Coaching",color:"#43a047"},
+  Pressure: {label:"Change & Pressure",  color:"#e08214"},
+  Client:   {label:"Reading the Client", color:"#2a6db5"}
+};
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SCENARIO DECK — 40 cards, 4 sections
+// p = correct profile · blend = credited secondary read (+4)
+// opts verdicts: best (+10) · ok (+5) · poor (0) · harm (−3)
+// ══════════════════════════════════════════════════════════════════════════════
+const CARDS = [
+
+// ───────────────────── SECTION 1 · TEAMMATE TELLS ─────────────────────
+{n:1,sec:"Tells",who:"Account Manager",title:"The Quiet Nod",
+ scene:"In the kickoff she nods along, says the timeline sounds fine, and doesn't push back once. Ninety minutes later you get a long, careful Slack DM listing four risks she sees with the timeline — ending with \"but happy to go whichever way the team wants.\"",
+ p:"S",blend:"C",
+ tells:["Agreed in the room, disagreed in private — the group setting was the obstacle, not the opinion","Framed real concerns as optional and deferred to the team at the end","Took time to compose it rather than reacting live"],
+ rule:"Minimize the potential for confrontation. A public room is a confrontation risk to an S — the concerns were always there, the setting suppressed them.",
+ note:"Ask the room how many of them have sent this DM. In a company where roughly seven in ten people read S, the quiet nod is the default failure mode of every meeting you run.",
+ opts:[
+  {t:"Reply in the DM thanking her, then ask if you can bring two of the four risks to the team yourself so she doesn't have to raise them cold.",v:"best",why:"Keeps the concerns alive without forcing her into public confrontation, and shows interest in her position rather than just her output."},
+  {t:"Reply \"Great catch — can you post these in the project channel so everyone sees them?\"",v:"ok",why:"The concerns get surfaced, but you've handed the confrontation straight back to the person who just avoided it. Some S's will do it; many will quietly let it drop."},
+  {t:"Tell her these are good points and she should have said them in the meeting.",v:"poor",why:"True and useless. It corrects the behavior without removing the reason for it, so next time you get the same DM plus some guilt."},
+  {t:"Bring it up at the next standup: \"Sarah had some concerns after the meeting she didn't want to raise — Sarah, want to walk us through them?\"",v:"harm",why:"Public, unannounced, and framed as a failure to speak up. This is the exact scenario an S is organizing their week to avoid, and it teaches them not to send the DM either."}
+]},
+
+{n:2,sec:"Tells",who:"Paid Media Strategist",title:"Three Bullets, No Meeting",
+ scene:"You send a detailed six-paragraph email laying out the reasoning behind a proposed account restructure and ask for 30 minutes to walk through it. He replies in four minutes: \"What's the expected lift and who owns it? Don't need the meeting — send me the number.\"",
+ p:"D",
+ tells:["Replied in minutes and stripped your email to two questions","Declined the meeting outright rather than negotiating its length","Asked what, not how — outcome and ownership, nothing else"],
+ rule:"Be brief, direct, and to the point. Ask \"what\" questions, not \"how\" questions. Don't ramble.",
+ note:"Worth naming out loud: this is not rudeness, and reading it as rudeness is how people burn a relationship with a D. Six paragraphs read to him the way a one-word answer reads to an I.",
+ opts:[
+  {t:"Reply with the projected lift, the owner's name, and the go-live date. Three lines, no preamble.",v:"best",why:"Answers exactly what was asked in the format that lands. You can attach the reasoning below the fold for anyone who wants it."},
+  {t:"Reply with the number and add \"happy to walk through the reasoning any time if it's useful.\"",v:"ok",why:"Lands the answer and leaves the door open without pushing. Slightly weaker only because the offer invites a reply he doesn't need to send."},
+  {t:"Reply asking if he had a chance to read the full email, since the reasoning matters for the decision.",v:"poor",why:"Reads as a correction. He did read it — he extracted the decision-relevant parts, which is the behavior, not a failure of it."},
+  {t:"Loop his manager in on the reply so the restructure logic is documented for everyone.",v:"harm",why:"Escalating over a fast answer reads as going around him. The greatest fear here is being taken advantage of — this hits it directly and you will pay for it for months."}
+]},
+
+{n:3,sec:"Tells",who:"Reporting Analyst",title:"Fourteen Comments",
+ scene:"You send a monthly report draft for a quick sanity check. It comes back with fourteen tracked comments: three real data errors, four rounding inconsistencies, five notes on column header wording, and two flagging that a footnote cites last quarter's methodology.",
+ p:"C",
+ tells:["Reviewed the whole document rather than spot-checking, exactly as asked and then some","Corrections are graded by nothing — a rounding note sits beside a real data error","Caught a methodology citation nobody else would have opened"],
+ rule:"Be precise. Use validated facts. Answer every question and follow up with the data they asked for.",
+ note:"The three real errors were worth the other eleven. The coaching opportunity is not \"send fewer comments\" — it's asking for severity labels, which a C will happily add because it makes the output more accurate.",
+ opts:[
+  {t:"Thank him specifically for the three data catches, fix everything, and ask if he'd tag future comments as blocking or non-blocking so you can triage.",v:"best",why:"Validates the accuracy he's proud of, and the request is framed as a precision improvement rather than a volume complaint."},
+  {t:"Fix all fourteen without comment and send it back.",v:"ok",why:"Nothing goes wrong. You've also learned nothing and will get fourteen comments next month, which is fine if you have the time and expensive if you don't."},
+  {t:"Reply \"Let's just focus on the big stuff next time — the header wording is fine.\"",v:"poor",why:"Dismisses the detail work in the same breath as asking for a favor. He'll comply and trust the collaboration less."},
+  {t:"Tell him this level of detail is slowing the report cycle down and he needs to lighten up.",v:"harm",why:"Their greatest fear is criticism, and you have just criticized the trait they most identify with. Expect the next review to be silent and the next error to ship."}
+]},
+
+{n:4,sec:"Tells",who:"Creative Designer",title:"Ten Minutes Before the Agenda",
+ scene:"She opens every standup with a story about her weekend, pitches three new campaign concepts on the spot that nobody asked for, gets the whole room laughing, and leaves without writing any of them down. Two of the three ideas were genuinely good.",
+ p:"I",
+ tells:["Opens with connection before content, every time","Ideas arrive spontaneously and verbally, never in the doc","Energises the room — and the ideas evaporate the moment she leaves it"],
+ rule:"Allow time for socializing. Don't ignore their ideas. Follow up with the details in writing.",
+ note:"The instinct is to fix the meeting. The better move is to fix the capture: someone else writes the ideas down in the moment. Trying to convert an I into a documenter usually costs you the ideas.",
+ opts:[
+  {t:"Let the story run, then say \"Idea two was strong — I'm putting it in the channel now, tag me with anything you'd add,\" and write it up yourself.",v:"best",why:"Doesn't fight the format, doesn't lose the idea, and follows up with the details in writing — which is exactly the deck's rule for an I."},
+  {t:"Ask her to bring ideas to standup pre-written in the doc so they don't get lost.",v:"ok",why:"Reasonable and will half-work. Expect it to hold for two weeks, because the ideas are generated by the conversation, not before it."},
+  {t:"Start the standup with the agenda and hold the social time for the end.",v:"poor",why:"You'll get through the agenda faster and lose the two good ideas. The socializing wasn't the tax on the meeting — it was the on-ramp."},
+  {t:"Point out in front of the team that standup has been running ten minutes long and it's mostly one person.",v:"harm",why:"Public disapproval aimed at someone whose greatest fear is loss of approval. She will stop talking in standup, and the room will get quieter than you wanted."}
+]},
+
+{n:5,sec:"Tells",who:"SEO Specialist",title:"Won't Ship Until It's Right",
+ scene:"A technical audit is three days past due. When you check in he explains he found an inconsistency in how the crawl tool reports canonical tags versus what Search Console shows, and he doesn't want to hand the client a recommendation he can't fully defend. Nobody asked about canonicals.",
+ p:"C",
+ tells:["The delay is caused by a discrepancy he found himself, not by workload","The stated reason is defensibility, not thoroughness for its own sake","He can articulate the exact technical uncertainty in one sentence"],
+ rule:"Be patient and answer their questions. Be very specific about what \"done\" means, or a C will define it as \"perfect.\"",
+ note:"This is not procrastination and shouldn't be handled like it. The unblocking move is a precise definition of the deliverable's confidence bar — most of the time nobody has ever given them one.",
+ opts:[
+  {t:"Tell him the client needs the eight findings he's confident in by end of day, and the canonical question ships next week as its own note — then confirm that's a real deadline you'll hold.",v:"best",why:"Gives definition to \"done\" without asking him to lower his standard, and the unresolved item gets a home rather than being abandoned."},
+  {t:"Ask him to walk you through the discrepancy so you can decide together whether it blocks the audit.",v:"ok",why:"Respects the analysis and will get there, but costs you 40 minutes to reach a call you could have made in five."},
+  {t:"Tell him it's fine, nobody will notice the canonical issue, just send it.",v:"poor",why:"\"Nobody will notice\" is not a reason a C accepts. You've asked them to ship something they believe is wrong, which is the one thing they won't do quietly."},
+  {t:"Send the audit yourself without the canonical section so the deadline is met.",v:"harm",why:"Publishing his work over his objection, under his name, with a known gap. Their greatest fear is criticism — you have set them up to receive it for a decision they didn't make."}
+]},
+
+{n:6,sec:"Tells",who:"Senior Strategist",title:"Took the Call Anyway",
+ scene:"A client escalation was heading toward a bad Friday. Without being asked, he joined the call, took over the conversation, made two commitments on the agency's behalf, and closed it out. The client is happy. The AM who owned the account found out from the recap email.",
+ p:"D",
+ tells:["Moved on the problem the moment he saw it, without waiting for the handoff","Made binding commitments in the room rather than taking them back for approval","Solved the outcome and didn't think about the ownership question at all"],
+ rule:"Discuss the problem and its effect on outcomes. Frame the process gap as a result risk, not a courtesy failure.",
+ note:"Both things are true — the save was real and the AM was rolled. Handle only one and you either lose the AM or lose the instinct that saved the account.",
+ opts:[
+  {t:"Thank him for the save, then: \"When we commit without the AM in the room we've twice shipped things we couldn't deliver. What's your rule for looping them in?\"",v:"best",why:"Frames the process as an outcome risk with evidence, then hands him the decision. A D will often set a stricter rule than you would have."},
+  {t:"Thank him and separately tell the AM to make sure she's on escalation calls going forward.",v:"ok",why:"Protects the AM but leaves the behavior untouched, so it recurs. You've moved the fix onto the person with the least leverage over it."},
+  {t:"Tell him he needs to check with the account owner before joining client calls.",v:"poor",why:"A process instruction with no outcome attached. He'll comply on the calls he remembers and override it the next time something's actually burning."},
+  {t:"Let it go — the client is happy and it isn't worth the friction.",v:"harm",why:"The AM now knows escalations get taken from her and nobody said anything. The cost lands on the quietest person involved, which is how you lose them."}
+]},
+
+{n:7,sec:"Tells",who:"Account Coordinator",title:"The Extra Six",
+ scene:"After a teammate left, six accounts needed a temporary home. Three weeks later you notice she's carrying all six on top of her own book. She never mentioned it, never asked for relief, and everything is still on time. Her last two Fridays ended after 7pm.",
+ p:"S",
+ tells:["Absorbed the gap without being assigned it, because the team had a hole","Said nothing — raising it would have meant asking someone to take work back","Output quality never signalled the strain"],
+ rule:"Show interest in them as a person. Give definition to the goal and everyone's role — the missing role definition is what let this happen.",
+ note:"The most dangerous version of this is when it works. Nothing breaks, so nothing gets fixed, and the person who never complains is the person you find out about at their exit interview.",
+ opts:[
+  {t:"Sit down with her, name specifically what she absorbed, and tell her which three accounts you are moving this week — then move them.",v:"best",why:"She won't ask for relief, so you assign it. Naming the specific work first makes it recognition rather than a rescue, and the definite action removes the ambiguity she'd otherwise sit in."},
+  {t:"Ask her how she's doing with the extra load and whether she'd like some of it moved.",v:"ok",why:"Kind, and she will probably say she's fine. The question puts the confrontation back on her, which is the thing she's avoiding."},
+  {t:"Post in the team channel thanking her for covering the six accounts.",v:"poor",why:"Genuine recognition, no relief, and public attention she didn't ask for. Next quarter she'll do it again."},
+  {t:"Take it as a signal she has capacity and assign her two of the new accounts.",v:"harm",why:"You've read reliability as headroom. This is the single most common way agencies lose their steadiest people, and you get no warning before it happens."}
+]},
+
+{n:8,sec:"Tells",who:"Social Media Manager",title:"Lives in Slack",
+ scene:"He's the first to react to every win, posts the team photos, hypes new hires in #general, and knows something personal about everyone. His ClickUp board has four tasks two weeks overdue, and when you ask he says he's on top of it — and he mostly is, just not where anyone can see it.",
+ p:"I",
+ tells:["Relationship maintenance is constant and genuine, not performative","The work is happening; the record of it isn't","\"I'm on top of it\" is offered warmly and without defensiveness"],
+ rule:"Follow up with the details in writing. Four short 10-minute discussions beat one 40-minute one.",
+ note:"The instinct is a lecture about the tool. The thing that actually works with an I is frequency — short and often — because the system isn't the problem, the solitary admin block is.",
+ opts:[
+  {t:"Set a standing 10-minute Friday check-in where you update the board together, and keep it social.",v:"best",why:"Short, frequent, and with a person in it — the deck's exact prescription. The board gets current without asking him to do admin alone."},
+  {t:"Ask him to update ClickUp before end of day Friday each week and remind him if it slips.",v:"ok",why:"Will work for a while on the strength of not wanting to let you down. The reminders become the system, which puts the cost on you."},
+  {t:"Explain that if it isn't in ClickUp, the rest of the team can't see it and it doesn't count.",v:"poor",why:"\"It doesn't count\" is heard as a judgment of him rather than the board. The point is right; the framing costs you more than it buys."},
+  {t:"Bring the overdue task list up in the team meeting as an example of what to avoid.",v:"harm",why:"Public disapproval directed at someone whose greatest fear is loss of approval. You'll get a clean board for a month and a quieter, more careful person permanently."}
+]},
+
+{n:9,sec:"Tells",who:"Operations Specialist",title:"The SOP Nobody Requested",
+ scene:"One tracking mistake happened, once. By Monday there's a nine-page process document in the Drive with a decision tree, a QA checklist, screenshots, and a change log. She's asking who should own approving it.",
+ p:"C",blend:"S",
+ tells:["Response to a single incident is a system, not a conversation","Includes a change log and an approval question — she's thinking about the document's own integrity","Wants an owner assigned before it goes live"],
+ rule:"Use validated facts and be very specific. Tell her exactly which parts are adopted and why the rest is parked.",
+ note:"Nine pages for a one-time mistake is over-built, and the checklist inside it is probably excellent. Adopt the part that's right rather than debating the proportion.",
+ opts:[
+  {t:"Adopt the QA checklist as the standard immediately, tell her the other seven pages are parked as reference, and put your name on approving it.",v:"best",why:"Specific, decisive, and it validates the work by using it. Naming the approver answers the question she actually asked."},
+  {t:"Read it fully, then meet to work through what should be adopted section by section.",v:"ok",why:"Thorough and respectful, and it's an hour of two people's time on a nine-page doc for a one-off error."},
+  {t:"Thank her, say it's great, and leave it in the Drive.",v:"poor",why:"Unapproved and unowned is the worst outcome for a C — the ambiguity is the thing she was trying to eliminate. She'll ask again."},
+  {t:"Tell her this is a lot of process for something that happened one time.",v:"harm",why:"Criticism of the effort and the judgment behind it in one sentence. She'll stop bringing you the checklists, including the ones you'd have wanted."}
+]},
+
+{n:10,sec:"Tells",who:"Sales Lead",title:"Owns the Room",
+ scene:"He walks into the pitch, reshapes the agenda in the first two minutes, tells one story that lands the room, then drives straight to the close and asks for a decision before the deck is finished. He got it. He also never mentioned the two deliverables the fulfillment team flagged as risky.",
+ p:"D",blend:"I",
+ tells:["Took control of the structure immediately, then drove to a decision","Used a story and charm as instruments toward the close, not for their own sake","Skipped the caveats — they were friction between him and the outcome"],
+ rule:"Discuss the problem and its effect on outcomes. Be brief. Then leave.",
+ note:"A high-D with an I secondary is the classic sales profile and the classic scoping problem. Good place to talk about the difference between winning the room and winning the account.",
+ opts:[
+  {t:"\"We closed it. Two of the deliverables we sold have blown scope twice this year — what's your call on how we flag those in the room next time?\"",v:"best",why:"Brief, outcome-framed, and hands him the decision. Nothing about it reads as taking anything away from the win."},
+  {t:"Ask fulfillment to build a one-page risk sheet he can reference in pitches.",v:"ok",why:"A useful artifact, and it depends on him choosing to use it mid-close. Fix the artifact and the incentive or it sits in a folder."},
+  {t:"Tell him he needs to slow down and cover the full deck before asking for the close.",v:"poor",why:"Asking a D to be slower and more thorough for reasons of completeness. He'll hear it as process for its own sake and route around it."},
+  {t:"Raise the scoping gap in the leadership meeting with the deal as the example.",v:"harm",why:"Turning his win into a cautionary tale in front of peers. Their greatest fear is being taken advantage of, and this reads exactly like it."}
+]},
+
+// ───────────────────── SECTION 2 · FEEDBACK & COACHING ─────────────────────
+{n:11,sec:"Feedback",who:"Research Analyst",title:"The Late Perfectionist",
+ scene:"Their work is the most accurate on the team and it is late for the third month running. You need to tell them the lateness is now a real problem, without getting the quality to drop as a side effect.",
+ p:"C",
+ tells:["Most accurate work on the team — the accuracy is the identity, and the lateness sits downstream of it","Accuracy is the identity; lateness is the behavior","Third occurrence means it's a pattern, and they'll know that"],
+ rule:"Provide all the details. Use validated facts. Be very specific. Criticism is the fear — so the specificity is what makes it survivable.",
+ note:"With a C, vague feedback is worse than hard feedback. \"You've been late a lot\" gets processed as a global judgment; three dates and a target gets processed as a fixable defect.",
+ opts:[
+  {t:"Bring the three dates and the downstream cost of each, then agree a specific definition of \"done\" and a specific target date for next month.",v:"best",why:"Facts, specificity, and a fixable target. It treats lateness as a defect in a system rather than a flaw in them, which is the only version a C can act on."},
+  {t:"Tell them the quality is the best on the team and you need to work on timelines together.",v:"ok",why:"Warm and directionally right, and \"work on timelines\" is too vague to change anything. They'll agree and nothing will move."},
+  {t:"Tell them it's been feeling slow lately and ask if everything's okay.",v:"poor",why:"Softness reads as evasion, and \"feeling slow\" is unvalidated. They'll spend the rest of the day trying to work out what you actually meant."},
+  {t:"Say that at some point good enough has to beat perfect, and they need to loosen up.",v:"harm",why:"An attack on the trait, not the timeline. Their greatest fear is criticism and this delivers it about the thing they're proudest of."}
+]},
+
+{n:12,sec:"Feedback",who:"Account Manager · 2 years on the account",title:"Their Client Is Leaving",
+ scene:"An account she has managed for two years gave notice. Part of it was pricing and part of it was six months of slow response times on her side. She doesn't know yet, and she is going to take it hard.",
+ p:"S",
+ tells:["Two-year relationship — the loss is personal before it is professional","Genuine shared fault, so you can't lead with reassurance alone","She will assume the whole thing is her fault if you let her"],
+ rule:"Create a friendly tone. Show interest in them as a person. Give definition to everyone's role — including the parts that were not hers.",
+ note:"The trap with an S is over-cushioning. If you don't name her part, she'll assume it was worse than it was, and you'll have made the conversation harder by trying to make it softer.",
+ opts:[
+  {t:"Tell her privately and early, name the pricing piece and the response-time piece separately, say which one is yours to fix, and end with what she keeps owning.",v:"best",why:"Friendly tone, honest scope, and a defined role afterward. Splitting the causes stops her absorbing the entire loss."},
+  {t:"Tell her the account is leaving over pricing and leave the response times out of it.",v:"ok",why:"Protects her today. She'll hear the real reason within two weeks from someone else, and then it's a trust problem instead of a performance one."},
+  {t:"Send the churn note in the account channel so the whole team sees the reason and can learn from it.",v:"poor",why:"Learning is real; the venue is wrong. Finding out alongside eight colleagues is the confrontation scenario she is built to avoid."},
+  {t:"Tell her directly that if she'd answered emails faster the client would still be here.",v:"harm",why:"True in part, delivered as an accusation. Loss of security is the fear — this hits it and her responsiveness will get worse, not better."}
+]},
+
+{n:13,sec:"Feedback",who:"Senior Strategist",title:"He Steamrolled the Room",
+ scene:"In yesterday's planning session he cut off two people, dismissed an idea in four words, and drove the meeting to a decision in eighteen minutes. The decision was right. One of the people he cut off is now telling you she's not going to bother speaking up next time.",
+ p:"D",
+ tells:["Efficiency is genuinely high and the outcome was genuinely good","The cost is invisible to him — nothing in the room signalled damage","He'll accept the feedback if it comes with a consequence attached to results"],
+ rule:"Be brief and to the point, then leave. Discuss the problem and its effect on outcomes.",
+ note:"\"You were harsh\" gets nowhere. \"You lost the input\" gets somewhere. The bridge to a D is always the outcome, never the etiquette.",
+ opts:[
+  {t:"\"You got the right call in eighteen minutes. You also lost the two people most likely to catch the flaw in it — one told me she's done raising things. What do you want to do about that?\"",v:"best",why:"Brief, factual, and framed entirely as a risk to the outcome he cares about. Ending with the decision in his hands is what makes a D act on it."},
+  {t:"Ask him to let people finish their point before responding in meetings.",v:"ok",why:"Clear and actionable, and it's a manners request. He'll do it in the meetings he remembers to."},
+  {t:"Suggest gently that the room seemed a bit tense yesterday and ask how he felt it went.",v:"poor",why:"Indirection with a D burns the conversation. He'll say it went well, because from where he sat it did, and you'll have spent your opening."},
+  {t:"Tell him two people have complained and he has a reputation for being difficult.",v:"harm",why:"Anonymous complaints plus a character label. Their greatest fear is being taken advantage of, and this lands as being talked about behind his back."}
+]},
+
+{n:14,sec:"Feedback",who:"Account Manager",title:"Great on Calls, Sloppy on Paper",
+ scene:"Clients love him. Two of them have asked for him by name. His last three monthly reports went out with a wrong date, a chart labeled with the previous client's name, and a headline metric that contradicted the table underneath it.",
+ p:"I",
+ tells:["Relationship performance is genuinely excellent — that's not flattery to open with, it's the fact","All three errors are detail errors, none are analysis errors","The reports are the part of the job with no audience in the room"],
+ rule:"Don't do all the talking. Follow up with the details in writing. Short and frequent beats long and single.",
+ note:"The fix that usually holds is a second pair of eyes rather than a lecture on care. An I will not become detail-oriented; the workflow can absorb that.",
+ opts:[
+  {t:"Name the three specific errors, tell him the reports now get a 10-minute peer check before they send, and ask him who he wants as his checker.",v:"best",why:"Specific, short, and it gives him a person in the loop rather than a solitary QA habit. Letting him pick the checker keeps it collaborative instead of remedial."},
+  {t:"Walk him through a QA checklist for reports and ask him to run it before sending.",v:"ok",why:"Sound and slightly optimistic. A solo checklist is the exact task type this person has been quietly losing to for three months."},
+  {t:"Tell him clients love him but the reports need to be tighter, and leave it there.",v:"poor",why:"Warm, vague, unactionable. He'll agree enthusiastically and the fourth report will have a different error in it."},
+  {t:"Forward the three flawed reports to him with the errors highlighted and no other message.",v:"harm",why:"Silent disapproval is the worst delivery mechanism for someone whose fear is loss of approval. He'll read the silence as much bigger than it is."}
+]},
+
+{n:15,sec:"Feedback",who:"Account Coordinator",title:"Handing Their Accounts Over",
+ scene:"A reassignment means four of her eight accounts move to a new hire next month. It's a workload decision, not a performance one. Two of the four are relationships she's held for three years.",
+ p:"S",
+ tells:["The accounts are relationships to her, not units of work","No performance cause, so there's nothing for her to fix — which makes it feel arbitrary","Change plus loss of established relationships hits two fears at once"],
+ rule:"Give them time to adjust to any change. Give definition to the goal and everyone's role.",
+ note:"Announcement-day-equals-effective-day is what makes reassignments land badly on an S. The runway is not a courtesy; it's the mechanism.",
+ opts:[
+  {t:"Tell her a month ahead, one-on-one, explain the workload reasoning, confirm it isn't performance, and ask her to design the handoff plan for the two long relationships.",v:"best",why:"Runway, clear reasoning, and a defined role in the change. Owning the handoff turns something happening to her into something she is running."},
+  {t:"Tell her privately with the reasoning and a month's notice.",v:"ok",why:"Gets the two big things right — private and early. Leaves her a passenger in it, which is where the residual anxiety lives."},
+  {t:"Announce the new account map in the team meeting so everyone has the same information at once.",v:"poor",why:"Efficient and public. She'll process a personal loss with an audience, and you'll get the nod rather than the reaction."},
+  {t:"Move the accounts in ClickUp and let her notice the change.",v:"harm",why:"No notice, no reason, no role. This reads as security removed without explanation, which is the exact shape of the S fear."}
+]},
+
+{n:16,sec:"Feedback",who:"Competitive Analyst",title:"Ship It at Eighty Percent",
+ scene:"The client needs the competitor analysis Thursday. He's built a methodology that would take until the following Tuesday and produce a genuinely better document. You need Thursday, and you need him not to feel like the work was cheapened.",
+ p:"C",
+ tells:["The extra four days buy real accuracy, not just polish — he isn't wrong","\"Eighty percent\" as a phrase is meaningless to this person and will not land","What he needs is a precise boundary, not a lower standard"],
+ rule:"Be very specific. Provide the details. Vagueness about scope is what a C hears as being asked to do bad work.",
+ note:"Never say \"good enough\" to a C. Say which four things are in and which two are out. Same deadline, completely different conversation.",
+ opts:[
+  {t:"Define exactly what Thursday's version contains — four competitors, three channels, no keyword-gap analysis — and say the deeper cut ships the following week as version two.",v:"best",why:"A precise, bounded deliverable rather than a diminished one, and the work he wants to do still exists on the calendar."},
+  {t:"Explain the client deadline is fixed and ask him what he can complete by Thursday.",v:"ok",why:"Respects his judgment and hands him the scoping. Risk is he scopes to what's defensible rather than what's needed, and you get less than you wanted."},
+  {t:"Tell him to send whatever he has by Thursday and caveat the rest.",v:"poor",why:"\"Whatever you have\" is the least specific instruction you can give a C. He'll spend Wednesday night trying to make \"whatever\" complete."},
+  {t:"Tell him perfect is the enemy of good and the client won't know the difference.",v:"harm",why:"Two clichés that both attack accuracy as a value. Their fear is criticism, and you've criticized the standard itself."}
+]},
+
+{n:17,sec:"Feedback",who:"Paid Media Strategist",title:"The Client Rejected Her Plan",
+ scene:"She built an aggressive six-month restructure, presented it well, and the client said no — they want to stay the course. She's convinced they're wrong, and she's probably right. She wants to go back and push again next week.",
+ p:"D",
+ tells:["Rejection reads as an obstacle to route around, not a decision to accept","She isn't sulking — she's already planning the second attempt","Being overruled by someone she thinks is wrong touches the being-taken-advantage-of fear"],
+ rule:"Discuss the problem and its effect on outcomes. Ask what, not how.",
+ note:"Telling a D to drop it rarely works. Converting the push into a measurable trigger usually does — it gives the drive somewhere legitimate to go.",
+ opts:[
+  {t:"\"You're probably right. Pushing again next week costs us the relationship. What number would have to show up in 90 days for them to ask you to bring it back?\"",v:"best",why:"Concedes the substance, names the outcome risk, and converts the energy into a trigger she owns. That's a D-shaped exit from a losing argument."},
+  {t:"Ask her to document the recommendation formally so it's on record if performance slips.",v:"ok",why:"Sensible and a little passive. It parks the plan without giving her anything active to run at, so expect it to resurface anyway."},
+  {t:"Tell her the client has made their decision and we need to respect it.",v:"poor",why:"Correct and inert. It's an appeal to deference, which is the argument type a D discounts fastest."},
+  {t:"Tell her she pushed too hard in the meeting and that's why they said no.",v:"harm",why:"Blames her delivery for their decision without evidence. She'll read it as being made the scapegoat, which is precisely the fear."}
+]},
+
+{n:18,sec:"Feedback",who:"Account Executive",title:"Promising Things We Can't Deliver",
+ scene:"On yesterday's call he told the client we could have the new landing pages up in two weeks. Design has a four-week queue. This is the third time this quarter he's said yes in the moment to something he hadn't checked.",
+ p:"I",
+ tells:["Every over-promise happened live, in a moment of enthusiasm, with a happy client on the line","He isn't lying — in the moment he believed it","Saying no in real time risks the client's approval, which is the fear driving it"],
+ rule:"Don't do all the talking. Allow the socializing — then follow up with the details in writing.",
+ note:"Give him a phrase to say instead. An I will not spontaneously invent a graceful no under social pressure, but they'll happily use one you hand them.",
+ opts:[
+  {t:"Give him a specific line for the moment — \"I love it, let me confirm the build window and come back to you today\" — and practice it once out loud with him.",v:"best",why:"Replaces the yes with something that still feels warm, so he isn't being asked to disappoint anyone live. Rehearsing it once is what makes it available under pressure."},
+  {t:"Ask him to check the design queue before committing to any timeline.",v:"ok",why:"Right instruction, and it competes with a live client's enthusiasm. It will hold on the calls where nobody is excited."},
+  {t:"Tell him he's damaging trust with the delivery team every time this happens.",v:"poor",why:"Frames it as him losing the team's approval, which spikes the fear without giving him a tool. Expect anxiety, not change."},
+  {t:"Have design email the client directly to correct the timeline he gave.",v:"harm",why:"He gets contradicted in front of the client with no warning. Public loss of approval is the exact fear, and next time he'll hide the commitment instead of making it visible."}
+]},
+
+{n:19,sec:"Feedback",who:"Team Lead · two reports",title:"Asking Her to Deliver Hard Feedback",
+ scene:"She now manages two junior coordinators. One of them has missed four deadlines. She's mentioned it to you twice and hasn't raised it with him once. She says she's waiting for the right moment.",
+ p:"S",
+ tells:["Escalating to you twice is the avoidance mechanism working as designed","\"The right moment\" is a real belief, not an excuse","Everything about the conversation is confrontation, which is the stated fear"],
+ rule:"Minimize the potential for confrontation. Give definition to the goal and everyone's role — including her role as the one who delivers it.",
+ note:"Don't take the conversation off her, and don't just tell her to have it. Reduce its confrontational shape — a structure, a script, a rehearsal — and she'll do it.",
+ opts:[
+  {t:"Write the three-sentence opener with her, role-play it once, agree the day, and check in after — but she has the conversation.",v:"best",why:"Lowers the confrontation temperature with structure and rehearsal instead of removing her from the role. That's what builds the capability rather than deferring it."},
+  {t:"Tell her the conversation needs to happen this week and offer to sit in.",v:"ok",why:"A deadline plus support. Your presence may also become the reason it goes fine, so she may not learn she could have done it alone."},
+  {t:"Have the conversation with the coordinator yourself so it gets handled.",v:"poor",why:"Solves this week and confirms that escalating works. She'll bring you the next one too, and she'll never lead a team."},
+  {t:"Tell her that if she can't have hard conversations she isn't ready to manage people.",v:"harm",why:"An ultimatum about her security in a role, aimed at someone whose fears are confrontation and loss of security. You've made the next conversation harder, not easier."}
+]},
+
+{n:20,sec:"Feedback",who:"Tracking Specialist",title:"Their Setup Caused Bad Data",
+ scene:"A conversion tag he configured double-counted for five weeks. The client's reports overstated leads by roughly 40% and two budget decisions were made on those numbers. He hasn't seen it yet. You're about to show him.",
+ p:"C",
+ tells:["A precision failure — the exact category of mistake that hits this person hardest","The blast radius is real: two decisions were made on the bad data","He will find it before you finish the sentence and will be ahead of you on the fix"],
+ rule:"Provide all the details, use validated facts, be patient and answer every question. Then be specific about what happens next.",
+ note:"The risk with a C here isn't defensiveness — it's spiral. Their fear is criticism and they will supply plenty of it themselves. Your job is the boundary on how much.",
+ opts:[
+  {t:"Show him the data privately, ask him to find the cause, and tell him plainly: fix it, write the check that prevents it, and we're done — nobody is relitigating this after Friday.",v:"best",why:"Facts, a specific remit, and an explicit end date on the criticism. The last clause is the part that matters and the part most people leave out."},
+  {t:"Send him the discrepancy and ask him to investigate and report back.",v:"ok",why:"Respects his competence and lets him lead the fix. Without the boundary on the aftermath, he'll carry it much longer than the error warrants."},
+  {t:"Tell him not to worry about it, everyone makes mistakes, and move on.",v:"poor",why:"Reassurance without detail leaves him certain it was worse than you're saying. A C settles on facts, not comfort."},
+  {t:"Walk through the error in the team retro so everyone learns from the tracking failure.",v:"harm",why:"Public criticism of a precision failure, in front of peers, for the person whose single greatest fear is criticism. The lesson the room learns is to hide errors."}
+]},
+
+// ───────────────────── SECTION 3 · CHANGE & PRESSURE ─────────────────────
+{n:21,sec:"Pressure",who:"Long-tenured team member",title:"The Reorg Email",
+ scene:"Two departments are merging. Reporting lines change for eleven people. One of them has been here six years, has never asked for a promotion, and is the person everyone informally goes to. She read the announcement email this morning and has said nothing all day.",
+ p:"S",
+ tells:["Silence after a change announcement is the signal, not the absence of one","Six years of tenure means the structure she's losing is the one she trusts","Never asked for a promotion — stability was the deal, and the deal just changed"],
+ rule:"Give them time to adjust to any change. Give definition to the goal and everyone's role.",
+ note:"The email was the wrong medium for eleven people. Run this one as the recovery: the one-on-one you should have had first, had second.",
+ opts:[
+  {t:"Ask her for a walk or a coffee, tell her specifically what is not changing about her role, and give her the next three weeks' timeline in detail.",v:"best",why:"Friendly setting, definition of role, and a concrete adjustment runway. Naming what stays fixed is what actually lowers the temperature."},
+  {t:"Check in and ask how she's feeling about the reorg.",v:"ok",why:"The right instinct. She'll likely say she's fine, because saying otherwise would be confrontation with the person who announced it."},
+  {t:"Wait — she hasn't raised anything, and if there's a problem she'll come to you.",v:"poor",why:"She won't. Waiting for an S to initiate a conversation about a change they're unhappy with is waiting for the thing their profile is least likely to do."},
+  {t:"Ask her in the team meeting to share how she's thinking about the new structure, since people look to her.",v:"harm",why:"Public, unprepared, on a topic she hasn't processed, in front of people she'd have to reassure. Every part of that is the fear."}
+]},
+
+{n:22,sec:"Pressure",who:"Senior team member",title:"Now You Need Approval",
+ scene:"Budget changes over $500 now need sign-off. He's been making those calls unilaterally for two years, mostly well. He replies to the policy email with one line: \"Who decided this?\"",
+ p:"D",
+ tells:["The question is about authority, not process","One line, sent fast — he's testing whether there's a real decision-maker behind it","Autonomy removed without explanation reads as being taken advantage of"],
+ rule:"Be brief and direct. Discuss the problem and its effect on outcomes. Ask what, not how.",
+ note:"He'll accept the constraint if it's tied to a result and owned by a named person. He'll route around it if it arrived as anonymous process.",
+ opts:[
+  {t:"Answer with the name, the two incidents that caused it, and the 24-hour approval SLA. Four lines, no hedging.",v:"best",why:"A named owner, validated cause, and a bounded cost to him. Every part of that answers the actual question, which was about authority."},
+  {t:"Explain the policy came out of the leadership meeting and walk him through the reasoning.",v:"ok",why:"Answers it, less crisply. \"The leadership meeting\" is a body, not a person, and he asked who."},
+  {t:"Tell him it applies to everyone, it isn't personal.",v:"poor",why:"He didn't ask whether it was personal. Deflecting the question is what turns a policy objection into a trust problem."},
+  {t:"Reply that it's not up for discussion.",v:"harm",why:"Authority asserted with no reasoning, at the person whose fear is being taken advantage of. He'll comply publicly and stop bringing you decisions."}
+]},
+
+{n:23,sec:"Pressure",who:"Reporting specialist",title:"We're Changing the Tool",
+ scene:"The reporting stack moves to a new platform in three weeks. She's spent eighteen months building templates, naming conventions and QA processes in the old one. Her first three questions are about data continuity, historical export format, and whether the field-level definitions carry over.",
+ p:"C",
+ tells:["Every question is about integrity of the existing data, not about the inconvenience","Eighteen months of structure — the loss is a system, not a preference","She's asked precise questions, which means she wants precise answers"],
+ rule:"Provide all the details. Use validated facts. Be patient, answer every question, and follow up with the data they asked for.",
+ note:"\"We'll figure it out as we go\" is the single worst sentence to say to a C during a migration. If you don't have the answers, give her the date you'll have them.",
+ opts:[
+  {t:"Get her the export spec and the field-mapping doc before the migration date, and where answers don't exist yet, give her the date they will.",v:"best",why:"Details where they exist and precision about the gaps where they don't. A dated unknown is something a C can plan around; an undated one isn't."},
+  {t:"Put her on the migration working group so she has visibility into the answers as they land.",v:"ok",why:"Good instinct and good use of her. It gives her access rather than answers, so the anxiety runs until the specs actually appear."},
+  {t:"Tell her the vendor says the migration is straightforward and it'll be fine.",v:"poor",why:"A vendor claim is not a validated fact. She'll test it herself, find the exception, and trust the next thing you tell her less."},
+  {t:"Tell her not to get too attached to the old templates since everything's changing anyway.",v:"harm",why:"Dismisses eighteen months of work as attachment. That's criticism of the trait, which is the fear, delivered in the middle of a change."}
+]},
+
+{n:24,sec:"Pressure",who:"Client-facing coordinator",title:"Off the Calls for a Quarter",
+ scene:"A capacity shift moves him to production work for one quarter — no client calls, no presentations. It's genuinely temporary and genuinely not a demotion. He's the most visible person on the team and half his week is currently spent in rooms with people.",
+ p:"I",
+ tells:["The change removes the audience, and the audience is where the reward lives","Temporary and non-punitive — but the framing will decide how he hears it","Losing visibility reads directly as loss of approval"],
+ rule:"Don't do all the talking. Don't ignore their ideas. Follow up with the details in writing, and keep the contact frequent.",
+ note:"Give him a stage inside the new work. An I moved out of sight without a substitute will invent one, usually in Slack, usually not where you want it.",
+ opts:[
+  {t:"Tell him in person, give him the end date, name what he's the go-to for during the quarter, and ask him to run the monthly team demo.",v:"best",why:"Bounded, honest, and it substitutes one visible role for another. The demo is the part that keeps this from reading as a fall from favor."},
+  {t:"Explain the reasoning, confirm it's one quarter, and check in every couple of weeks.",v:"ok",why:"Honest and well-paced, with the frequent contact an I needs. Missing the replacement stage means he'll feel the absence anyway."},
+  {t:"Tell him it's just for a quarter and the calls will still be there when he's back.",v:"poor",why:"Minimizing the thing he'll miss most. He'll agree cheerfully and start quietly wondering what he did wrong."},
+  {t:"Update the account assignments and let him find out when he isn't on the invites.",v:"harm",why:"Silent removal from the rooms he's known for. He'll fill the silence with the worst available explanation, and so will everyone watching."}
+]},
+
+{n:25,sec:"Pressure",who:"Account lead",title:"Budget Cut on Her Biggest Account",
+ scene:"Her flagship account is cutting spend by 40% next month. She built it from $4k to $22k over two years. She wants to get on a call today and \"fix it,\" and she's already drafted a counter-proposal she hasn't run past anyone.",
+ p:"D",
+ tells:["Instant move toward action, drafted alone, aimed at reversing the decision","Two years of growth she owns personally — the cut reads as it being taken from her","She's asking permission after drafting, not before"],
+ rule:"Ask what, not how. Be brief. Discuss the problem and its effect on outcomes.",
+ note:"Slowing a D down works when the slower path is visibly the higher-yield one. \"Wait\" fails; \"wait and you'll win more\" usually lands.",
+ opts:[
+  {t:"\"What do we know about why they're cutting? A counter that doesn't answer their reason costs us the renewal too. Get me the why by tomorrow and then we go.\"",v:"best",why:"Doesn't block the drive, redirects it at the missing input, and names the outcome risk. The deadline keeps it feeling like action."},
+  {t:"Ask her to run the counter-proposal past you before it goes out.",v:"ok",why:"Necessary and a little thin. It's a gate rather than a direction, so you'll spend the review arguing about a document she's already committed to."},
+  {t:"Tell her budget decisions are the client's call and we should respect the cut.",v:"poor",why:"Deference as the entire argument. She'll interpret it as the agency not fighting for the account she built."},
+  {t:"Reassign the account to someone more measured while it's being renegotiated.",v:"harm",why:"Removing the account she grew, at the moment it's threatened, without her having done anything wrong. That's the being-taken-advantage-of fear in its purest form."}
+]},
+
+{n:26,sec:"Pressure",who:"Technical specialist",title:"Friday, Not Perfect",
+ scene:"The client moved a launch up by a week. He can either ship the tracking implementation Friday with two edge cases untested, or ship it right the following Wednesday. He's laid out both options in a message with a risk table and asked you to decide.",
+ p:"C",
+ tells:["Built the decision matrix rather than making the call — the risk is documented, the ownership is offered up","A risk table for a scheduling question","He's not resisting the deadline, he's refusing to own an unvalidated risk"],
+ rule:"Use validated facts and be very specific. Answer the question he actually asked, which is who owns the risk.",
+ note:"He's not asking you to pick a date. He's asking you to sign for the untested edge cases. Say so explicitly and he'll ship Friday without another word.",
+ opts:[
+  {t:"Pick Friday in writing, state that you own the two untested edge cases, and ask him to add a monitoring check for them on Monday.",v:"best",why:"Explicit ownership of the risk plus a specific mitigation. That's the entire unblock — the date was never the sticking point."},
+  {t:"Reply choosing Friday and thank him for laying out the risks.",v:"ok",why:"Makes the decision, which is most of it. Leaves the risk ownership implied, so he'll carry a version of it anyway."},
+  {t:"Tell him to use his judgment and pick whichever he's comfortable with.",v:"poor",why:"Hands the risk back after he explicitly escalated it. He'll pick Wednesday and you'll have missed the launch by declining to decide."},
+  {t:"Ship Friday and tell him the edge cases probably won't come up.",v:"harm",why:"\"Probably won't\" is an unvalidated claim being used to overrule a documented risk. If one of them fires, he'll be the one explaining it."}
+]},
+
+{n:27,sec:"Pressure",who:"Account Manager",title:"Can You Work Saturday",
+ scene:"A client crisis means someone has to work Saturday. She'll say yes — she always says yes — and it's her daughter's birthday. She hasn't mentioned the birthday and won't unless directly asked.",
+ p:"S",
+ tells:["The yes is reliable enough that you can predict it, which is exactly the problem","She won't volunteer the conflict because declining is confrontation","Nothing in her behavior will tell you the cost"],
+ rule:"Show interest in them as a person. Minimize the potential for confrontation — including the confrontation involved in saying no to you.",
+ note:"The real skill here is asking in a way that makes no cheap. If declining requires her to push back on you, you haven't asked, you've assigned.",
+ opts:[
+  {t:"Ask the whole team who's available Saturday before approaching anyone individually, and say plainly that a no costs nothing.",v:"best",why:"Removes the one-on-one pressure entirely and gives her a way out that doesn't require declining you personally."},
+  {t:"Ask her directly, and explicitly say it's fine to say no and you'll find someone else.",v:"ok",why:"The permission is real and helps. Coming from you, one-on-one, it still takes more to decline than most S's will spend."},
+  {t:"Ask her because she's the most reliable person on the team.",v:"poor",why:"Naming her reliability as the reason makes the no cost her the identity you just praised. That's a heavier ask than it looks."},
+  {t:"Put her on the Saturday rota and let her flag it if there's a problem.",v:"harm",why:"Assigning and waiting for an objection from the person least likely to raise one. She'll miss the birthday and you'll never know it happened."}
+]},
+
+{n:28,sec:"Pressure",who:"Team event organizer",title:"The Party Is Cancelled",
+ scene:"Budget freeze means the summer team event is off. She planned it — venue, agenda, a slideshow of the year's wins, custom awards for each person. It's in four weeks and she's mentioned it in standup three times this month.",
+ p:"I",
+ tells:["The plan is built almost entirely out of recognition for other people","Mentioned it three times — the anticipation is part of the value","Cancellation removes a shared experience she was going to host, which is the double loss"],
+ rule:"Don't ignore their ideas. Allow the socializing. Follow up with details in writing.",
+ note:"Cancel the budget, not the event. The awards and the slideshow cost nothing, and that was the part that mattered anyway.",
+ opts:[
+  {t:"Tell her before it's announced, then ask her to run the awards and the slideshow at the next all-hands instead — same recognition, no venue.",v:"best",why:"Preserves the ideas and the stage while removing only the spend. She keeps the host role, which is what she was really planning."},
+  {t:"Tell her privately with the reasoning and say you'll revisit the event next quarter.",v:"ok",why:"Respectful and honest. A future maybe is thin compensation for a thing she'd built in her head for a month."},
+  {t:"Announce the freeze to the team and note the event is among the cuts.",v:"poor",why:"She finds out alongside everyone and has to absorb the disappointment publicly while people look at her."},
+  {t:"Tell her it's not really the right year for a party anyway.",v:"harm",why:"Dismisses both her idea and her judgment for having had it. For someone whose fear is rejection, that lands as being told she misread the room."}
+]},
+
+{n:29,sec:"Pressure",who:"Senior Strategist",title:"Passed Over",
+ scene:"A peer was promoted to a role he wanted and didn't formally apply for, because he assumed the results spoke for themselves. He congratulated the peer publicly within the hour. He has since declined two optional meetings and his last three Slack replies have been one word.",
+ p:"D",
+ tells:["Public congratulation within the hour — the composure is deliberate","Withdrawal from optional commitments is the actual signal","Assumed results were the currency, and they weren't. That reads as being taken advantage of"],
+ rule:"Be brief, direct, and to the point. Ask what, not how. Discuss the effect on outcomes.",
+ note:"The window to fix this is short and it closes quietly. A D who feels their results were ignored will not complain; they'll interview.",
+ opts:[
+  {t:"Go to him directly: name what he wasn't told, give the two specific things the decision turned on, and ask what he wants his next twelve months to be.",v:"best",why:"Direct, specific, no cushioning, and it ends on a question about his outcome. That's the only version of this conversation a D stays in the room for."},
+  {t:"Tell him you know it's disappointing and there'll be other opportunities.",v:"ok",why:"Acknowledges it, which beats silence. \"Other opportunities\" is unspecific and reads as a holding statement."},
+  {t:"Give it a couple of weeks to settle before raising it.",v:"poor",why:"Two weeks of silence after being passed over confirms the read that nobody noticed. The withdrawal hardens in that window."},
+  {t:"Praise him publicly in the next team meeting for how well he handled it.",v:"harm",why:"Rewards the composure instead of addressing the substance, in public, where he can't respond. It reads as being managed rather than answered."}
+]},
+
+{n:30,sec:"Pressure",who:"QA-minded specialist",title:"The Client Wants to Skip QA",
+ scene:"The client wants the site changes live tonight and has said in writing that they'll accept the risk and don't need the QA pass. She's replied to the thread asking whether \"accept the risk\" has been defined anywhere and who signs off if something breaks in checkout.",
+ p:"C",
+ tells:["Went straight to the definition of an undefined term","Identified the specific failure mode nobody named — checkout","Isn't refusing; she's asking for the accountability to be written down"],
+ rule:"Be precise and specific. Provide the details. Follow up in writing with what she asked for.",
+ note:"Her question is better than the client's instruction. \"They accepted the risk\" is not a risk assessment, and she's the only person in the thread who noticed.",
+ opts:[
+  {t:"Get the client to name in writing what they're accepting, run a 20-minute checkout-only smoke test, and ship. Confirm all three in the thread.",v:"best",why:"Turns a vague acceptance into a specific one, keeps the one test that matters, and puts it in writing. She'll ship happily on that."},
+  {t:"Reply that the client owns the risk and we're proceeding as instructed.",v:"ok",why:"Answers the accountability question, which is the main thing. Skipping the checkout check leaves the exact hole she flagged."},
+  {t:"Tell her the client has signed off so it's not our problem.",v:"poor",why:"\"Not our problem\" is never true of a broken checkout, and she knows it. You've dismissed the sharpest question in the thread."},
+  {t:"Push the changes live yourself so the deadline is met without the back-and-forth.",v:"harm",why:"Overriding the person who raised a documented, specific risk, without answering it. If checkout breaks, the criticism lands nearest her."}
+]},
+
+// ───────────────────── SECTION 4 · READING THE CLIENT ─────────────────────
+{n:31,sec:"Client",who:"Franchise owner · 6 locations",title:"Just Tell Me the Number",
+ scene:"Report call. You're four minutes into walking through channel performance when he says: \"Sorry — are we up or down, and what's it costing me per lead?\" He answers emails in under five words and has ended two of the last three calls early.",
+ p:"D",
+ tells:["Cut the narrative to two metrics inside four minutes","Sub-five-word emails and short calls are consistent, not situational","Wants the direction and the unit cost, in that order"],
+ rule:"Be brief, direct, and to the point — then leave. Ask what, not how. Don't ramble.",
+ note:"The report deck is for you, not him. Lead with the two numbers, then offer the detail as optional. Most reps lose this client by earning the meeting rather than answering the question.",
+ opts:[
+  {t:"\"Up 14% on leads, $38 per lead versus $44 last month. Two things drove it — want them, or is that enough?\"",v:"best",why:"Direction, unit cost, and an explicit exit. Offering the detail rather than delivering it is what makes a D stay on the call."},
+  {t:"Give him the two headline numbers and then continue through the rest of the deck.",v:"ok",why:"Answers the question and then does the thing he interrupted. Half the value, and he'll interrupt again."},
+  {t:"Explain that the fuller picture matters because the channels influence each other.",v:"poor",why:"Correct, and it's an argument for your format over his question. That's the exact move that gets calls ended early."},
+  {t:"Offer to send a more detailed deck afterwards so you can walk through everything properly.",v:"harm",why:"Promises him more of the thing he just declined. He'll read the whole relationship as not listening, which for a D means being sold to rather than served."}
+]},
+
+{n:32,sec:"Client",who:"Dental practice · Office Manager",title:"Where Did That Number Come From",
+ scene:"She's emailed twice asking for the raw call log behind the lead count, and once asking why the GA4 sessions number in the report doesn't match what she sees in her own dashboard. Her emails are numbered, with sub-points.",
+ p:"C",
+ tells:["Numbered emails with sub-points — she's structuring the request so nothing gets missed","Cross-checked your figure against her own source and found a gap","Wants the underlying data, not a reassurance about it"],
+ rule:"Provide all the details. Use validated facts. Be precise, be specific, and follow up with the data they requested.",
+ note:"A C client who catches one unexplained discrepancy will audit everything you send for a year. Answering the first one properly is the cheapest work you'll ever do on the account.",
+ opts:[
+  {t:"Send the call log, explain the exact reason the two session numbers differ, and add a short methodology note to the standing report.",v:"best",why:"Data, a precise explanation, and a structural fix so it doesn't recur. The methodology note is what converts her from auditor to ally."},
+  {t:"Send the call log and explain the discrepancy in the reply.",v:"ok",why:"Answers both questions properly. Without the standing note she'll re-derive the same question next month."},
+  {t:"Reply that the numbers come from different sources so small differences are normal.",v:"poor",why:"A general principle offered in place of the specific cause. She'll assume you don't know, and she'll be partly right."},
+  {t:"Offer a call to walk through it rather than sending the data over email.",v:"harm",why:"Substitutes a conversation for the documentation she asked for twice. It reads as avoiding the paper trail, and a C notices that instantly."}
+]},
+
+{n:33,sec:"Client",who:"Restoration company · Owner",title:"Twenty Minutes on the Flood Job",
+ scene:"You have a 30-minute report call and a budget decision to get through. He opens by telling you, in detail, about a water damage job his crew ran over the weekend, the family involved, and how grateful they were. He's twenty minutes in.",
+ p:"I",
+ tells:["Opens with a story about people, not the business","The detail is emotional and relational, not operational","He hasn't asked a single question about the report yet"],
+ rule:"Allow time for socializing. Don't do all the talking. Follow up with the details in writing. Four short discussions beat one long one.",
+ note:"Cutting the story costs you the relationship; letting it run costs you the decision. The move is to use the story as the bridge into the ask, then put the numbers in writing afterwards.",
+ opts:[
+  {t:"Let it land, then: \"That's exactly the job we should be buying more of — which is the decision I need from you today,\" and send the numbers in writing after.",v:"best",why:"Honors the story, uses it as the on-ramp to the ask, and moves the detail to the medium where it'll survive. Straight out of the deck's rules for an I."},
+  {t:"Engage warmly for a few minutes, then say you want to be respectful of his time and move to the agenda.",v:"ok",why:"Reasonable and gets you there. \"Respectful of your time\" is a slightly cold pivot for someone who was building rapport."},
+  {t:"Wait for a natural pause and then start the report walkthrough.",v:"poor",why:"With this client the natural pause may not arrive inside thirty minutes. Waiting is a plan to run out of time."},
+  {t:"Interrupt to say you have a lot to cover and should get started.",v:"harm",why:"Cuts off a story he was telling to connect with you. For someone whose fear is rejection, that's the whole call re-framed."}
+]},
+
+{n:34,sec:"Client",who:"Family HVAC business · Co-owner",title:"How Was Your Weekend",
+ scene:"She asks about your family before every call. She has never once said no to a recommendation. Renewal is in six weeks. Spend has been flat for a year, and on the last call she said \"whatever you think is best\" three times.",
+ p:"S",
+ tells:["Personal connection precedes business, consistently","Never declines a recommendation — which means you have no signal on what she actually wants","\"Whatever you think is best\" three times is deferral, not trust"],
+ rule:"Create a friendly tone. Show interest in them as a person. Minimize confrontation. Give definition to the goal and everyone's role.",
+ note:"An S client who never pushes back is the highest-risk renewal on your book. You will get no warning, and the first hard signal you receive will be the cancellation.",
+ opts:[
+  {t:"Ask her, warmly and specifically, what the business needs to look like in twelve months — then bring options rather than a recommendation to approve.",v:"best",why:"Options let her express a preference without declining anything, which is the only way you'll get a real answer out of an S."},
+  {t:"Ask her directly whether she's happy with how the account is going.",v:"ok",why:"Worth asking and will almost certainly get \"yes, you're doing great.\" Direct satisfaction questions are the ones an S answers most politely."},
+  {t:"Take the agreement at face value and keep the strategy steady into renewal.",v:"poor",why:"You're reading absence of confrontation as satisfaction. Those are different things, and with an S they're usually opposites."},
+  {t:"Push a significant budget increase before renewal while she's agreeable.",v:"harm",why:"Using the reluctance to say no as leverage. She'll agree, resent it quietly, and it will surface as a cancellation you didn't see coming."}
+]},
+
+{n:35,sec:"Client",who:"Law firm · Marketing Director",title:"One Typo, Everything Questioned",
+ scene:"Last month's report had a client name misspelled in one chart title. Since then he has queried six figures in this month's report, asked for the source on two of them, and opened his last email with \"I want to make sure we're being careful here.\"",
+ p:"C",
+ tells:["A single visible error triggered a full audit posture","Queries are specific and sourced, not vague dissatisfaction","\"Being careful\" is the value statement — accuracy is the whole relationship"],
+ rule:"Provide all the details. Use validated facts. Be patient, answer every question, and follow up with the data.",
+ note:"You don't argue a C back from this. You over-deliver on precision for two cycles and the audit posture relaxes on its own. Defending the typo extends it.",
+ opts:[
+  {t:"Answer all six with sources, add a QA line to the report footer naming who checked it, and answer the next round without a hint of impatience.",v:"best",why:"Every question answered with data plus a visible, permanent precision mechanism. The footer is what tells him it won't happen again."},
+  {t:"Answer all six queries thoroughly with the sources attached.",v:"ok",why:"Does the necessary work. Without a visible change to the process he has no reason to stop checking."},
+  {t:"Acknowledge the typo, apologize again, and ask him to trust the process.",v:"poor",why:"Asking for trust in place of evidence. A C extends trust to validated systems, not to requests."},
+  {t:"Point out that it was one typo in a fourteen-page report and the analysis was sound.",v:"harm",why:"Defending against a criticism by minimizing it. He'll hear that accuracy matters less to you than it does to him, and the audit becomes permanent."}
+]},
+
+{n:36,sec:"Client",who:"Multi-location retail · Owner",title:"We're Looking at Other Agencies",
+ scene:"Mid-call, no warning: \"I'll be straight with you. We're taking three other proposals next month. Nothing personal, the numbers just haven't moved.\" He then waits, silently, for you to respond.",
+ p:"D",
+ tells:["Told you directly rather than going quiet — that's information, and it's a chance","\"The numbers haven't moved\" is the entire case, stated as a result","The silence afterward is a test of what you do with it"],
+ rule:"Be brief and direct. Discuss the problem and its effect on outcomes. Ask what, not how.",
+ note:"He told you, which means he'd rather not switch. Defensiveness confirms the decision; a specific commitment with a date is the only thing that competes with three fresh proposals.",
+ opts:[
+  {t:"\"Fair. Here's the one number I think we can move and by how much in 60 days — if it doesn't move, take the best of the three.\"",v:"best",why:"Concedes fast, commits to something measurable with a deadline, and accepts the consequence. That's the only offer that outranks a new pitch to a D."},
+  {t:"Ask what specifically hasn't met expectations so you can put together a plan.",v:"ok",why:"A reasonable question and it buys time you may not have. He already told you: the numbers. Asking again can read as not having heard it."},
+  {t:"Walk him through the improvements that have happened over the last six months.",v:"poor",why:"A defense of the past against a complaint about results. He isn't disputing the activity, he's disputing the outcome."},
+  {t:"Tell him you're disappointed to hear that after everything the team has put in.",v:"harm",why:"Makes the agency's feelings the subject. To a D that reads as an appeal for loyalty in place of performance, and it ends the conversation."}
+]},
+
+{n:37,sec:"Client",who:"Boutique fitness · Founder",title:"Loves It, Won't Sign",
+ scene:"She's been enthusiastic about the new campaign for three weeks — great energy on every call, shared the mockups with her whole team, called it \"exactly right.\" The budget approval has been sitting unsigned for eleven days. She hasn't mentioned it once.",
+ p:"I",
+ tells:["Enthusiasm is genuine and has been sustained across three weeks","The unsigned document is never raised — silence around the one uncomfortable item","Shared it widely, which raises the social cost of it not happening"],
+ rule:"Don't do all the talking. Allow the socializing. Follow up with the details in writing — and keep it frequent and short.",
+ note:"With an I, enthusiasm and commitment are different signals and it's easy to bank the wrong one. The unsigned item usually means an unspoken constraint, not a change of heart.",
+ opts:[
+  {t:"On the next call, ask warmly what would need to be true for her to sign this week — then send a two-line written recap with the one date that matters.",v:"best",why:"An open question rather than a chase, so she can name the constraint without it being a refusal, and the written follow-up is where an I's commitments actually stick."},
+  {t:"Send a friendly nudge asking if she has any questions about the approval.",v:"ok",why:"Polite and easy to answer with \"no, all good!\" — which is exactly what will happen, and you'll be at day eighteen."},
+  {t:"Assume the enthusiasm is approval and start the build so you don't lose the timeline.",v:"poor",why:"Building against unsigned budget on the strength of good energy. Enthusiasm from an I is real and it is not a purchase order."},
+  {t:"Send a firm note that the campaign can't proceed without the signature and the launch date is at risk.",v:"harm",why:"Turns a warm relationship into a compliance exchange over a document she's been avoiding for a reason nobody has asked about."}
+]},
+
+{n:38,sec:"Client",who:"Regional plumbing · General Manager",title:"Three Months of Nothing",
+ scene:"Every call for three months: \"Yeah, all good, nothing from my end.\" Today his operations lead mentions offhand that the team has been frustrated since spring about lead quality, and that the GM has brought it up internally more than once.",
+ p:"S",
+ tells:["Three months of \"all good\" with an active internal complaint running underneath","The concern reached his own team but not you — raising it with you is the confrontation","He'll keep saying it's fine right up to the cancellation"],
+ rule:"Create a friendly tone. Minimize the potential for confrontation. Show genuine interest in them as a person, not just the account.",
+ note:"This is the same pattern as the teammate who nods in the meeting, playing out on a client. It's the most common invisible churn cause on any book of business.",
+ opts:[
+  {t:"Call him and open with what you heard, owning it: \"I've heard lead quality has been frustrating since spring and I should have found that sooner — walk me through it.\"",v:"best",why:"You raise it, so he never has to. Taking the fault for not asking removes the confrontation entirely, which is the only way this conversation opens."},
+  {t:"Ask on the next call whether there's anything about lead quality he'd like to see improve.",v:"ok",why:"Names the topic, which is most of the work. Still requires him to voice a complaint, and he's declined that for three months."},
+  {t:"Ask the operations lead for the details and fix the lead quality issue quietly.",v:"poor",why:"May solve the problem and leaves the relationship exactly as unsafe as it was. He still can't tell you things."},
+  {t:"Raise it on the next group call so the whole client team can weigh in.",v:"harm",why:"A group setting for a complaint he's been avoiding one-on-one. He'll say it's all fine in front of his team, and now it's harder to reach forever."}
+]},
+
+{n:39,sec:"Client",who:"E-commerce · Head of Growth",title:"Show Me the Attribution Math",
+ scene:"He wants to know why the Google Ads conversion count differs from Shopify's, why the data-driven model is crediting branded search, and whether the view-through window is inflating Meta. He's sent a spreadsheet with his own working and three highlighted cells.",
+ p:"C",
+ tells:["Did his own analysis before asking — the spreadsheet is the tell","Questions are technically precise and individually answerable","Highlighted exactly three cells, so he's isolated the disagreement rather than rejecting the whole report"],
+ rule:"Provide all the details. Use validated facts. Be precise. Answer every question and follow up with the data they asked for.",
+ note:"He's done the work, so a summary answer will insult it. Answer in his spreadsheet, in his cells. This client becomes your best advocate internally once he trusts the numbers.",
+ opts:[
+  {t:"Answer inside his own spreadsheet, cell by cell, with the platform documentation linked for each — including the one where his read is right.",v:"best",why:"Meets the precision he brought, uses validated sources, and conceding the correct cell is what converts a skeptic into an ally."},
+  {t:"Book a call to walk through all three discrepancies with the platform docs open.",v:"ok",why:"Thorough and collaborative. Live answers don't leave the written record a C wants to re-check afterwards."},
+  {t:"Explain that platform attribution differences are expected and no two systems will ever match exactly.",v:"poor",why:"True in general and an answer to none of his three specific cells. He'll conclude you didn't open the spreadsheet."},
+  {t:"Reply that the platform numbers are what we report on and that's the standard across all clients.",v:"harm",why:"Appeals to policy against someone holding evidence. That's the fastest way to have every future report audited line by line."}
+]},
+
+{n:40,sec:"Client",who:"Auto dealership group · Principal",title:"Decide Now",
+ scene:"Ten minutes into the call: \"I want to double the budget on the Toyota store starting Monday. Yes or no, right now — I've got another call.\" You don't have the capacity math in front of you and there's a real chance the account can't absorb it efficiently.",
+ p:"D",
+ tells:["Compressed the decision window deliberately","Framed it as binary to force a position","The other call may or may not exist — the pressure is the instrument"],
+ rule:"Be brief and direct. Ask what, not how. Discuss the problem and its effect on outcomes — then leave.",
+ note:"Hedging loses a D's respect and so does a yes you can't stand behind. A conditional yes with a number and a deadline is the move that holds both.",
+ opts:[
+  {t:"\"Yes to doubling — but the auction can absorb about 60% of that efficiently. We go to 60% Monday and I'll have the full number to you Wednesday.\"",v:"best",why:"Decisive, specific, and acts on Monday as asked. The constraint is stated as a fact about the outcome rather than as hesitation."},
+  {t:"\"Yes, starting Monday — let me confirm the efficient ceiling and come back to you Tuesday.\"",v:"ok",why:"Commits and moves, which a D respects. Slightly weaker because the number he'll be spending on Monday is still undefined."},
+  {t:"Ask for 24 hours to run the capacity numbers before committing.",v:"poor",why:"A reasonable request that reads as inability to decide. With this client the delay costs more credibility than the answer is worth."},
+  {t:"Say yes to doubling and work out the efficiency problem afterwards.",v:"harm",why:"Agreeing to something you believe will waste his money to avoid an uncomfortable ten seconds. When CPA rises he'll read it as being taken advantage of."}
+]}
+
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let mode = "team";
+let teams = [];
+let scores = [];
+let currentRound = 1;
+let usedIds = [];
+let currentCard = null;
+let optOrder = [];          // shuffled indices into currentCard.opts
+let readState = [];         // per-team: null | "hit" | "near" | "miss"
+let respState = [];         // per-team: null | option slot index
+let keepScore = true;
+let phase = 0;
+let selectedCount = 3;
+let timerSecs = 45, timerBase = 45, timerRunning = false, timerInterval = null;
+
+const READ_HIT = 10, READ_NEAR = 4;
+const RESP_PTS = {best:10, ok:5, poor:0, harm:-3};
+const RESP_LABEL = {best:"Best response", ok:"Workable", poor:"Tone-deaf", harm:"Makes it worse"};
+const SLOT = ["A","B","C","D"];
+
+function $(id){ return document.getElementById(id); }
+
+function showToast(msg, dur){
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(t._t);
+  t._t = setTimeout(function(){ t.classList.remove("show"); }, dur || 2600);
+}
+
+function launchConfetti(){
+  const c = $("confettiContainer");
+  c.innerHTML = "";
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const colors = ["#9b59b6","#2a6db5","#5bb8f5","#f5c842","#43a047","#e67e22","#d43a3a"];
+  for (let i = 0; i < 55; i++){
+    const p = document.createElement("div");
+    p.className = "confetti-piece";
+    p.style.left = Math.random() * 100 + "%";
+    p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    p.style.width = (6 + Math.random() * 8) + "px";
+    p.style.height = (6 + Math.random() * 8) + "px";
+    p.style.borderRadius = Math.random() > .5 ? "50%" : "2px";
+    p.style.animationDelay = (Math.random() * .45) + "s";
+    p.style.animationDuration = (2 + Math.random() * 1.2) + "s";
+    c.appendChild(p);
+  }
+  setTimeout(function(){ c.innerHTML = ""; }, 3600);
+}
+
+function activeDeck(){
+  const f = $("secFilter").value;
+  return CARDS.filter(function(c){ return f === "all" || c.sec === f; });
+}
+
+function updateDeckCount(){
+  const deck = activeDeck();
+  const left = deck.filter(function(c){ return usedIds.indexOf(c.n) === -1; }).length;
+  $("deckCount").textContent = left + " of " + deck.length + " cards left";
+}
+
+// ── DISC QUICK REFERENCE ──────────────────────────────────────────────────────
+(function buildRef(){
+  const list = $("refList");
+  ["D","I","S","C"].forEach(function(k){
+    const p = DISC[k];
+    const item = document.createElement("div");
+    item.className = "ref-item";
+
+    const head = document.createElement("button");
+    head.className = "ref-head";
+    head.type = "button";
+    head.setAttribute("aria-expanded", "false");
+    head.innerHTML = '<span class="ref-letter" style="background:' + p.color + ';color:' + p.ink + '">' + k + '</span>' +
+                     '<span class="ref-name">' + p.name + '</span>' +
+                     '<span class="ref-pct">' + p.pct.replace(" of people","") + '</span>';
+
+    const body = document.createElement("div");
+    body.className = "ref-body";
+    body.innerHTML = '<div class="rb-label">Looks like</div><ul>' +
+        p.marks.map(function(m){ return "<li>" + m + "</li>"; }).join("") + '</ul>' +
+      '<div class="rb-label">Greatest fear</div><ul><li>' + p.fear + '</li></ul>' +
+      '<div class="rb-label">Communicating with a ' + k + '</div><ul>' +
+        p.comms.map(function(m){ return "<li>" + m + "</li>"; }).join("") + '</ul>';
+
+    head.addEventListener("click", function(){
+      const open = item.classList.toggle("open");
+      head.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+
+    item.appendChild(head);
+    item.appendChild(body);
+    list.appendChild(item);
+  });
+})();
+
+// ── PHASE 1 CHOICE SET ────────────────────────────────────────────────────────
+(function buildProfileGrid(){
+  const grid = $("profileGrid");
+  ["D","I","S","C"].forEach(function(k){
+    const p = DISC[k];
+    const card = document.createElement("div");
+    card.className = "pcard";
+    card.innerHTML = '<div class="pletter" style="background:' + p.color + ';color:' + p.ink + '">' + k + '</div>' +
+                     '<div class="pname">' + p.name + '</div>' +
+                     '<div class="ptraits">' + p.traits.split(" · ").join("<br>") + '</div>' +
+                     '<div class="ppct">' + p.pct.replace(" of people", "") + '</div>';
+    grid.appendChild(card);
+  });
+})();
+
+// ── SETUP ─────────────────────────────────────────────────────────────────────
+document.querySelectorAll(".mode-btn").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    mode = this.dataset.mode;
+    document.querySelectorAll(".mode-btn").forEach(function(b){ b.classList.remove("active"); });
+    this.classList.add("active");
+    $("teamSetup").style.display = mode === "team" ? "block" : "none";
+  });
+});
+
+document.querySelectorAll(".team-count-btn").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    selectedCount = parseInt(this.dataset.count, 10);
+    document.querySelectorAll(".team-count-btn").forEach(function(b){ b.classList.remove("active"); });
+    this.classList.add("active");
+    $("setupNames").querySelectorAll(".setup-name-input").forEach(function(inp, i){
+      inp.style.display = i < selectedCount ? "block" : "none";
+    });
+  });
+});
+$("setupNames").querySelectorAll(".setup-name-input").forEach(function(inp, i){
+  inp.style.display = i < selectedCount ? "block" : "none";
+});
+
+$("btnStartGame").addEventListener("click", function(){
+  if (mode === "team"){
+    const inputs = Array.from($("setupNames").querySelectorAll(".setup-name-input")).slice(0, selectedCount);
+    teams = inputs.map(function(inp, i){ return inp.value.trim() || ("Team " + (i + 1)); });
+    scores = teams.map(function(){ return 0; });
+    keepScore = $("chkScore").checked;
+    buildScoreboard();
+    $("teamPanel").style.display = "block";
+    $("soloPanel").style.display = "none";
+  } else {
+    teams = [];
+    scores = [];
+    keepScore = false;
+    $("teamPanel").style.display = "none";
+    $("soloPanel").style.display = "block";
+    $("callHint").textContent = "Commit your call before you look";
+  }
+  $("secFilter").value = $("setupSection").value;
+  updateDeckCount();
+  $("setupScreen").style.display = "none";
+  $("gameScreen").classList.add("on");
+});
+
+// ── SCOREBOARD ────────────────────────────────────────────────────────────────
+function buildScoreboard(deltas){
+  const board = $("scoreboard");
+  board.innerHTML = "";
+  const order = teams.map(function(name, i){ return {name:name, score:scores[i], i:i}; })
+                     .sort(function(a, b){ return b.score - a.score; });
+  order.forEach(function(t, rank){
+    const row = document.createElement("div");
+    row.className = "team-row" + (rank === 0 && t.score !== 0 ? " lead" : "");
+    const d = deltas && deltas[t.i] !== undefined ? deltas[t.i] : null;
+    row.innerHTML = '<span class="t-rank">' + (rank === 0 && t.score !== 0 ? "👑" : "#" + (rank + 1)) + '</span>' +
+                    '<span class="t-name"></span>' +
+                    (d !== null ? '<span class="t-delta">' + (d >= 0 ? "+" : "") + d + '</span>' : '') +
+                    '<span class="t-score">' + t.score + '</span>';
+    row.querySelector(".t-name").textContent = t.name;
+    board.appendChild(row);
+  });
+}
+
+// ── PHASE RAIL ────────────────────────────────────────────────────────────────
+function setPhase(p){
+  phase = p;
+  [1,2,3].forEach(function(i){
+    const el = $("ph" + i);
+    el.classList.remove("active","done");
+    if (i < p) el.classList.add("done");
+    if (i === p) el.classList.add("active");
+  });
+}
+
+// ── DRAW ──────────────────────────────────────────────────────────────────────
+$("btnDraw").addEventListener("click", function(){
+  const deck = activeDeck();
+  let pool = deck.filter(function(c){ return usedIds.indexOf(c.n) === -1; });
+  if (pool.length === 0){
+    usedIds = usedIds.filter(function(id){ return deck.every(function(c){ return c.n !== id; }); });
+    pool = deck.slice();
+    showToast("🔄 Deck reshuffled — all cards back in play", 3000);
+  }
+  currentCard = pool[Math.floor(Math.random() * pool.length)];
+  usedIds.push(currentCard.n);
+
+  optOrder = [0,1,2,3];
+  for (let i = optOrder.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = optOrder[i]; optOrder[i] = optOrder[j]; optOrder[j] = tmp;
+  }
+  readState = teams.map(function(){ return null; });
+  respState = teams.map(function(){ return null; });
+
+  renderCard(currentCard);
+  updateDeckCount();
+
+  setPhase(1);
+  $("btnDraw").disabled = true;
+  $("btnLockRead").disabled = false;
+  $("btnReveal").disabled = true;
+  $("btnNextRound").disabled = false;
+  resetTimer(timerBase);
+  $("timerLabel").textContent = "Phase 1 · Read";
+});
+
+function renderCard(c){
+  $("cardEmpty").style.display = "none";
+  $("cardLive").classList.add("on");
+  $("callBlock").classList.add("on");
+  $("optsBlock").classList.remove("on");
+  $("coachCard").classList.remove("on");
+  $("scorePass").classList.remove("on");
+
+  const meta = SEC_META[c.sec];
+  const tag = $("secTag");
+  tag.textContent = meta.label;
+  tag.style.background = meta.color;
+
+  $("whoTag").textContent = c.who;
+  $("idTag").textContent = "#" + String(c.n).padStart(2, "0");
+  $("cardTitle").textContent = c.title;
+  $("cardScene").textContent = c.scene;
+}
+
+// ── PHASE 2 · THE RESPONSE ────────────────────────────────────────────────────
+$("btnLockRead").addEventListener("click", function(){
+  if (!currentCard) return;
+  renderOptions();
+  $("optsBlock").classList.add("on");
+  setPhase(2);
+  $("btnLockRead").disabled = true;
+  $("btnReveal").disabled = false;
+  resetTimer(timerBase);
+  $("timerLabel").textContent = "Phase 2 · Respond";
+  $("optsBlock").scrollIntoView({behavior:"smooth", block:"nearest"});
+});
+
+function renderOptions(){
+  const list = $("optList");
+  list.innerHTML = "";
+  optOrder.forEach(function(origIdx, slot){
+    const o = currentCard.opts[origIdx];
+    const el = document.createElement("div");
+    el.className = "opt";
+    el.dataset.slot = slot;
+    el.innerHTML = '<div class="opt-key">' + SLOT[slot] + '</div>' +
+                   '<div class="opt-body">' +
+                     '<span class="opt-verdict"></span>' +
+                     '<div class="opt-text"></div>' +
+                     '<div class="opt-why"></div>' +
+                   '</div>';
+    el.querySelector(".opt-text").textContent = o.t;
+    el.querySelector(".opt-why").textContent = o.why;
+    el.querySelector(".opt-verdict").textContent = RESP_LABEL[o.v] + " · " + (RESP_PTS[o.v] >= 0 ? "+" : "") + RESP_PTS[o.v];
+    list.appendChild(el);
+  });
+}
+
+// ── PHASE 3 · REVEAL & SCORE ──────────────────────────────────────────────────
+$("btnReveal").addEventListener("click", function(){
+  if (!currentCard) return;
+  const c = currentCard;
+
+  document.querySelectorAll("#optList .opt").forEach(function(el){
+    const slot = parseInt(el.dataset.slot, 10);
+    el.classList.add("graded", "v-" + c.opts[optOrder[slot]].v);
+  });
+
+  renderCoach(c);
+  setPhase(3);
+  stopTimer();
+  $("timerLabel").textContent = "Phase 3 · Debrief";
+  $("btnReveal").disabled = true;
+
+  if (keepScore && teams.length){
+    buildScorePass();
+    $("scorePass").classList.add("on");
+  }
+  showToast("📋 Answer: " + c.p + " · " + DISC[c.p].name, 3200);
+  $("coachCard").scrollIntoView({behavior:"smooth", block:"nearest"});
+});
+
+// ── ONE SCORING PASS, AFTER EVERYONE HAS REVEALED ────────────────────────────
+function roundPts(i){
+  let pts = 0;
+  if (readState[i] === "hit") pts += READ_HIT;
+  else if (readState[i] === "near") pts += READ_NEAR;
+  if (respState[i] !== null) pts += RESP_PTS[currentCard.opts[optOrder[respState[i]]].v];
+  return pts;
+}
+
+function buildScorePass(){
+  const wrap = $("spRows");
+  wrap.innerHTML = "";
+  const hasBlend = !!currentCard.blend;
+
+  teams.forEach(function(name, i){
+    const row = document.createElement("div");
+    row.className = "sp-row";
+
+    const nm = document.createElement("span");
+    nm.className = "sp-name";
+    nm.textContent = name;
+    row.appendChild(nm);
+
+    const total = document.createElement("span");
+    total.className = "sp-total";
+    total.textContent = "0";
+
+    // read: correct / blend (only when the card has one) / missed
+    const readGrp = document.createElement("div");
+    readGrp.className = "sp-group";
+    const rl = document.createElement("span");
+    rl.className = "sp-label"; rl.textContent = "Read";
+    readGrp.appendChild(rl);
+
+    const readOpts = hasBlend
+      ? [["hit", currentCard.p + " ✓"], ["near", currentCard.blend + " ~"], ["miss", "✗"]]
+      : [["hit", currentCard.p + " ✓"], ["miss", "✗"]];
+
+    readOpts.forEach(function(o){
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "sp-chip " + o[0];
+      b.textContent = o[1];
+      b.setAttribute("aria-label", name + " read " + (o[0] === "hit" ? "correct" : o[0] === "near" ? "secondary blend" : "missed"));
+      b.addEventListener("click", function(){
+        readState[i] = readState[i] === o[0] ? null : o[0];
+        readGrp.querySelectorAll(".sp-chip").forEach(function(x){ x.classList.remove("on"); });
+        if (readState[i]) b.classList.add("on");
+        total.textContent = roundPts(i);
+      });
+      readGrp.appendChild(b);
+    });
+    row.appendChild(readGrp);
+
+    // response: which option they held up
+    const respGrp = document.createElement("div");
+    respGrp.className = "sp-group";
+    const pl = document.createElement("span");
+    pl.className = "sp-label"; pl.textContent = "Response";
+    respGrp.appendChild(pl);
+
+    SLOT.forEach(function(letter, slot){
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "sp-chip v-" + currentCard.opts[optOrder[slot]].v;
+      b.textContent = letter;
+      b.setAttribute("aria-label", name + " picked response " + letter);
+      b.addEventListener("click", function(){
+        respState[i] = respState[i] === slot ? null : slot;
+        respGrp.querySelectorAll(".sp-chip").forEach(function(x){ x.classList.remove("on"); });
+        if (respState[i] !== null) b.classList.add("on");
+        total.textContent = roundPts(i);
+      });
+      respGrp.appendChild(b);
+    });
+    row.appendChild(respGrp);
+    row.appendChild(total);
+    wrap.appendChild(row);
+  });
+}
+
+$("btnAward").addEventListener("click", function(){
+  const deltas = {};
+  teams.forEach(function(name, i){
+    const pts = roundPts(i);
+    scores[i] += pts;
+    deltas[i] = pts;
+  });
+  buildScoreboard(deltas);
+  const best = Math.max.apply(null, teams.map(function(_, i){ return deltas[i]; }));
+  if (best >= 20) launchConfetti();
+  nextRound();
+});
+
+function renderCoach(c){
+  const p = DISC[c.p];
+  const bl = $("bigLetter");
+  bl.textContent = c.p;
+  bl.style.background = p.color;
+  bl.style.color = p.ink;
+  $("asTitle").textContent = p.name + (c.blend ? "  (with a " + c.blend + " secondary)" : "");
+  $("asTraits").textContent = p.traits;
+  $("asPct").textContent = p.pct;
+
+  const tells = $("coachTells");
+  tells.innerHTML = "";
+  c.tells.forEach(function(t){
+    const li = document.createElement("li");
+    li.textContent = t;
+    tells.appendChild(li);
+  });
+
+  $("coachRule").textContent = c.rule;
+  $("coachFear").textContent = "Greatest fear — " + p.fear + " " + p.seeks;
+  $("coachNote").textContent = c.note;
+  $("coachCard").classList.add("on");
+}
+
+// ── NEXT ROUND ────────────────────────────────────────────────────────────────
+function nextRound(){
+  currentRound++;
+  $("roundBadge").textContent = "Round " + currentRound;
+  currentCard = null;
+  $("cardLive").classList.remove("on");
+  $("callBlock").classList.remove("on");
+  $("optsBlock").classList.remove("on");
+  $("coachCard").classList.remove("on");
+  $("scorePass").classList.remove("on");
+  $("cardEmpty").style.display = "flex";
+  setPhase(0);
+  $("btnDraw").disabled = false;
+  $("btnLockRead").disabled = true;
+  $("btnReveal").disabled = true;
+  $("btnNextRound").disabled = true;
+  if (mode === "team") buildScoreboard();
+  resetTimer(timerBase);
+  $("timerLabel").textContent = "Ready";
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+$("btnNextRound").addEventListener("click", nextRound);
+
+// ── TIMER ─────────────────────────────────────────────────────────────────────
+function fmt(s){ return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+
+function paintTimer(){
+  const d = $("timerDisplay");
+  d.textContent = fmt(timerSecs);
+  d.classList.remove("warn","danger");
+  if (timerSecs <= 5) d.classList.add("danger");
+  else if (timerSecs <= 15) d.classList.add("warn");
+}
+
+function stopTimer(){
+  clearInterval(timerInterval);
+  timerRunning = false;
+  $("btnTimerStart").textContent = "▶ Start";
+}
+
+function resetTimer(secs){
+  stopTimer();
+  timerBase = secs;
+  timerSecs = secs;
+  paintTimer();
+}
+
+$("btnTimerStart").addEventListener("click", function(){
+  if (timerRunning){ stopTimer(); $("btnTimerStart").textContent = "▶ Resume"; return; }
+  if (timerSecs === 0) timerSecs = timerBase;
+  timerRunning = true;
+  this.textContent = "⏸ Pause";
+  timerInterval = setInterval(function(){
+    timerSecs--;
+    paintTimer();
+    if (timerSecs <= 0){
+      stopTimer();
+      $("timerLabel").textContent = "Time!";
+      showToast("⏰ Time's up — lock your answers");
+    }
+  }, 1000);
+});
+
+$("btnTimerReset").addEventListener("click", function(){ resetTimer(timerBase); });
+
+document.querySelectorAll(".tp").forEach(function(b){
+  b.addEventListener("click", function(){
+    document.querySelectorAll(".tp").forEach(function(x){ x.classList.remove("active"); });
+    this.classList.add("active");
+    resetTimer(parseInt(this.dataset.secs, 10));
+  });
+});
+
+// ── FILTER + INIT ─────────────────────────────────────────────────────────────
+$("secFilter").addEventListener("change", updateDeckCount);
+paintTimer();
+setPhase(0);
+
+</script>
+</body>
+</html>

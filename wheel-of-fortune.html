@@ -145,6 +145,10 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 .timer-box.warn .timer-value{color:#f9a825}
 .timer-box.danger .timer-value{color:var(--accent3);animation:timerPulse .5s ease-in-out infinite}
 .timer-box.paused .timer-value{color:var(--muted)}
+.timer-box.expired{border-color:var(--accent3)}
+.timer-box.expired .timer-value{color:var(--accent3)}
+.timer-box.expired .timer-fill{background:var(--accent3);width:100%!important}
+.timer-box.expired .timer-label{color:var(--accent3);font-weight:700}
 @keyframes timerPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
 .timer-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:8px}
 .timer-fill{height:100%;width:100%;background:var(--gff-teal);border-radius:3px;transition:width .25s linear}
@@ -194,7 +198,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
     <button class="btn btn-spin" id="btnSpin" onclick="spinWheel()">🎡 Spin the Wheel</button>
     <div class="timer-box idle" id="timerBox">
       <div class="timer-label" id="timerLabel">Turn Timer</div>
-      <div class="timer-value" id="timerValue">20</div>
+      <div class="timer-value" id="timerValue">25</div>
       <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
       <div class="timer-actions">
         <button class="btn btn-secondary btn-small" id="btnTimerPause" onclick="toggleTimerPause()">Pause</button>
@@ -202,11 +206,11 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
       </div>
       <div class="timer-cfg">
         <label><input type="checkbox" id="timerEnabled" checked onchange="onTimerToggle()"> Timer on</label>
-        <input type="number" id="timerSeconds" min="5" max="120" step="5" value="20" onchange="onTimerSecondsChange()"> sec
+        <input type="number" id="timerSeconds" min="5" max="120" step="5" value="25" onchange="onTimerSecondsChange()"> sec
       </div>
     </div>
     <div class="instructions">
-      <strong>Quick Guide:</strong> Spin → Guess consonant or buy vowel → Solve when ready. Host controls below.
+      <strong>Quick Guide:</strong> Spin → Guess consonant or buy vowel → Solve when ready. The timer is a prompt only — it never skips a turn. Use <em>Next Team</em> if time runs out.
     </div>
   </div>
 
@@ -906,12 +910,13 @@ function newGame() {
 // =========================================
 // TURN TIMER
 // =========================================
-let timerDuration   = 20;     // seconds per turn, host-configurable
-let timerRemaining  = 20;
+let timerDuration   = 25;     // seconds per turn, host-configurable
+let timerRemaining  = 25;
 let timerHandle     = null;
 let timerPaused     = false;
 let timerRunning    = false;
 let timerDeadline   = 0;      // wall-clock ms when the turn expires
+let timerExpired    = false;  // clock hit zero and is waiting on the host
 
 function timerIsOn() {
   const cb = document.getElementById('timerEnabled');
@@ -928,8 +933,11 @@ function renderTimer() {
   val.textContent = secs;
   fill.style.width = (timerDuration > 0 ? Math.max(0, timerRemaining / timerDuration) * 100 : 0) + '%';
 
-  box.classList.remove('warn', 'danger', 'idle', 'paused');
-  if (!timerRunning) {
+  box.classList.remove('warn', 'danger', 'idle', 'paused', 'expired');
+  if (timerExpired) {
+    box.classList.add('expired');
+    label.textContent = "Time's Up";
+  } else if (!timerRunning) {
     box.classList.add('idle');
     label.textContent = timerIsOn() ? 'Turn Timer' : 'Timer Off';
   } else if (timerPaused) {
@@ -948,6 +956,7 @@ function startTurnTimer() {
 
   timerRunning  = true;
   timerPaused   = false;
+  timerExpired  = false;
   timerRemaining = timerDuration;
   timerDeadline = performance.now() + timerDuration * 1000;
   document.getElementById('btnTimerPause').textContent = 'Pause';
@@ -981,6 +990,7 @@ function stopTurnTimer() {
   timerHandle = null;
   timerRunning = false;
   timerPaused = false;
+  timerExpired = false;
   timerRemaining = timerDuration;
   const btn = document.getElementById('btnTimerPause');
   if (btn) btn.textContent = 'Pause';
@@ -988,9 +998,18 @@ function stopTurnTimer() {
 }
 
 function onTimerExpired() {
-  stopTurnTimer();
-  showToast("Time's up! Turn passes to the next team.", 'error');
-  autoAdvanceTeam();
+  // The clock is informational only: it never passes the turn on its own.
+  // The host decides whether to skip, using Next Team.
+  if (timerHandle) clearInterval(timerHandle);
+  timerHandle = null;
+  timerRunning = false;
+  timerPaused = false;
+  timerExpired = true;
+  timerRemaining = 0;
+  const btn = document.getElementById('btnTimerPause');
+  if (btn) btn.textContent = 'Pause';
+  renderTimer();
+  showToast("Time's up! Host can skip the turn with Next Team.", 'warn');
 }
 
 function toggleTimerPause() {

@@ -136,6 +136,24 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 .cobrand{display:inline-flex;align-items:center;justify-content:center;gap:11px}
 .cobrand-rule{width:2px;height:39px;border-radius:2px;background:linear-gradient(180deg,transparent,rgba(14,170,185,.55),transparent);flex-shrink:0}
 .gff-logo{height:31px;width:auto;flex-shrink:0}
+
+/* ===== TURN TIMER ===== */
+.timer-box{width:100%;max-width:280px;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:12px 14px;text-align:center}
+.timer-box.idle{opacity:.55}
+.timer-label{font-size:.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.timer-value{font-size:2.6rem;font-weight:900;line-height:1;font-variant-numeric:tabular-nums;color:var(--sos-light)}
+.timer-box.warn .timer-value{color:#f9a825}
+.timer-box.danger .timer-value{color:var(--accent3);animation:timerPulse .5s ease-in-out infinite}
+.timer-box.paused .timer-value{color:var(--muted)}
+@keyframes timerPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.timer-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:8px}
+.timer-fill{height:100%;width:100%;background:var(--gff-teal);border-radius:3px;transition:width .25s linear}
+.timer-box.warn .timer-fill{background:#f9a825}
+.timer-box.danger .timer-fill{background:var(--accent3)}
+.timer-actions{display:flex;gap:6px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.timer-cfg{display:flex;align-items:center;gap:6px;justify-content:center;margin-top:8px;font-size:.7rem;color:var(--muted)}
+.timer-cfg input[type=number]{width:56px;padding:4px 6px;font-size:.8rem;text-align:center;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px}
+.timer-cfg label{display:flex;align-items:center;gap:5px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -174,6 +192,19 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
     <div class="wheel-result" id="wheelResult">Spin the wheel!</div>
     <div id="doubleIndicator" style="display:none" class="double-indicator">DOUBLE POINTS ACTIVE</div>
     <button class="btn btn-spin" id="btnSpin" onclick="spinWheel()">🎡 Spin the Wheel</button>
+    <div class="timer-box idle" id="timerBox">
+      <div class="timer-label" id="timerLabel">Turn Timer</div>
+      <div class="timer-value" id="timerValue">20</div>
+      <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+      <div class="timer-actions">
+        <button class="btn btn-secondary btn-small" id="btnTimerPause" onclick="toggleTimerPause()">Pause</button>
+        <button class="btn btn-secondary btn-small" onclick="restartTurnTimer()">Restart</button>
+      </div>
+      <div class="timer-cfg">
+        <label><input type="checkbox" id="timerEnabled" checked onchange="onTimerToggle()"> Timer on</label>
+        <input type="number" id="timerSeconds" min="5" max="120" step="5" value="20" onchange="onTimerSecondsChange()"> sec
+      </div>
+    </div>
     <div class="instructions">
       <strong>Quick Guide:</strong> Spin → Guess consonant or buy vowel → Solve when ready. Host controls below.
     </div>
@@ -448,6 +479,7 @@ function spinWheel() {
   if (isSpinning || puzzleSolved) return;
   if (mustGuessAfterDouble) return showToast('You must guess a consonant first!', 'warn');
   isSpinning = true;
+  stopTurnTimer();
   document.getElementById('btnSpin').disabled = true;
 
   const spinAmount = Math.PI * 2 * (5 + Math.random() * 5);
@@ -522,6 +554,7 @@ function handleWheelResult(wedge) {
     el.textContent = '$' + wedge.value;
     el.classList.add('points');
     currentWheelValue = wedge.value;
+    startTurnTimer();
     if (doubleActive) {
       mustGuessAfterDouble = true;
       showToast(`$${wedge.value} with DOUBLE active! Now guess a consonant.`, 'info');
@@ -537,6 +570,7 @@ function getCurrentPuzzle() {
 }
 
 function loadPuzzle(index) {
+  stopTurnTimer();
   currentPuzzleIndex = index;
   guessedLetters = new Set();
   revealedLetters = new Set();
@@ -615,6 +649,7 @@ function guessConsonant() {
   if (!letter || !CONSONANTS.has(letter)) return showToast('Enter a valid consonant.', 'warn');
   if (guessedLetters.has(letter)) return showToast(`"${letter}" already guessed.`, 'warn');
 
+  stopTurnTimer();
   guessedLetters.add(letter);
   const puzzle = getCurrentPuzzle();
   const isInPuzzle = puzzle.includes(letter);
@@ -656,6 +691,7 @@ function buyVowel() {
   if (guessedLetters.has(letter)) return showToast(`"${letter}" already guessed.`, 'warn');
   if (scores[currentTeam] < 250) return showToast('Not enough points! Need $250.', 'error');
 
+  stopTurnTimer();
   scores[currentTeam] -= 250;
   guessedLetters.add(letter);
 
@@ -686,6 +722,7 @@ function solvePuzzle() {
 
   if (!guess) return showToast('Enter your solve attempt.', 'warn');
 
+  stopTurnTimer();
   if (guess === getCurrentPuzzle()) {
     // reveal all
     for (let ch of getCurrentPuzzle()) {
@@ -705,6 +742,7 @@ const SOLVE_BONUS = 1000;
 const SOLVE_PENALTY = 500;
 
 function solvePuzzleSuccess() {
+  stopTurnTimer();
   puzzleSolved = true;
   solvedPuzzles.add(puzzleOrder[currentPuzzleIndex]);
   scores[currentTeam] += SOLVE_BONUS;
@@ -766,6 +804,7 @@ function updateScoreboard() {
 }
 
 function nextTeam() {
+  stopTurnTimer();
   currentTeam = (currentTeam + 1) % 3;
   currentWheelValue = 0;
   doubleActive = false;
@@ -777,6 +816,7 @@ function nextTeam() {
 }
 
 function autoAdvanceTeam() {
+  stopTurnTimer();
   setTimeout(() => {
     currentTeam = (currentTeam + 1) % 3;
     currentWheelValue = 0;
@@ -790,6 +830,7 @@ function autoAdvanceTeam() {
 }
 
 function setTeamPrompt() {
+  stopTurnTimer();
   const t = prompt('Set active team (1, 2, or 3):');
   const n = parseInt(t);
   if (n >= 1 && n <= 3) {
@@ -860,6 +901,128 @@ function newGame() {
   currentPuzzleIndex = 0;
   loadPuzzle(0);
   updateScoreboard();
+}
+
+// =========================================
+// TURN TIMER
+// =========================================
+let timerDuration   = 20;     // seconds per turn, host-configurable
+let timerRemaining  = 20;
+let timerHandle     = null;
+let timerPaused     = false;
+let timerRunning    = false;
+let timerDeadline   = 0;      // wall-clock ms when the turn expires
+
+function timerIsOn() {
+  const cb = document.getElementById('timerEnabled');
+  return cb ? cb.checked : true;
+}
+
+function renderTimer() {
+  const box = document.getElementById('timerBox');
+  const val = document.getElementById('timerValue');
+  const fill = document.getElementById('timerFill');
+  const label = document.getElementById('timerLabel');
+  const secs = Math.max(0, Math.ceil(timerRemaining));
+
+  val.textContent = secs;
+  fill.style.width = (timerDuration > 0 ? Math.max(0, timerRemaining / timerDuration) * 100 : 0) + '%';
+
+  box.classList.remove('warn', 'danger', 'idle', 'paused');
+  if (!timerRunning) {
+    box.classList.add('idle');
+    label.textContent = timerIsOn() ? 'Turn Timer' : 'Timer Off';
+  } else if (timerPaused) {
+    box.classList.add('paused');
+    label.textContent = 'Paused';
+  } else {
+    label.textContent = 'Time Remaining';
+    if (secs <= 5) box.classList.add('danger');
+    else if (secs <= 10) box.classList.add('warn');
+  }
+}
+
+function startTurnTimer() {
+  stopTurnTimer();
+  if (!timerIsOn() || puzzleSolved) { renderTimer(); return; }
+
+  timerRunning  = true;
+  timerPaused   = false;
+  timerRemaining = timerDuration;
+  timerDeadline = performance.now() + timerDuration * 1000;
+  document.getElementById('btnTimerPause').textContent = 'Pause';
+
+  let lastWholeSecond = Math.ceil(timerRemaining);
+  timerHandle = setInterval(() => {
+    if (timerPaused) return;
+    timerRemaining = (timerDeadline - performance.now()) / 1000;
+
+    // audible tick over the final 5 seconds, once per second
+    const whole = Math.ceil(timerRemaining);
+    if (whole !== lastWholeSecond) {
+      lastWholeSecond = whole;
+      if (whole > 0 && whole <= 5) playTick();
+    }
+
+    if (timerRemaining <= 0) {
+      timerRemaining = 0;
+      renderTimer();
+      onTimerExpired();
+      return;
+    }
+    renderTimer();
+  }, 100);
+
+  renderTimer();
+}
+
+function stopTurnTimer() {
+  if (timerHandle) clearInterval(timerHandle);
+  timerHandle = null;
+  timerRunning = false;
+  timerPaused = false;
+  timerRemaining = timerDuration;
+  const btn = document.getElementById('btnTimerPause');
+  if (btn) btn.textContent = 'Pause';
+  renderTimer();
+}
+
+function onTimerExpired() {
+  stopTurnTimer();
+  showToast("Time's up! Turn passes to the next team.", 'error');
+  autoAdvanceTeam();
+}
+
+function toggleTimerPause() {
+  if (!timerRunning) return showToast('No turn timer is running.', 'warn');
+  timerPaused = !timerPaused;
+  if (timerPaused) {
+    timerRemaining = (timerDeadline - performance.now()) / 1000;
+  } else {
+    timerDeadline = performance.now() + timerRemaining * 1000;
+  }
+  document.getElementById('btnTimerPause').textContent = timerPaused ? 'Resume' : 'Pause';
+  renderTimer();
+}
+
+function restartTurnTimer() {
+  if (!timerIsOn()) return showToast('Turn timer is switched off.', 'warn');
+  startTurnTimer();
+}
+
+function onTimerToggle() {
+  if (!timerIsOn()) stopTurnTimer();
+  renderTimer();
+}
+
+function onTimerSecondsChange() {
+  const input = document.getElementById('timerSeconds');
+  let v = parseInt(input.value, 10);
+  if (isNaN(v) || v < 5) v = 5;
+  if (v > 120) v = 120;
+  input.value = v;
+  timerDuration = v;
+  if (timerRunning) startTurnTimer(); else { timerRemaining = v; renderTimer(); }
 }
 
 // =========================================
